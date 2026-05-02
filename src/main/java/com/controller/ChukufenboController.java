@@ -49,16 +49,6 @@ import java.io.IOException;
 public class ChukufenboController {
     @Autowired
     private ChukufenboService chukufenboService;
-
-
-
-
-
-
-
-
-
-
     /**
      * 后台列表
      */
@@ -181,11 +171,6 @@ public class ChukufenboController {
         chukufenboService.insert(chukufenbo);
         return R.ok().put("data",chukufenbo.getId());
     }
-
-
-
-
-
     /**
      * 修改
      */
@@ -200,9 +185,6 @@ public class ChukufenboController {
     }
 
 
-
-
-
     /**
      * 删除
      */
@@ -212,14 +194,4 @@ public class ChukufenboController {
         chukufenboService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
-
-
-
-
-
-
-
-
-
 }

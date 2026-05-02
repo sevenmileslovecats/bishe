@@ -1,24 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <template>
 	<div class="addEdit-block">
 		<el-form
@@ -303,6 +282,11 @@
 							this.ro.wuzitupian = true;
 							continue;
 						}
+						if(o=='shenlingshuliang'){
+							this.ruleForm.wuzishuliang = obj[o];
+							this.ro.wuzishuliang = true;
+							continue;
+						}
 						if(o=='wuzishuliang'){
 							this.ruleForm.wuzishuliang = obj[o];
 							this.ro.wuzishuliang = true;
@@ -324,8 +308,8 @@
 							continue;
 						}
 					}
-					this.ruleForm.wuzishuliang = 0
-					this.ro.wuzishuliang = false
+					// this.ruleForm.wuzishuliang = 0
+					// this.ro.wuzishuliang = false
 					this.ruleForm.wuliuzhuangtai = '配送中'; 				}
 
 				// 获取用户信息
@@ -381,6 +365,15 @@
 						}
 						if(data.data.jigoumingcheng){
 							this.ruleForm.jigoumingcheng = data.data.jigoumingcheng
+						}
+						if(data.data.wuzitupian){
+							this.ruleForm.wuzitupian = data.data.wuzitupian
+						}
+						// 物资申领表中字段为 shenlingshuliang，出库分拨表中字段为 wuzishuliang。
+						if(data.data.shenlingshuliang !== undefined && data.data.shenlingshuliang !== null && data.data.shenlingshuliang !== ''){
+							this.ruleForm.wuzishuliang = data.data.shenlingshuliang
+						}else if(data.data.wuzishuliang !== undefined && data.data.wuzishuliang !== null && data.data.wuzishuliang !== ''){
+							this.ruleForm.wuzishuliang = data.data.wuzishuliang
 						}
 					} else {
 						this.$message.error(data.msg);

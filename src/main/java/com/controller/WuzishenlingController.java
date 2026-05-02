@@ -218,6 +218,13 @@ public class WuzishenlingController {
     }
 
     private WuzixinxiEntity findWuzixinxi(WuzishenlingEntity wuzishenling) {
+        if(wuzishenling.getWuzixinxiid() != null) {
+            WuzixinxiEntity wuzixinxi = wuzixinxiService.selectById(wuzishenling.getWuzixinxiid());
+            if(wuzixinxi != null) {
+                return wuzixinxi;
+            }
+        }
+
         WuzixinxiEntity wuzixinxi = findWuzixinxiByDonationNo(wuzishenling.getJuanzengbianhao());
         if(wuzixinxi != null) {
             return wuzixinxi;
