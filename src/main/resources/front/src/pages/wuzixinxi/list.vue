@@ -278,7 +278,7 @@
 				let user = JSON.parse(localStorage.getItem('sessionForm'))
 				if (this.sortType) searchWhere.sort = this.sortType
 				if (this.sortOrder) searchWhere.order = this.sortOrder
-				this.$http.get(`wuzixinxi/${this.centerType?'page':'list'}`, {params: Object.assign(params, searchWhere)}).then(async res => {
+				this.$http.get(`wuzixinxi/${this.centerType?'page/jg':'list'}`, {params: Object.assign(params, searchWhere)}).then(async res => {
 					if (res.data.code == 0) {
 						this.dataList = res.data.data.list;
 						this.total = Number(res.data.data.total);

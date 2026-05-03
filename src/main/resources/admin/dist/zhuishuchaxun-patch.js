@@ -75,6 +75,7 @@
 		style.id = 'trace-query-style'
 		style.textContent = ''
 			+ '.trace-page{padding:50px 30px 30px}.trace-query{padding:30px 20px 20px;margin:0 0 20px;border:solid #ff9164;border-width:4px 0 0;border-radius:8px;background:#fff}.trace-query-line{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.trace-label{white-space:nowrap;color:#666;font-size:16px;font-weight:500}.trace-input{width:280px;height:36px;border:1px solid #ddd;border-radius:4px;padding:0 12px;color:#333;font-size:16px;box-sizing:border-box}.trace-btn{height:36px;border:0;border-radius:4px;padding:0 18px;background:#ff7d55;color:#fff;font-size:16px;cursor:pointer}.trace-btn.secondary{border:1px solid #ddd;background:#fff;color:#666}.trace-shell{padding:20px;border:solid #ff9164;border-width:4px 0 0;border-radius:8px;background:#fff}.trace-empty{padding:42px 20px;color:#909399;text-align:center;background:#fff;border-radius:8px}.trace-warning{margin:0 0 10px;padding:10px 12px;border-radius:4px;background:#fdf6ec;color:#ad6d18}.summary-band{padding:18px 20px;margin-bottom:18px;border:1px solid #eee;border-radius:8px;background:#fbfcff}.summary-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;color:#27364a;font-size:20px;font-weight:700}.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:12px}.summary-grid div{padding:12px;border-radius:6px;background:#fff}.summary-grid p,.node-fields p{margin:0}.summary-grid p,.node-fields span,.section-head span,.branch-meta{color:#7a8391;font-size:13px}.summary-grid strong,.node-fields strong{display:block;margin-top:6px;color:#2f3a4a;font-size:15px;font-weight:600;word-break:break-all}.tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:4px;font-size:12px}.tag.success{background:#f0f9eb;color:#67c23a}.tag.warning{background:#fdf6ec;color:#e6a23c}.tag.danger{background:#fef0f0;color:#f56c6c}.tag.info{background:#f4f4f5;color:#909399}.flow-section{margin-top:18px}.section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}.section-head h3{margin:0;color:#27364a;font-size:18px}.flow-row,.branch-flow{display:flex;align-items:stretch;gap:28px;overflow-x:auto;padding:6px 4px 16px}.flow-node{position:relative;flex:0 0 260px;min-height:160px;padding:16px;border:1px solid #d7dee8;border-radius:8px;background:#fff;box-shadow:0 8px 22px rgba(39,54,74,.06);box-sizing:border-box}.flow-node.compact{flex-basis:230px;min-height:170px}.flow-node.has-next:after{content:"";position:absolute;top:50%;right:-28px;width:28px;height:2px;background:#cbd5e1}.flow-node.has-next:before{content:"";position:absolute;top:calc(50% - 5px);right:-30px;border:6px solid transparent;border-left-color:#cbd5e1}.node-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.node-index{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#edf2f7;color:#4a5568;font-weight:700}.flow-node h4{margin:14px 0 12px;color:#27364a;font-size:17px}.node-fields{display:grid;gap:8px}.state-done{border-color:#67c23a;background:#fbfff8}.state-done .node-index{background:#e6f7df;color:#2f8f1f}.state-pending{border-color:#e6a23c;background:#fffaf0}.state-pending .node-index{background:#fdf0d4;color:#b56a00}.state-danger{border-color:#f56c6c;background:#fff7f7}.state-danger .node-index{background:#fde2e2;color:#c73939}.state-missing{border-color:#cbd5e1;background:#f8fafc}.state-missing .node-index{background:#e2e8f0;color:#64748b}.branch-list{display:grid;gap:18px}.branch-panel{padding:18px;border:1px solid #eee;border-radius:8px;background:#fff}.branch-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.branch-head strong{color:#27364a;font-size:17px}.branch-number{display:inline-block;margin-right:10px;padding:4px 8px;border-radius:4px;background:#eaf4ff;color:#3179c3;font-weight:600}.branch-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.feedback-split{position:relative;display:grid;grid-template-columns:repeat(2,230px);gap:14px;padding-left:8px}.split-line{position:absolute;top:50%;left:-28px;width:28px;height:2px;background:#cbd5e1}.detail-toggle{margin-top:6px;border-top:1px solid #ebeef5}.detail-toggle summary{cursor:pointer;padding:12px 0;color:#3179c3;font-weight:600}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px}.detail-box{padding:12px;border:1px solid #ebeef5;border-radius:6px}.detail-box h5{margin:0 0 8px;color:#27364a;font-size:15px}.detail-box pre{margin:0;white-space:pre-wrap;word-break:break-all;color:#555;font-size:13px}.trace-error{margin-top:12px;color:#f56c6c}@media(max-width:900px){.trace-page{padding:24px 12px}.summary-grid{grid-template-columns:repeat(2,minmax(130px,1fr))}.branch-head{align-items:flex-start;flex-direction:column}.branch-meta{justify-content:flex-start}}@media(max-width:560px){.trace-input{width:100%}.trace-query-line{align-items:stretch;flex-direction:column}.summary-grid{grid-template-columns:1fr}.feedback-split{grid-template-columns:230px}}'
+		style.textContent += '.detail-box{background:#fbfcff}.detail-box-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.detail-box-head h5{margin:0;color:#27364a;font-size:15px}.detail-record{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;margin-top:10px;padding:12px;border-radius:6px;background:#fff}.detail-item span{display:block;margin-bottom:5px;color:#7a8391;font-size:12px}.detail-item strong{display:block;color:#2f3a4a;font-size:14px;font-weight:600;line-height:1.45;word-break:break-all}.detail-empty{padding:20px 8px;color:#909399;text-align:center;background:#fff;border-radius:6px}@media(max-width:560px){.detail-record{grid-template-columns:1fr}}'
 		document.head.appendChild(style)
 	}
 
@@ -178,8 +179,20 @@
 			+ '<h4>' + escapeHtml(node.title) + '</h4><div class="node-fields">' + fields + '</div></div>'
 	}
 
-	function jsonBox(title, data) {
-		return '<div class="detail-box"><h5>' + escapeHtml(title) + '</h5><pre>' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre></div>'
+	function detailSection(title, list, fields) {
+		var records = asList(list)
+		var html = '<div class="detail-box"><div class="detail-box-head"><h5>' + escapeHtml(title) + '</h5>' + tag(records.length ? '已记录' : '暂无', records.length ? 'success' : 'info') + '</div>'
+		if (!records.length) {
+			return html + '<div class="detail-empty">暂无' + escapeHtml(title) + '</div></div>'
+		}
+		for (var i = 0; i < records.length; i++) {
+			html += '<div class="detail-record">'
+			for (var j = 0; j < fields.length; j++) {
+				html += '<div class="detail-item"><span>' + escapeHtml(fields[j][0]) + '</span><strong>' + field(records[i], fields[j][1]) + '</strong></div>'
+			}
+			html += '</div>'
+		}
+		return html + '</div>'
 	}
 
 	function buildMainNodes(data) {
@@ -204,7 +217,6 @@
 				state: acceptList.length ? stateOf(latestAccept, ['yanshoujieguo']) : 'missing',
 				tagType: acceptList.length ? tagType(statusOf(latestAccept, '已验收')) : 'info',
 				fields: [
-					{ label: '记录数', value: acceptList.length },
 					{ label: '验收人', value: rawField(latestAccept, 'yanshouren') || '无' },
 					{ label: '验收时间', value: rawField(latestAccept, 'yanshoushijian') || '无' }
 				]
@@ -222,10 +234,6 @@
 		var latestReceive = receiveList[receiveList.length - 1] || {}
 		var latestUse = useList[useList.length - 1] || {}
 		var latestObjection = objectionList[objectionList.length - 1] || {}
-		var warnings = ''
-		asList(item.warnings).forEach(function (warning) {
-			warnings += '<div class="trace-warning">' + escapeHtml(warning) + '</div>'
-		})
 		var before = [
 			{
 				title: '物资申领',
@@ -246,7 +254,7 @@
 				tagType: outList.length ? tagType(statusOf(latestOut, '已出库')) : 'info',
 				compact: true,
 				fields: [
-					{ label: '记录数', value: outList.length },
+					{ label: '出库时间', value: rawField(latestOut, 'chukushijian') || '无' },
 					{ label: '出库数量', value: rawField(latestOut, 'wuzishuliang') || '无' },
 					{ label: '物流状态', value: rawField(latestOut, 'wuliuzhuangtai') || '无' }
 				]
@@ -258,9 +266,9 @@
 				tagType: receiveList.length ? 'success' : 'info',
 				compact: true,
 				fields: [
-					{ label: '记录数', value: receiveList.length },
+					{ label: '签收时间', value: rawField(latestReceive, 'qianshoushijian') || '无' },
 					{ label: '签收数量', value: rawField(latestReceive, 'wuzishuliang') || '无' },
-					{ label: '签收时间', value: rawField(latestReceive, 'qianshoushijian') || '无' }
+					{ label: '接收机构', value: rawField(latestReceive, 'jigoumingcheng') || '无' }
 				]
 			}
 		]
@@ -304,23 +312,18 @@
 		return '<div class="branch-panel">'
 			+ '<div class="branch-head"><div><span class="branch-number">分支 ' + (index + 1) + '</span><strong>' + field(claim, 'shenlingbianhao') + '</strong></div>'
 			+ '<div class="branch-meta">' + tag(rawField(claim, 'sfsh') || '无', tagType(rawField(claim, 'sfsh'))) + '<span>' + field(claim, 'jigoumingcheng') + '</span><span>' + field(claim, 'quyu') + '</span></div></div>'
-			+ warnings
 			+ '<div class="branch-flow">' + beforeHtml + feedbackHtml + '</div>'
 			+ '<details class="detail-toggle"><summary>查看分支明细</summary><div class="detail-grid">'
-			+ jsonBox('出库记录', outList)
-			+ jsonBox('接收记录', receiveList)
-			+ jsonBox('使用反馈', useList)
-			+ jsonBox('异议反馈', objectionList)
+			+ detailSection('出库记录', outList, [['出库时间', 'chukushijian'], ['出库数量', 'wuzishuliang'], ['物流状态', 'wuliuzhuangtai']])
+			+ detailSection('接收记录', receiveList, [['签收时间', 'qianshoushijian'], ['签收数量', 'wuzishuliang'], ['接收机构', 'jigoumingcheng']])
+			+ detailSection('使用反馈', useList, [['反馈时间', 'fankuishijian'], ['使用人数', 'shiyongrenshu'], ['具体用途', 'jutiyongtu'], ['使用效果', 'shiyongxiaoguo']])
+			+ detailSection('异议反馈', objectionList, [['提交时间', 'tijiaoshijian'], ['异议内容', 'yiyifankui'], ['审核状态', 'sfsh'], ['审核回复', 'shhf']])
 			+ '</div></details></div>'
 	}
 
 	function renderData() {
 		var data = state.data || {}
 		var donation = data.juanzengwuzi || {}
-		var warnings = ''
-		asList(data.warnings).forEach(function (warning) {
-			warnings += '<div class="trace-warning">' + escapeHtml(warning) + '</div>'
-		})
 		var mainHtml = ''
 		var mainNodes = buildMainNodes(data)
 		for (var i = 0; i < mainNodes.length; i++) {
@@ -334,7 +337,7 @@
 		if (!branchList) {
 			branchList = '<div class="trace-empty">暂无申领分支</div>'
 		}
-		return '<div class="trace-shell">' + warnings
+		return '<div class="trace-shell">'
 			+ '<div class="summary-band"><div class="summary-title"><span>' + field(donation, 'wuzimingcheng') + '</span>' + tag(rawField(donation, 'yanshouzhuangtai') || '无', tagType(rawField(donation, 'yanshouzhuangtai'))) + '</div>'
 			+ '<div class="summary-grid"><div><p>捐赠编号</p><strong>' + field(donation, 'juanzengbianhao') + '</strong></div><div><p>物资种类</p><strong>' + field(donation, 'wuzizhonglei') + '</strong></div><div><p>物资数量</p><strong>' + field(donation, 'wuzishuliang') + '</strong></div><div><p>捐赠时间</p><strong>' + field(donation, 'juanzengshijian') + '</strong></div></div></div>'
 			+ '<section class="flow-section"><div class="section-head"><h3>主流程</h3><span>捐赠记录到验收记录</span></div><div class="flow-row">' + mainHtml + '</div></section>'

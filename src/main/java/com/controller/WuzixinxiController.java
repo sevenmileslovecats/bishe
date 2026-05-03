@@ -77,6 +77,24 @@ public class WuzixinxiController {
         return R.ok().put("data", page);
     }
 
+    /**
+     * 接收机构列表(过滤物资数量=0)
+     */
+    @RequestMapping("/page/jg")
+    public R pageJg(@RequestParam Map<String, Object> params,WuzixinxiEntity wuzixinxi,
+		HttpServletRequest request){
+        //设置查询条件
+        EntityWrapper<WuzixinxiEntity> ew = new EntityWrapper<WuzixinxiEntity>();
+		ew.gt("wuzishuliang", 0);
+
+        //查询结果
+		PageUtils page = wuzixinxiService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, wuzixinxi), params), params));
+        Map<String, String> deSens = new HashMap<>();
+        //给需要脱敏的字段脱敏
+        DeSensUtil.desensitize(page,deSens);
+        return R.ok().put("data", page);
+    }
+
 
     /**
      * 前台列表

@@ -18,17 +18,6 @@
 		</el-form>
 
 		<div v-if="data" class="trace-shell">
-			<div v-if="allWarnings.length" class="warning-list">
-				<el-alert
-					v-for="(warning, index) in allWarnings"
-					:key="index"
-					:title="warning"
-					type="warning"
-					:closable="false"
-					show-icon
-				></el-alert>
-			</div>
-
 			<div class="summary-band">
 				<div class="summary-title">
 					<span>{{ field(data.juanzengwuzi, 'wuzimingcheng') }}</span>
@@ -103,16 +92,6 @@
 							</div>
 						</div>
 
-						<div v-if="branch.warnings.length" class="branch-warnings">
-							<el-alert
-								v-for="(warning, warningIndex) in branch.warnings"
-								:key="warningIndex"
-								:title="warning"
-								type="info"
-								:closable="false"
-							></el-alert>
-						</div>
-
 						<div class="branch-flow">
 							<div
 								v-for="(node, nodeIndex) in branch.beforeFeedback"
@@ -158,43 +137,29 @@
 
 						<el-collapse class="detail-collapse">
 							<el-collapse-item title="查看分支明细" :name="branch.key">
-								<el-tabs type="border-card">
-									<el-tab-pane label="出库记录">
-										<el-table :data="branch.raw.chukufenboList" border>
-											<el-table-column type="index" label="序号" width="60"></el-table-column>
-											<el-table-column prop="chukushijian" label="出库时间" width="180"></el-table-column>
-											<el-table-column prop="wuzishuliang" label="出库数量" width="100"></el-table-column>
-											<el-table-column prop="wuliuzhuangtai" label="物流状态" width="120"></el-table-column>
-											<el-table-column prop="chukudan" label="出库单"></el-table-column>
-										</el-table>
-									</el-tab-pane>
-									<el-tab-pane label="接收记录">
-										<el-table :data="branch.raw.jieshouxinxiList" border>
-											<el-table-column type="index" label="序号" width="60"></el-table-column>
-											<el-table-column prop="qianshoushijian" label="签收时间" width="180"></el-table-column>
-											<el-table-column prop="wuzishuliang" label="签收数量" width="100"></el-table-column>
-											<el-table-column prop="chukudan" label="出库单"></el-table-column>
-										</el-table>
-									</el-tab-pane>
-									<el-tab-pane label="使用反馈">
-										<el-table :data="branch.raw.shiyongfankuiList" border>
-											<el-table-column type="index" label="序号" width="60"></el-table-column>
-											<el-table-column prop="fankuishijian" label="反馈时间" width="180"></el-table-column>
-											<el-table-column prop="shiyongrenshu" label="使用人数" width="100"></el-table-column>
-											<el-table-column prop="shiyongxiaoguo" label="使用效果"></el-table-column>
-											<el-table-column prop="jutiyongtu" label="具体用途"></el-table-column>
-										</el-table>
-									</el-tab-pane>
-									<el-tab-pane label="异议反馈">
-										<el-table :data="branch.raw.yiyifankuiList" border>
-											<el-table-column type="index" label="序号" width="60"></el-table-column>
-											<el-table-column prop="tijiaoshijian" label="提交时间" width="180"></el-table-column>
-											<el-table-column prop="yiyifankui" label="异议内容"></el-table-column>
-											<el-table-column prop="sfsh" label="审核状态" width="100"></el-table-column>
-											<el-table-column prop="shhf" label="审核回复"></el-table-column>
-										</el-table>
-									</el-tab-pane>
-								</el-tabs>
+								<div class="branch-detail-grid">
+									<div v-for="section in branch.details" :key="section.key" class="detail-card">
+										<div class="detail-card-title">
+											<span>{{ section.title }}</span>
+											<el-tag size="mini" :type="section.records.length ? 'success' : 'info'">
+												{{ section.records.length ? '已记录' : '暂无' }}
+											</el-tag>
+										</div>
+										<el-empty
+											v-if="!section.records.length"
+											:description="'暂无' + section.title"
+											:image-size="48"
+										></el-empty>
+										<div v-else class="detail-records">
+											<div v-for="(record, recordIndex) in section.records" :key="recordIndex" class="detail-record">
+												<div v-for="item in record" :key="item.label" class="detail-item">
+													<span>{{ item.label }}</span>
+													<strong>{{ item.value }}</strong>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
 							</el-collapse-item>
 						</el-collapse>
 					</div>
@@ -218,9 +183,6 @@ export default {
 		}
 	},
 	computed: {
-		allWarnings() {
-			return (this.data && this.data.warnings) ? this.data.warnings : []
-		},
 		mainNodes() {
 			if (!this.data) {
 				return []
@@ -279,7 +241,6 @@ export default {
 					key: 'branch-' + index,
 					title: this.field(claim, 'shenlingbianhao'),
 					claim,
-					warnings: this.asList(item.warnings),
 					raw: {
 						chukufenboList: outList,
 						jieshouxinxiList: receiveList,
@@ -306,7 +267,7 @@ export default {
 							state: outState,
 							tagType: outList.length ? this.tagType(this.resolveStatus(latestOut, '已出库')) : 'info',
 							fields: [
-								{ label: '记录数', value: outList.length },
+								{ label: '出库时间', value: this.field(latestOut, 'chukushijian') },
 								{ label: '出库数量', value: this.field(latestOut, 'wuzishuliang') },
 								{ label: '物流状态', value: this.field(latestOut, 'wuliuzhuangtai') }
 							]
@@ -318,9 +279,9 @@ export default {
 							state: receiveState,
 							tagType: receiveList.length ? 'success' : 'info',
 							fields: [
-								{ label: '记录数', value: receiveList.length },
+								{ label: '签收时间', value: this.field(latestReceive, 'qianshoushijian') },
 								{ label: '签收数量', value: this.field(latestReceive, 'wuzishuliang') },
-								{ label: '签收时间', value: this.field(latestReceive, 'qianshoushijian') }
+								{ label: '接收机构', value: this.field(latestReceive, 'jigoumingcheng') }
 							]
 						}
 					],
@@ -351,6 +312,30 @@ export default {
 								{ label: '提交时间', value: this.field(latestObjection, 'tijiaoshijian') }
 							]
 						}
+					],
+					details: [
+						this.detailSection('out-' + index, '出库记录', outList, [
+							['出库时间', 'chukushijian'],
+							['出库数量', 'wuzishuliang'],
+							['物流状态', 'wuliuzhuangtai']
+						]),
+						this.detailSection('receive-' + index, '接收记录', receiveList, [
+							['签收时间', 'qianshoushijian'],
+							['签收数量', 'wuzishuliang'],
+							['接收机构', 'jigoumingcheng']
+						]),
+						this.detailSection('use-' + index, '使用反馈', useList, [
+							['反馈时间', 'fankuishijian'],
+							['使用人数', 'shiyongrenshu'],
+							['具体用途', 'jutiyongtu'],
+							['使用效果', 'shiyongxiaoguo']
+						]),
+						this.detailSection('objection-' + index, '异议反馈', objectionList, [
+							['提交时间', 'tijiaoshijian'],
+							['异议内容', 'yiyifankui'],
+							['审核状态', 'sfsh'],
+							['审核回复', 'shhf']
+						])
 					]
 				}
 			})
@@ -392,6 +377,16 @@ export default {
 				return '无'
 			}
 			return row[key]
+		},
+		detailSection(key, title, list, fields) {
+			return {
+				key,
+				title,
+				records: this.asList(list).map(row => fields.map(item => ({
+					label: item[0],
+					value: this.field(row, item[1])
+				})))
+			}
 		},
 		resolveStatus(row, fallback) {
 			if (!row) {
@@ -516,13 +511,6 @@ export default {
 	border-width: 4px 0 0;
 	border-radius: 8px;
 	background: #fff;
-}
-
-.warning-list,
-.branch-warnings {
-	display: grid;
-	gap: 10px;
-	margin-bottom: 16px;
 }
 
 .summary-band {
@@ -783,8 +771,59 @@ export default {
 	font-weight: 600;
 }
 
-.detail-collapse /deep/ .el-tabs--border-card {
-	box-shadow: none;
+.branch-detail-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(240px, 1fr));
+	gap: 12px;
+	padding: 4px 0 12px;
+}
+
+.detail-card {
+	padding: 14px;
+	border: 1px solid #e4ebf3;
+	border-radius: 8px;
+	background: #fbfcff;
+}
+
+.detail-card-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 12px;
+	color: #27364a;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.detail-records {
+	display: grid;
+	gap: 10px;
+}
+
+.detail-record {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px 14px;
+	padding: 12px;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.detail-item span {
+	display: block;
+	margin-bottom: 5px;
+	color: #7a8391;
+	font-size: 12px;
+}
+
+.detail-item strong {
+	display: block;
+	color: #2f3a4a;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.45;
+	word-break: break-all;
 }
 
 .el-table /deep/ .el-table__header-wrapper thead tr th {
@@ -809,6 +848,10 @@ export default {
 	.branch-meta {
 		justify-content: flex-start;
 	}
+
+	.branch-detail-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 560px) {
@@ -827,6 +870,10 @@ export default {
 
 	.feedback-split {
 		grid-template-columns: 230px;
+	}
+
+	.detail-record {
+		grid-template-columns: 1fr;
 	}
 }
 </style>
