@@ -19,6 +19,13 @@
 							<span class="icon iconfont" :class="showPassword?'icon-liulan13':'icon-liulan17'" @click="showPassword=!showPassword"></span>
 						</div>
 					</div>
+					<div v-if="loginType==1" class="list-item captcha-item">
+						<div class="lable">
+							<span class="icon iconfont icon-chakan13"></span>
+						</div>
+						<input placeholder="请输入验证码：" name="captcha" type="text" maxlength="4" v-model="rulesForm.captcha" @keyup.enter="login()">
+						<img class="captcha-img" :src="captchaUrl" @click="refreshCaptcha" title="点击刷新验证码">
+					</div>
 
 					<div class="list-item select" v-if="roles.length>1&&loginType<=2">
 						<div class="lable">
@@ -60,12 +67,14 @@
 					username: "",
 					password: "",
 					role: "",
+					captcha: "",
 				},
 				menus: [],
 				roles: [],
 				tableName: "",
 				showPassword: false,
 				indexBgUrl: '',
+				captchaUrl: '',
 			};
 		},
 		mounted() {
@@ -77,6 +86,7 @@
 					this.roles.push(this.menus[i])
 				}
 			}
+			this.refreshCaptcha();
 
 		},
 		created() {
@@ -105,6 +115,10 @@
 						this.$message.error("请输入密码");
 						return;
 					}
+					if (!this.rulesForm.captcha) {
+						this.$message.error("请输入验证码");
+						return;
+					}
 					if(this.roles.length>1) {
 						if (!this.rulesForm.role) {
 							this.$message.error("请选择角色");
@@ -124,10 +138,18 @@
 		
 				this.loginPost()
 			},
+			refreshCaptcha() {
+				this.captchaUrl = `/springboot02b8755d/captcha?time=${new Date().getTime()}`;
+			},
 			loginPost() {
 				this.$http({
-					url: `${this.tableName}/login?username=${this.rulesForm.username}&password=${this.rulesForm.password}`,
-					method: "post"
+					url: `${this.tableName}/login`,
+					method: "post",
+					params: {
+						username: this.rulesForm.username,
+						password: this.rulesForm.password,
+						captcha: this.rulesForm.captcha
+					}
 				}).then(({ data }) => {
 					if (data && data.code === 0) {
 						this.$storage.set("Token", data.token);
@@ -163,6 +185,8 @@
 					}
 					else {
 						this.$message.error(data.msg);
+						this.rulesForm.captcha = "";
+						this.refreshCaptcha();
 					}
 				});
 			},
@@ -295,6 +319,16 @@
 					position: absolute;
 					right: 5px;
 				}
+			}
+			.captcha-img {
+				border: 1px solid #ff916450;
+				border-radius: 6px;
+				cursor: pointer;
+				margin: 4px 0 4px 10px;
+				width: 120px;
+				height: 36px;
+				object-fit: cover;
+				flex: 0 0 120px;
 			}
 			input::placeholder {
 				color: #666;

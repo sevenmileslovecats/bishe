@@ -19,6 +19,13 @@
 							<span class="icon iconfont" :class="showPassword?'icon-liulan13':'icon-liulan17'" @click="showPassword=!showPassword"></span>
 						</div>
 					</div>
+					<div v-if="loginType==1" class="list-item captcha-item" prop="captcha">
+						<div class="lable">
+							验证码：
+						</div>
+						<input v-model="loginForm.captcha" placeholder="请输入验证码：" maxlength="4" @keyup.enter="submitForm('loginForm')">
+						<img class="captcha-img" :src="captchaUrl" @click="refreshCaptcha" title="点击刷新验证码">
+					</div>
 
 					<div class="list-item" v-if="roles.length>1&&loginType<=2">
 						<div class="lable">
@@ -59,6 +66,7 @@ export default {
 				username: '',
 				password: '',
 				tableName: '',
+				captcha: '',
 			},
 			role: '',
 			roles: [],
@@ -69,33 +77,16 @@ export default {
 				],
 				password: [
 					{ required: true, message: '请输入密码', trigger: 'blur' }
+				],
+				captcha: [
+					{ required: true, message: '请输入验证码', trigger: 'blur' }
 				]
 			},
-			codes: [{
-				num: 1,
-				color: '#000',
-				rotate: '10deg',
-				size: '16px'
-			}, {
-				num: 2,
-				color: '#000',
-				rotate: '10deg',
-				size: '16px'
-			}, {
-				num: 3,
-				color: '#000',
-				rotate: '10deg',
-				size: '16px'
-			}, {
-				num: 4,
-				color: '#000',
-				rotate: '10deg',
-				size: '16px'
-			}],
 			flag: false,
 			verifyCheck2: false,
 			showPassword: false,
-			indexBgUrl: ''
+			indexBgUrl: '',
+			captchaUrl: ''
 		}
 	},
 	components: {
@@ -111,49 +102,18 @@ export default {
 				this.roles2.push(this.roleMenus[item]);
 			}
 		}
+		this.refreshCaptcha();
 		
 	},
 	mounted() {
 	},
 	//方法集合
 	methods: {
-		randomString() {
-			var len = 4;
-			var chars = [
-				'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-				'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-				'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-				'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-				'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2',
-				'3', '4', '5', '6', '7', '8', '9'
-			]
-			var colors = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-			var sizes = ['14', '15', '16', '17', '18']
-			
-			var output = []
-			for (var i = 0; i < len; i++) {
-				// 随机验证码
-				var key = Math.floor(Math.random() * chars.length)
-				this.codes[i].num = chars[key]
-				// 随机验证码颜色
-				var code = '#'
-				for (var j = 0; j < 6; j++) {
-					var key = Math.floor(Math.random() * colors.length)
-					code += colors[key]
-				}
-				this.codes[i].color = code
-				// 随机验证码方向
-				var rotate = Math.floor(Math.random() * 45)
-				var plus = Math.floor(Math.random() * 2)
-				if (plus == 1) rotate = '-' + rotate
-				this.codes[i].rotate = 'rotate(' + rotate + 'deg)'
-				// 随机验证码字体大小
-				var size = Math.floor(Math.random() * sizes.length)
-				this.codes[i].size = sizes[size] + 'px'
-			}
-		},
 		getCurrentRow(row) {
 			this.role = row.roleName;
+		},
+		refreshCaptcha() {
+			this.captchaUrl = `/springboot02b8755d/captcha?time=${new Date().getTime()}`;
 		},
 		submitForm(formName) {
 			if(this.loginType==1) {
@@ -172,6 +132,10 @@ export default {
 				}
 				if (!this.loginForm.password) {
 					this.$message.error("请输入密码");
+					return;
+				}
+				if (!this.loginForm.captcha) {
+					this.$message.error("请输入验证码");
 					return;
 				}
 			}
@@ -198,6 +162,8 @@ export default {
 						} 
 						else {
 							this.$message.error(res.data.msg);
+							this.loginForm.captcha = '';
+							this.refreshCaptcha();
 						}
 					});
 				} else {
@@ -323,6 +289,16 @@ export default {
 							position: absolute;
 							right: 15px;
 						}
+					}
+					.captcha-img {
+						border: 1px solid #ccc;
+						border-radius: 4px;
+						cursor: pointer;
+						margin-left: 10px;
+						width: 120px;
+						height: 36px;
+						object-fit: cover;
+						flex: 0 0 120px;
 					}
 					input::placeholder {
 						color: #123;

@@ -1,7 +1,9 @@
 // var webpack = require('webpack');
 //vue2
 const path = require('path')
-const AutoDllPlugin = require('autodll-webpack-plugin');
+const AutoDllPlugin = function() {
+	this.apply = function() {}
+}
 function resolve(dir) {
 	return path.join(__dirname, dir)
 }
@@ -17,6 +19,7 @@ module.exports = {
 	// publicPath:"././",
 	// 9812
 	publicPath: publicPath(),
+	parallel: false,
 	// 国际化配置 使用其它语言，默认情况下中文语言包依旧是被引入的
 	configureWebpack: {
 		plugins: [
@@ -53,6 +56,10 @@ lintOnSave: false,
 		}
 	},
 chainWebpack(config) {
+	config.optimization.minimizer('terser').tap(args => {
+		args[0].parallel = false
+		return args
+	})
 	config.module
 	  .rule('svg')
 	  .exclude.add(resolve('src/icons'))

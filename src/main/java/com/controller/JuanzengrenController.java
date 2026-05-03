@@ -67,6 +67,9 @@ public class JuanzengrenController {
 	@IgnoreAuth
 	@RequestMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
+		if(!VerifyCodeUtils.validateCaptcha(request, captcha)) {
+			return R.error("\u9a8c\u8bc1\u7801\u9519\u8bef");
+		}
 		// 根据登录查询用户信息
         JuanzengrenEntity u = juanzengrenService.selectOne(new EntityWrapper<JuanzengrenEntity>().eq("zhanghao", username));
         // 判断用户锁定状态

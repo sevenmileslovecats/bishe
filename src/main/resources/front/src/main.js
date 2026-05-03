@@ -47,6 +47,7 @@ Vue.component('editor', Editor);
 Vue.component('aplayer', aplayer);
 
 Vue.http.options.root = config.name;
+Vue.http.options.credentials = true;
 Vue.http.headers.common['Token'] = localStorage.getItem('frontToken');
 Vue.http.interceptors.push(function(request, next) {
 	next((response) => {
