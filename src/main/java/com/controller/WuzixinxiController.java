@@ -50,6 +50,9 @@ public class WuzixinxiController {
     @Autowired
     private WuzixinxiService wuzixinxiService;
 
+    @Autowired
+    private WuziRecommendService wuziRecommendService;
+
 
 
 
@@ -86,6 +89,7 @@ public class WuzixinxiController {
         //设置查询条件
         EntityWrapper<WuzixinxiEntity> ew = new EntityWrapper<WuzixinxiEntity>();
 		ew.gt("wuzishuliang", 0);
+		ew.ge("baozhiqi", todayStart());
 
         //查询结果
 		PageUtils page = wuzixinxiService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, wuzixinxi), params), params));
@@ -93,6 +97,23 @@ public class WuzixinxiController {
         //给需要脱敏的字段脱敏
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
+    }
+
+    /**
+     * 接收机构智能推荐物资
+     */
+    @RequestMapping("/intelligentRecommend")
+    public R intelligentRecommend(HttpServletRequest request){
+        return wuziRecommendService.recommend(request);
+    }
+
+    private Date todayStart() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 
 

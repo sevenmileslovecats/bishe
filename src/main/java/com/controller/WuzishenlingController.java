@@ -205,6 +205,9 @@ public class WuzishenlingController {
         if(wuzixinxi == null) {
             return R.error("请选择有效的物资信息");
         }
+        if(wuzixinxi.getBaozhiqi() == null || wuzixinxi.getBaozhiqi().before(todayStart())) {
+            return R.error("物资已过保质期，不能申领");
+        }
         Integer stock = wuzixinxi.getWuzishuliang() == null ? 0 : wuzixinxi.getWuzishuliang();
         if(stock < applyCount) {
             return R.error("库存不足");
@@ -215,6 +218,15 @@ public class WuzishenlingController {
         wuzishenling.setWuziguige(wuzixinxi.getWuziguige());
         wuzishenling.setWuzitupian(wuzixinxi.getWuzitupian());
         return null;
+    }
+
+    private Date todayStart() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 
     private WuzixinxiEntity findWuzixinxi(WuzishenlingEntity wuzishenling) {

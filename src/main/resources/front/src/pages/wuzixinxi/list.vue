@@ -31,6 +31,10 @@
 						<span class="icon iconfont " ></span>
 						库存数量
 					</el-button>
+					<el-button class="list-recommend-btn" v-if="isJieshoujigou" type="primary" :loading="recommendLoading" @click="smartRecommend">
+						<span class="icon iconfont icon-favor"></span>
+						智能推荐物资
+					</el-button>
 
 				</div>
 			</el-form>
@@ -95,6 +99,43 @@
 				<el-button @click="chartVisiable1 = false">返回</el-button>
 			</span>
 		</el-dialog>
+		<el-dialog
+			title="智能推荐物资"
+			:visible.sync="recommendVisible"
+			width="900px"
+			class="recommend-dialog">
+			<el-alert
+				v-if="recommendSourceMessage"
+				:title="recommendSourceMessage"
+				:type="recommendSource == 'deepseek' ? 'success' : 'warning'"
+				:closable="false"
+				show-icon
+				style="margin-bottom: 12px;">
+			</el-alert>
+			<div v-if="recommendList.length" class="recommend-list">
+				<div class="recommend-item" v-for="(item,index) in recommendList" :key="item.id">
+					<div class="recommend-rank">TOP {{index + 1}}</div>
+					<img class="recommend-img" :src="getRecommendImage(item)" />
+					<div class="recommend-info">
+						<div class="recommend-title">{{item.wuzimingcheng}}</div>
+						<div class="recommend-meta">
+							<span>{{item.wuzizhonglei}}</span>
+							<span>库存：{{item.wuzishuliang}}</span>
+							<span>评分：{{item.score}}</span>
+						</div>
+						<div class="recommend-reason">{{item.reason}}</div>
+					</div>
+					<div class="recommend-actions">
+						<el-button size="mini" @click="viewRecommendDetail(item)">查看</el-button>
+						<el-button size="mini" type="warning" @click="goRecommendApply(item)">去申领</el-button>
+					</div>
+				</div>
+			</div>
+			<div v-else class="recommend-empty">暂无可推荐物资</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="recommendVisible = false">关闭</el-button>
+			</span>
+		</el-dialog>
 	</div>
 </template>
 <script>
@@ -155,6 +196,11 @@
 				gauge: {"tooltip":{"backgroundColor":"#fff","textStyle":{"color":"#333"}},"backgroundColor":"transparent","color":["#61c8b9","#00AD45","#72c794","#507AFC","#73c0de","#3ba272","#fc8452","#9a60b4","#ea7ccc"],"title":{"show":true,"textStyle":{"fontSize":14,"lineHeight":24,"color":"#333","fontWeight":600},"top":"top","left":"left"},"series":{"pointer":{"offsetCenter":[0,"10%"],"icon":"path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z","width":8,"length":"80%"},"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"opacity":0.5,"shadowBlur":1,"shadowColor":"#fff"},"roundCap":true},"anchor":{"show":true,"itemStyle":{"color":"inherit"},"size":18,"showAbove":true},"emphasis":{"disabled":false},"progress":{"show":true,"roundCap":true,"overlap":true},"splitNumber":25,"detail":{"formatter":"{value}","backgroundColor":"inherit","color":"#fff","borderRadius":3,"width":20,"fontSize":12,"height":10},"title":{"color":"#333","fontSize":14},"animation":true}},
 				radar: {"backgroundColor":"transparent","radar":{"shape":"circle"},"color":["#5470c6","#91cc75","#fac858","#ee6666","#73c0de","#3ba272","#fc8452","#9a60b4","#ea7ccc"],"legend":{"padding":5,"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#ccc","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":14,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":"auto","top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"auto","itemWidth":25,"textStyle":{"textBorderWidth":0,"color":"#fff","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"series":{},"tooltip":{"backgroundColor":"#123","textStyle":{"color":"#fff"}},"title":{"top":"bottom","left":"left"}},
 				chartVisiable1: false,
+				recommendVisible: false,
+				recommendLoading: false,
+				recommendList: [],
+				recommendSource: '',
+				recommendSourceMessage: '',
 			}
 		},
 		async created() {
@@ -237,6 +283,11 @@
 			},
 			username() {
 				return localStorage.getItem('username')
+			},
+			isJieshoujigou() {
+				return localStorage.getItem('frontSessionTable') == 'jieshoujigou'
+					|| localStorage.getItem('UserTableName') == 'jieshoujigou'
+					|| localStorage.getItem('frontRole') == '接收机构'
 			}
 		},
 		//方法集合
@@ -278,7 +329,8 @@
 				let user = JSON.parse(localStorage.getItem('sessionForm'))
 				if (this.sortType) searchWhere.sort = this.sortType
 				if (this.sortOrder) searchWhere.order = this.sortOrder
-				this.$http.get(`wuzixinxi/${this.centerType?'page/jg':'list'}`, {params: Object.assign(params, searchWhere)}).then(async res => {
+				let listUrl = (this.centerType || this.isJieshoujigou) ? 'page/jg' : 'list'
+				this.$http.get(`wuzixinxi/${listUrl}`, {params: Object.assign(params, searchWhere)}).then(async res => {
 					if (res.data.code == 0) {
 						this.dataList = res.data.data.list;
 						this.total = Number(res.data.data.total);
@@ -289,6 +341,62 @@
 						}
 					}
 				});
+			},
+			smartRecommend() {
+				if(!localStorage.getItem('frontToken')) {
+					this.$message({
+						type: 'error',
+						message: '请先登录后再使用智能推荐',
+						duration: 1500
+					});
+					return;
+				}
+				this.recommendLoading = true;
+				this.$http.get('wuzixinxi/intelligentRecommend').then(({data}) => {
+					this.recommendLoading = false;
+					if(data && data.code == 0) {
+						this.recommendList = data.data || [];
+						this.recommendSource = data.source || 'rule';
+						this.recommendSourceMessage = data.sourceMessage || '';
+						this.recommendVisible = true;
+					} else {
+						this.$message({
+							type: 'error',
+							message: data && data.msg ? data.msg : '智能推荐失败',
+							duration: 1500
+						});
+					}
+				}).catch(() => {
+					this.recommendLoading = false;
+					this.$message({
+						type: 'error',
+						message: '智能推荐失败，请稍后重试',
+						duration: 1500
+					});
+				});
+			},
+			getRecommendImage(item) {
+				if(!item || !item.wuzitupian) {
+					return '';
+				}
+				let img = item.wuzitupian.split(',')[0];
+				if(img.substr(0,4) == 'http') {
+					return img;
+				}
+				return this.baseUrl + img;
+			},
+			viewRecommendDetail(item) {
+				this.recommendVisible = false;
+				this.toDetail(item);
+			},
+			goRecommendApply(item) {
+				localStorage.setItem('crossTable', 'wuzixinxi');
+				localStorage.setItem('crossObj', JSON.stringify(item));
+				localStorage.setItem('statusColumnName', '');
+				localStorage.setItem('statusColumnValue', '');
+				localStorage.setItem('tips', '');
+				this.recommendVisible = false;
+				this.$router.push({path: '/index/wuzishenlingAdd', query: {type: 'cross', centerType: this.centerType ? 1 : 0}});
 			},
 			curChange(page) {
 				this.getList(page);
@@ -854,6 +962,83 @@
 					}
 				}
 			}
+		}
+	}
+	.list-recommend-btn {
+		cursor: pointer;
+		border: 0;
+		border-radius: 4px;
+		padding: 0 12px;
+		margin: 0 10px 0 0;
+		color: #fff;
+		background: #409eff;
+		font-size: 16px;
+		line-height: 42px;
+		height: 42px;
+	}
+	/deep/ .recommend-dialog {
+		.el-dialog__body {
+			padding: 18px 24px;
+		}
+		.recommend-list {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+		.recommend-item {
+			border: 1px solid #ebeef5;
+			border-radius: 6px;
+			padding: 12px;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			background: #fff;
+		}
+		.recommend-rank {
+			color: #409eff;
+			font-weight: 600;
+			width: 58px;
+			flex: 0 0 58px;
+		}
+		.recommend-img {
+			width: 76px;
+			height: 76px;
+			object-fit: cover;
+			border-radius: 4px;
+			background: #f5f7fa;
+		}
+		.recommend-info {
+			flex: 1;
+			min-width: 0;
+		}
+		.recommend-title {
+			color: #303133;
+			font-size: 16px;
+			font-weight: 600;
+			margin-bottom: 6px;
+		}
+		.recommend-meta {
+			color: #606266;
+			font-size: 13px;
+			display: flex;
+			gap: 14px;
+			flex-wrap: wrap;
+			margin-bottom: 6px;
+		}
+		.recommend-reason {
+			color: #606266;
+			font-size: 14px;
+			line-height: 1.5;
+		}
+		.recommend-actions {
+			display: flex;
+			gap: 8px;
+			flex: 0 0 auto;
+		}
+		.recommend-empty {
+			color: #909399;
+			text-align: center;
+			padding: 40px 0;
 		}
 	}
 </style>

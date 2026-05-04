@@ -39,6 +39,10 @@
 						<span class="icon iconfont icon-xihuan" :style='{"padding":"10px","margin":"0 2px","color":"#af7d59","borderRadius":"100%","background":"#e9cfbc20","fontSize":"20px","fontWeight":"500","height":"40px"}'></span>
 						库存数量
 					</el-button>
+					<el-button class="btn18" v-if="isJieshoujigou" type="primary" :loading="recommendLoading" @click="smartRecommend">
+						<span class="icon iconfont icon-xihuan" :style='{"padding":"10px","margin":"0 2px","color":"#409EFF","borderRadius":"100%","background":"#ecf5ff","fontSize":"20px","fontWeight":"500","height":"40px"}'></span>
+						智能推荐物资
+					</el-button>
 				</el-row>
 			</el-form>
 			<div :style='{"padding":"20px","boxShadow":"none","borderColor":"#ff9164","borderRadius":"10px","background":"#fff","borderWidth":"4px 0 0","width":"100%","borderStyle":"solid"}'>
@@ -175,6 +179,39 @@
 			</span>
 		</el-dialog>
 
+		<el-dialog title="智能推荐物资" :visible.sync="recommendVisible" width="900px">
+			<el-alert
+				v-if="recommendSourceMessage"
+				:title="recommendSourceMessage"
+				:type="recommendSource == 'deepseek' ? 'success' : 'warning'"
+				:closable="false"
+				show-icon
+				style="margin-bottom: 12px;">
+			</el-alert>
+			<div v-if="recommendList.length" class="recommend-list">
+				<div class="recommend-item" v-for="(item,index) in recommendList" :key="item.id">
+					<div class="recommend-rank">TOP {{index + 1}}</div>
+					<img class="recommend-img" :src="getRecommendImage(item)" />
+					<div class="recommend-info">
+						<div class="recommend-title">{{item.wuzimingcheng}}</div>
+						<div class="recommend-meta">
+							<span>{{item.wuzizhonglei}}</span>
+							<span>库存：{{item.wuzishuliang}}</span>
+							<span>评分：{{item.score}}</span>
+						</div>
+						<div class="recommend-reason">{{item.reason}}</div>
+					</div>
+					<div class="recommend-actions">
+						<el-button size="mini" type="warning" @click="goRecommendApply(item)">去申领</el-button>
+					</div>
+				</div>
+			</div>
+			<div v-else class="recommend-empty">暂无可推荐物资</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="recommendVisible = false">关闭</el-button>
+			</span>
+		</el-dialog>
+
 		<el-dialog title="预览图" :visible.sync="previewVisible" width="50%">
 			<img :src="previewImg" alt="" style="width: 100%;">
 		</el-dialog>
@@ -223,6 +260,11 @@
 				previewVisible: false,
 				wuzishuliangRemind: [],
 				baozhiqiRemind: [],
+				recommendVisible: false,
+				recommendLoading: false,
+				recommendList: [],
+				recommendSource: '',
+				recommendSourceMessage: '',
 			};
 		},
 		created() {
@@ -247,6 +289,10 @@
 			},
 			role(){
 				return this.$storage.get('role')
+			},
+			isJieshoujigou(){
+				return this.$storage.get('sessionTable') == 'jieshoujigou'
+					|| this.$storage.get('role') == '接收机构'
 			},
 		},
 		components: {
@@ -297,6 +343,40 @@
 				this.previewImg = url
 				this.previewVisible = true
 				
+			},
+			smartRecommend(){
+				this.recommendLoading = true
+				this.$http({
+					url: 'wuzixinxi/intelligentRecommend',
+					method: 'get'
+				}).then(({data}) => {
+					this.recommendLoading = false
+					if(data && data.code === 0) {
+						this.recommendList = data.data || []
+						this.recommendSource = data.source || 'rule'
+						this.recommendSourceMessage = data.sourceMessage || ''
+						this.recommendVisible = true
+					} else {
+						this.$message.error(data && data.msg ? data.msg : '智能推荐失败')
+					}
+				}).catch(() => {
+					this.recommendLoading = false
+					this.$message.error('智能推荐失败，请稍后重试')
+				})
+			},
+			getRecommendImage(item){
+				if(!item || !item.wuzitupian) {
+					return ''
+				}
+				let img = item.wuzitupian.split(',')[0]
+				if(img.substring(0,4) == 'http') {
+					return img
+				}
+				return this.$base.url + img
+			},
+			goRecommendApply(item){
+				this.recommendVisible = false
+				this.wuzishenlingCrossAddOrUpdateHandler(item,'cross','','','','')
 			},
 			wuzishenlingCrossAddOrUpdateHandler(row,type,crossOptAudit,crossOptPay,statusColumnName,tips,statusColumnValue){
 				this.showFlag = false;
@@ -574,7 +654,7 @@
 				}
 				let user = JSON.parse(this.$storage.getObj('userForm'))
 				this.$http({
-					url: "wuzixinxi/page",
+					url: this.isJieshoujigou ? "wuzixinxi/page/jg" : "wuzixinxi/page",
 					method: "get",
 					params: params
 				}).then(({ data }) => {
@@ -1338,5 +1418,60 @@
 	}
 	.chartDialog /deep/ .el-dialog {
 		background: #fff;
+	}
+	.recommend-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+	.recommend-item {
+		border: 1px solid #ebeef5;
+		border-radius: 6px;
+		padding: 12px;
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		background: #fff;
+	}
+	.recommend-rank {
+		color: #409eff;
+		font-weight: 600;
+		width: 58px;
+		flex: 0 0 58px;
+	}
+	.recommend-img {
+		width: 76px;
+		height: 76px;
+		object-fit: cover;
+		border-radius: 4px;
+		background: #f5f7fa;
+	}
+	.recommend-info {
+		flex: 1;
+		min-width: 0;
+	}
+	.recommend-title {
+		color: #303133;
+		font-size: 16px;
+		font-weight: 600;
+		margin-bottom: 6px;
+	}
+	.recommend-meta {
+		color: #606266;
+		font-size: 13px;
+		display: flex;
+		gap: 14px;
+		flex-wrap: wrap;
+		margin-bottom: 6px;
+	}
+	.recommend-reason {
+		color: #606266;
+		font-size: 14px;
+		line-height: 1.5;
+	}
+	.recommend-empty {
+		color: #909399;
+		text-align: center;
+		padding: 40px 0;
 	}
 </style>
