@@ -86,7 +86,7 @@ public class DeepseekClient {
         JSONArray messages = new JSONArray();
         JSONObject system = new JSONObject();
         system.put("role", "system");
-        system.put("content", "你是公益应急物资推荐专家。只能从候选物资中选择，不能编造物资，必须只输出JSON对象。");
+        system.put("content", "你是公益捐赠物资推荐专家。只能从候选物资中选择，不能编造物资，必须只输出JSON对象。");
         messages.add(system);
 
         JSONObject user = new JSONObject();
