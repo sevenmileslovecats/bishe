@@ -56,133 +56,49 @@
 				</div>
 			</div>
 			<div class="list">
-				<el-table class="tables" :stripe='false'
-					:style='{"width":"100%","padding":"0","borderColor":"#eee","borderStyle":"solid","borderWidth":"1px 0 0 1px","background":"#fff"}' 
-					:border='true' 
-					:data="dataList">
-					<el-table-column :resizable='true' :sortable='false'
-						prop="juanzengbianhao"
-						label="捐赠编号">
-						<template slot-scope="scope">
-							{{scope.row.juanzengbianhao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzimingcheng"
-						label="物资名称">
-						<template slot-scope="scope">
-							{{scope.row.wuzimingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzizhonglei"
-						label="物资种类">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhonglei}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzishuoming"
-						label="物资说明">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuoming}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' prop="wuzitupian" width="200" label="物资图片">
-						<template slot-scope="scope">
-							<div v-if="scope.row.wuzitupian">
-								<img v-if="scope.row.wuzitupian.substring(0,4)=='http'&&scope.row.wuzitupian.split(',w').length>1" :src="scope.row.wuzitupian" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.wuzitupian)">
-								<img v-else-if="scope.row.wuzitupian.substring(0,4)=='http'" :src="scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.wuzitupian.split(',')[0])">
-								<img v-else :src="baseUrl+scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(baseUrl+scope.row.wuzitupian.split(',')[0])">
+				<div class="donation-card-grid">
+					<div v-for="item in dataList" :key="item.id" class="donation-card" @click.stop="toDetail(item)">
+						<div class="donation-card-cover" @click.stop="getDonationImage(item) && imgPreView(getDonationImage(item))">
+							<img v-if="getDonationImage(item)" :src="getDonationImage(item)" @error="$event.target.style.display='none'">
+							<div v-else class="donation-card-empty">无图片</div>
+							<div class="donation-card-actions" @click.stop>
+								<el-button class="table-view" size="mini" @click.native="toDetail(item)">查看</el-button>
+								<el-button class="table-trace" size="mini" @click.native="traceClick(item)">追溯查询</el-button>
+								<el-button class="table-btn5" size="mini" @click.native="chapterClick(item)" v-if="btnAuth('juanzengwuzi','章节管理')">章节管理</el-button>
 							</div>
-							<div v-else>无图片</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="xinjiuchengdu"
-						label="新旧程度">
-						<template slot-scope="scope">
-							{{scope.row.xinjiuchengdu}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzishuliang"
-						label="物资数量">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzizhongliang"
-						label="物资重量">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhongliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="youxiaoqi"
-						label="有效期">
-						<template slot-scope="scope">
-							{{scope.row.youxiaoqi}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="juanzengshijian"
-						label="捐赠时间">
-						<template slot-scope="scope">
-							{{scope.row.juanzengshijian}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="yanshouzhuangtai"
-						label="验收状态">
-						<template slot-scope="scope">
-							{{scope.row.yanshouzhuangtai}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="zhanghao"
-						label="账号">
-						<template slot-scope="scope">
-							{{scope.row.zhanghao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="xingming"
-						label="姓名">
-						<template slot-scope="scope">
-							{{scope.row.xingming}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false' prop="shhf" label="审核回复" show-overflow-tooltip>
-						<template slot-scope="scope">
-							<div style="white-space: nowrap;">{{scope.row.shhf}}</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false' prop="sfsh" label="审核状态">
-						<template slot-scope="scope">
-							<el-tag v-if="scope.row.sfsh=='否'" type="danger">未通过</el-tag>
-							<el-tag v-if="scope.row.sfsh=='待审核'" type="warning">待审核</el-tag>
-							<el-tag v-if="scope.row.sfsh=='是'" type="success">通过</el-tag>
-						</template>
-					</el-table-column>
-					<el-table-column width="300" label="操作">
-						<template slot-scope="scope">
-							<el-button class="table-view" type="success" @click.native="toDetail(scope.row)">
-								<span class="icon iconfont icon-fangdajing02"></span>
-								查看
-							</el-button>
-							<el-button class="table-trace" type="success" @click.native="traceClick(scope.row)">
-								<span class="icon iconfont icon-fangdajing02"></span>
-								追溯查询
-							</el-button>
-							<el-button class="table-btn5" type="success" @click.native="chapterClick(scope.row)" v-if="btnAuth('juanzengwuzi','章节管理')">
-								<span class="icon iconfont icon-zhangjie7"></span>
-								章节管理
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
+						</div>
+						<div class="donation-card-body">
+							<div class="donation-card-title" :title="item.wuzimingcheng">{{ item.wuzimingcheng || '未命名物资' }}</div>
+							<div class="donation-card-tags">
+								<span>{{ item.wuzizhonglei || '未分类' }}</span>
+								<span>{{ item.xinjiuchengdu || '无新旧程度' }}</span>
+							</div>
+							<div class="donation-card-desc" :title="item.wuzishuoming">{{ item.wuzishuoming || '无物资说明' }}</div>
+							<div class="donation-card-metrics">
+								<div>
+									<label>数量</label>
+									<strong>{{ item.wuzishuliang || 0 }}</strong>
+								</div>
+								<div>
+									<label>重量</label>
+									<strong>{{ item.wuzizhongliang || '无' }}</strong>
+								</div>
+								<div>
+									<label>有效期</label>
+									<strong>{{ item.youxiaoqi || '无' }}</strong>
+								</div>
+								<div>
+									<label>验收</label>
+									<strong>{{ item.yanshouzhuangtai || '无' }}</strong>
+								</div>
+							</div>
+							<div class="donation-card-footer">
+								<span>捐赠编号：{{ item.juanzengbianhao || '无' }}</span>
+								<span>{{ item.juanzengshijian || '' }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 	
@@ -533,6 +449,19 @@
 			imgPreView(url){
 				this.previewImg = url
 				this.previewVisible = true
+			},
+			getDonationImage(item) {
+				if (!item || !item.wuzitupian) {
+					return ''
+				}
+				let img = item.wuzitupian
+				if (img.indexOf(',') !== -1 && !(img.substring(0,4) == 'http' && img.split(',w').length > 1)) {
+					img = img.split(',')[0]
+				}
+				if (img.substring(0,4) == 'http') {
+					return img
+				}
+				return this.baseUrl + img
 			},
 			traceClick(row) {
 				if (!row || !row.juanzengbianhao) {
@@ -1901,6 +1830,221 @@
 		}
 		.trace-feedback-split {
 			grid-template-columns: 230px;
+		}
+	}
+
+	/* material-donation-card-view */
+	.list-preview .list {
+		padding: 0 !important;
+		margin-top: 18px;
+		background: transparent !important;
+		border: 0 !important;
+	}
+
+	.donation-card-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 18px;
+	}
+
+	.donation-card {
+		overflow: hidden;
+		border: 1px solid #e5ece8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 20px rgba(24, 39, 75, .06);
+		cursor: pointer;
+		transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+	}
+
+	.donation-card:hover {
+		transform: translateY(-2px);
+		border-color: #9bcf9c;
+		box-shadow: 0 14px 28px rgba(24, 39, 75, .12);
+	}
+
+	.donation-card-cover {
+		position: relative;
+		overflow: hidden;
+		aspect-ratio: 16 / 9;
+		background: #eef4ef;
+	}
+
+	.donation-card-cover img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform .25s ease;
+	}
+
+	.donation-card:hover .donation-card-cover img {
+		transform: scale(1.04);
+	}
+
+	.donation-card-empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		color: #8b9a90;
+		font-size: 14px;
+	}
+
+	.donation-card-actions {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-content: center;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 8px;
+		padding: 18px;
+		background: linear-gradient(180deg, rgba(15, 23, 42, .1), rgba(15, 23, 42, .62));
+		opacity: 0;
+		transition: opacity .18s ease;
+	}
+
+	.donation-card:hover .donation-card-actions,
+	.donation-card:focus-within .donation-card-actions {
+		opacity: 1;
+	}
+
+	.donation-card-actions /deep/ .el-button {
+		height: 30px !important;
+		line-height: 30px !important;
+		padding: 0 10px !important;
+		margin: 0 !important;
+		border: 0 !important;
+		border-radius: 6px !important;
+		color: #fff !important;
+		font-size: 12px !important;
+		font-weight: 700;
+		box-shadow: 0 6px 14px rgba(15, 23, 42, .18) !important;
+	}
+
+	.donation-card-actions .table-view {
+		background: #4f9f45 !important;
+	}
+
+	.donation-card-actions .table-trace {
+		background: #278f7f !important;
+	}
+
+	.donation-card-actions .table-btn5 {
+		background: #e89232 !important;
+	}
+
+	.donation-card-body {
+		padding: 14px 14px 16px;
+	}
+
+	.donation-card-title {
+		overflow: hidden;
+		margin-bottom: 10px;
+		color: #172033;
+		font-size: 16px;
+		font-weight: 800;
+		line-height: 22px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.donation-card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
+
+	.donation-card-tags span {
+		max-width: 100%;
+		padding: 4px 9px;
+		border-radius: 999px;
+		background: #f0f7ef;
+		color: #427246;
+		font-size: 12px;
+		line-height: 18px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.donation-card-desc {
+		display: -webkit-box;
+		overflow: hidden;
+		min-height: 40px;
+		margin-bottom: 12px;
+		color: #64748b;
+		font-size: 13px;
+		line-height: 20px;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+
+	.donation-card-metrics {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+
+	.donation-card-metrics div {
+		padding: 9px 10px;
+		border-radius: 8px;
+		background: #f8faf8;
+	}
+
+	.donation-card-metrics label {
+		display: block;
+		margin-bottom: 3px;
+		color: #718071;
+		font-size: 12px;
+	}
+
+	.donation-card-metrics strong {
+		display: block;
+		overflow: hidden;
+		color: #243124;
+		font-size: 15px;
+		line-height: 20px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.donation-card-footer {
+		display: flex;
+		justify-content: space-between;
+		gap: 10px;
+		color: #64748b;
+		font-size: 12px;
+		line-height: 20px;
+	}
+
+	.donation-card-footer span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	@media (hover: none), (max-width: 960px) {
+		.donation-card-actions {
+			position: static;
+			opacity: 1;
+			background: #f7fbf6;
+			padding: 10px 12px;
+			justify-content: flex-start;
+		}
+		.donation-card-actions /deep/ .el-button {
+			box-shadow: none !important;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.donation-card-grid {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

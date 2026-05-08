@@ -1674,4 +1674,128 @@
 		width: 100%;
 	}
 }
+
+/* business-list-polish */
+.main-content {
+	background: #f5f7fb !important;
+}
+.center-form-pv > .el-row:first-child {
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 8px 22px rgba(32, 45, 64, .06) !important;
+}
+.center-form-pv .item-label {
+	color: #44505c !important;
+	font-size: 14px !important;
+	font-weight: 700 !important;
+}
+.center-form-pv /deep/ .el-input__inner,
+.center-form-pv /deep/ .el-select .el-input__inner {
+	height: 36px !important;
+	line-height: 36px !important;
+	border-color: #dfe7ef !important;
+	border-radius: 6px !important;
+	color: #334155 !important;
+}
+.center-form-pv + div,
+.data-table-card {
+	padding: 16px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 10px 28px rgba(32, 45, 64, .07) !important;
+	overflow-x: auto;
+}
+.tables {
+	min-width: 1180px;
+	border: 0 !important;
+	border-radius: 8px !important;
+	overflow: hidden;
+}
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	padding: 10px 0 !important;
+	background: #f6faf7 !important;
+	border-color: #e7edf0 !important;
+	color: #22302a !important;
+	font-weight: 800 !important;
+}
+.tables /deep/ .el-table__body-wrapper tbody tr td {
+	padding: 10px 0 !important;
+	border-color: #eef2f3 !important;
+	color: #3d4b43 !important;
+	background: #fff !important;
+}
+.tables /deep/ .el-table__body-wrapper tbody tr:hover td,
+.tables /deep/ .el-table__body-wrapper tbody tr.hover-row td,
+.tables /deep/ .el-table__body-wrapper tbody tr.current-row td {
+	background: #f7fbf6 !important;
+}
+.tables /deep/ .cell {
+	line-height: 22px !important;
+	word-break: break-word !important;
+}
+.tables /deep/ img {
+	display: block;
+	width: 64px !important;
+	height: 64px !important;
+	border-radius: 6px;
+	object-fit: cover;
+	background: #f0f4f1;
+	box-shadow: inset 0 0 0 1px #e5ebe6;
+	cursor: pointer;
+}
+.tables /deep/ .el-tag {
+	border-radius: 999px !important;
+	padding: 0 12px !important;
+	font-weight: 700;
+}
+.tables /deep/ .el-button {
+	height: 32px !important;
+	line-height: 32px !important;
+	padding: 0 12px !important;
+	margin: 0 6px 4px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 13px !important;
+	font-weight: 700;
+	box-shadow: none !important;
+}
+.tables /deep/ .view,
+.tables /deep/ .table-view {
+	background: #2f80c9 !important;
+	color: #fff !important;
+}
+.tables /deep/ .edit,
+.tables /deep/ .table-edit {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+.tables /deep/ .del,
+.tables /deep/ .table-del {
+	background: #d9534f !important;
+	color: #fff !important;
+}
+.tables /deep/ .btn8,
+.tables /deep/ .btn18,
+.tables /deep/ .btn3,
+.tables /deep/ .btn4,
+.tables /deep/ .btn5,
+.tables /deep/ .table-btn5,
+.tables /deep/ .table-trace {
+	background: #278f7f !important;
+	color: #fff !important;
+}
+.el-pagination {
+	padding: 14px 0 0 !important;
+	margin: 16px 0 0 !important;
+	justify-content: flex-end !important;
+}
+@media (max-width: 960px) {
+	.center-form-pv > .el-row:first-child > div,
+	.center-form-pv /deep/ .el-input,
+	.center-form-pv /deep/ .el-select {
+		width: 100% !important;
+	}
+}
 </style>
