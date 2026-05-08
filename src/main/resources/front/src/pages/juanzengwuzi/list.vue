@@ -172,6 +172,10 @@
 								<span class="icon iconfont icon-fangdajing02"></span>
 								查看
 							</el-button>
+							<el-button class="table-trace" type="success" @click.native="traceClick(scope.row)">
+								<span class="icon iconfont icon-fangdajing02"></span>
+								追溯查询
+							</el-button>
 							<el-button class="table-btn5" type="success" @click.native="chapterClick(scope.row)" v-if="btnAuth('juanzengwuzi','章节管理')">
 								<span class="icon iconfont icon-zhangjie7"></span>
 								章节管理
@@ -202,6 +206,131 @@
 		</div>
 		<el-dialog title="预览图" :visible.sync="previewVisible" width="50%">
 			<img :src="previewImg" alt="" style="width: 100%;">
+		</el-dialog>
+		<el-dialog title="追溯查询" :visible.sync="traceVisible" width="86%" class="trace-dialog">
+			<div v-loading="traceLoading">
+				<div v-if="traceData" class="trace-content">
+					<div class="trace-summary-band">
+						<div class="trace-summary-title">
+							<span>{{ field(traceData.juanzengwuzi, 'wuzimingcheng') }}</span>
+							<el-tag :type="tagType(traceData.juanzengwuzi && traceData.juanzengwuzi.yanshouzhuangtai)" size="small">
+								{{ field(traceData.juanzengwuzi, 'yanshouzhuangtai') }}
+							</el-tag>
+						</div>
+						<div class="trace-summary-grid">
+							<div>
+							<span>捐赠编号</span>
+							<strong>{{ field(traceData.juanzengwuzi, 'juanzengbianhao') }}</strong>
+						</div>
+						<div>
+							<span>物资名称</span>
+							<strong>{{ field(traceData.juanzengwuzi, 'wuzimingcheng') }}</strong>
+						</div>
+						<div>
+							<span>物资数量</span>
+							<strong>{{ field(traceData.juanzengwuzi, 'wuzishuliang') }}</strong>
+						</div>
+						<div>
+							<span>验收状态</span>
+							<strong>{{ field(traceData.juanzengwuzi, 'yanshouzhuangtai') }}</strong>
+						</div>
+					</div>
+					</div>
+					<div class="trace-section">
+						<div class="trace-section-head">
+							<h3>主流程</h3>
+							<span>捐赠记录到验收记录</span>
+						</div>
+						<div class="trace-flow-row">
+							<div
+								v-for="(node,index) in traceMainNodes()"
+								:key="node.key"
+								class="trace-node"
+								:class="['state-' + node.state, { 'has-next': index < traceMainNodes().length - 1 }]"
+							>
+								<div class="trace-node-top">
+									<span class="trace-node-index">{{ index + 1 }}</span>
+									<el-tag :type="node.tagType" size="mini">{{ node.status }}</el-tag>
+								</div>
+								<h4>{{ node.title }}</h4>
+								<div class="trace-node-fields">
+									<p v-for="item in node.fields" :key="item.label">
+										<span>{{ item.label }}</span>
+										<strong>{{ item.value }}</strong>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="trace-section">
+						<div class="trace-section-head">
+							<h3>申领分支</h3>
+							<span>每条申领记录生成一条生命流程分支</span>
+						</div>
+						<div v-if="!traceBranchNodes().length" class="trace-empty">暂无申领分支</div>
+						<div v-else class="trace-branch-list">
+						<div class="trace-branch" v-for="(branch,index) in traceBranchNodes()" :key="branch.key">
+							<div class="trace-branch-head">
+								<div>
+									<span class="trace-branch-number">分支 {{ index + 1 }}</span>
+									<strong>{{ branch.title }}</strong>
+								</div>
+								<div class="trace-branch-meta">
+									<el-tag :type="tagType(branch.claim.sfsh)" size="small">{{ field(branch.claim, 'sfsh') }}</el-tag>
+									<span>{{ field(branch.claim, 'jigoumingcheng') }}</span>
+									<span>{{ field(branch.claim, 'quyu') }}</span>
+								</div>
+							</div>
+							<div class="trace-branch-flow">
+								<div
+									v-for="(node,nodeIndex) in branch.beforeFeedback"
+									:key="node.key"
+									class="trace-node compact"
+									:class="['state-' + node.state, { 'has-next': nodeIndex < branch.beforeFeedback.length - 1 }]"
+								>
+									<div class="trace-node-top">
+										<span class="trace-node-index">{{ nodeIndex + 1 }}</span>
+										<el-tag :type="node.tagType" size="mini">{{ node.status }}</el-tag>
+									</div>
+									<h4>{{ node.title }}</h4>
+									<div class="trace-node-fields">
+										<p v-for="item in node.fields" :key="item.label">
+											<span>{{ item.label }}</span>
+											<strong>{{ item.value }}</strong>
+										</p>
+									</div>
+								</div>
+								<div class="trace-feedback-split">
+									<div class="trace-split-line"></div>
+									<div
+										v-for="node in branch.feedback"
+										:key="node.key"
+										class="trace-node compact"
+										:class="'state-' + node.state"
+									>
+										<div class="trace-node-top">
+											<span class="trace-node-index">{{ node.short }}</span>
+											<el-tag :type="node.tagType" size="mini">{{ node.status }}</el-tag>
+										</div>
+										<h4>{{ node.title }}</h4>
+										<div class="trace-node-fields">
+											<p v-for="item in node.fields" :key="item.label">
+												<span>{{ item.label }}</span>
+												<strong>{{ item.value }}</strong>
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						</div>
+					</div>
+				</div>
+				<div v-else class="trace-empty">请选择一批捐赠物资进行追溯查询</div>
+			</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="traceVisible = false">关闭</el-button>
+			</span>
 		</el-dialog>
 		<el-dialog
 			:visible.sync="chartVisiable1"
@@ -268,6 +397,9 @@
 				centerType:false,
 				previewImg: '',
 				previewVisible: false,
+				traceVisible: false,
+				traceLoading: false,
+				traceData: null,
 				sortType: 'juanzengshijian',
 				sortOrder: 'desc',
 				line: {"backgroundColor":"transparent","yAxis":{"axisLabel":{"borderType":"solid","rotate":0,"padding":0,"shadowOffsetX":0,"margin":15,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"width":"","fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(250,250,250,0.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"xAxis":{"axisLabel":{"borderType":"solid","rotate":0,"padding":0,"shadowOffsetX":0,"margin":4,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"width":"","fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":false},"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(255,255,255,.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"color":["#5470c6","#91cc75","#fac858","#ee6666","#73c0de","#3ba272","#fc8452","#9a60b4","#ea7ccc"],"legend":{"padding":[5,10,5,5],"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#ccc","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":14,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":"auto","top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"auto","itemWidth":25,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"series":{"emphasis":{"lineStyle":{"color":"#000"}},"symbol":"emptyCircle","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"#333","shadowOffsetY":0,"color":"#e61f4d","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"#000"},"showSymbol":true,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"#e61f4d","shadowBlur":0,"width":2,"type":"solid","opacity":1,"shadowColor":"#000"},"symbolSize":6},"title":{"borderType":"solid","padding":[5,5,5,10],"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#ccc","shadowOffsetY":0,"shadowBlur":0,"bottom":"auto","show":true,"right":"auto","top":"auto","borderRadius":0,"left":"left","borderWidth":0,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","fontSize":14,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"#ccc","textShadowBlur":0},"shadowColor":"transparent"}},
@@ -401,6 +533,210 @@
 			imgPreView(url){
 				this.previewImg = url
 				this.previewVisible = true
+			},
+			traceClick(row) {
+				if (!row || !row.juanzengbianhao) {
+					this.$message.error('该批物资缺少捐赠编号，无法追溯查询')
+					return
+				}
+				this.traceVisible = true
+				this.traceLoading = true
+				this.traceData = null
+				this.$http.get('zhuishuchaxun/trace', {
+					params: {
+						juanzengbianhao: row.juanzengbianhao
+					}
+				}).then(res => {
+					if (res.data && res.data.code === 0) {
+						this.traceData = res.data.data
+					} else {
+						this.$message.error(res.data && res.data.msg ? res.data.msg : '追溯查询失败')
+					}
+				}, () => {
+					this.$message.error('追溯查询失败')
+				}).then(() => {
+					this.traceLoading = false
+				})
+			},
+			asList(value) {
+				return Array.isArray(value) ? value : []
+			},
+			field(row, key) {
+				if (!row || row[key] === undefined || row[key] === null || row[key] === '') {
+					return '无'
+				}
+				return row[key]
+			},
+			latestField(list, key) {
+				const rows = this.asList(list)
+				return rows.length ? this.field(rows[rows.length - 1], key) : '无'
+			},
+			resolveStatus(row, fallback) {
+				const keys = ['sfsh', 'yanshouzhuangtai', 'yanshoujieguo', 'chukuzhuangtai', 'wuliuzhuangtai']
+				for (let i = 0; i < keys.length; i++) {
+					if (row && row[keys[i]]) {
+						return row[keys[i]]
+					}
+				}
+				return fallback
+			},
+			resolveState(row, keys) {
+				if (!row) {
+					return 'missing'
+				}
+				let text = ''
+				keys.forEach(key => {
+					if (row[key]) {
+						text += row[key] + ','
+					}
+				})
+				if (!text) {
+					return 'done'
+				}
+				if (/异议|异常|失败|驳回|拒绝|不通过|否/.test(text)) {
+					return 'danger'
+				}
+				if (/待|未|暂无/.test(text)) {
+					return 'pending'
+				}
+				return 'done'
+			},
+			resolveObjectionState(row) {
+				if (!row) {
+					return 'missing'
+				}
+				return row.sfsh === '否' ? 'pending' : 'danger'
+			},
+			tagType(status) {
+				const text = status || ''
+				if (/异议|异常|失败|驳回|拒绝|不通过|否/.test(text)) {
+					return 'danger'
+				}
+				if (/待|未|暂无/.test(text)) {
+					return 'warning'
+				}
+				return 'success'
+			},
+			traceMainNodes() {
+				if (!this.traceData) {
+					return []
+				}
+				const donation = this.traceData.juanzengwuzi || {}
+				const acceptList = this.asList(this.traceData.yanshoujiluList)
+				const latestAccept = acceptList[acceptList.length - 1] || {}
+				return [
+					{
+						key: 'donation',
+						title: '捐赠记录',
+						status: this.resolveStatus(donation, '捐赠已记录'),
+						state: this.resolveState(donation, ['sfsh', 'yanshouzhuangtai']),
+						tagType: this.tagType(this.resolveStatus(donation, '捐赠已记录')),
+						fields: [
+							{ label: '捐赠人', value: this.field(donation, 'xingming') },
+							{ label: '数量', value: this.field(donation, 'wuzishuliang') },
+							{ label: '审核', value: this.field(donation, 'sfsh') }
+						]
+					},
+					{
+						key: 'acceptance',
+						title: '验收记录',
+						status: acceptList.length ? this.resolveStatus(latestAccept, '已验收') : '暂无记录',
+						state: acceptList.length ? this.resolveState(latestAccept, ['yanshoujieguo']) : 'missing',
+						tagType: acceptList.length ? this.tagType(this.resolveStatus(latestAccept, '已验收')) : 'info',
+						fields: [
+							{ label: '记录数', value: acceptList.length },
+							{ label: '验收人', value: this.field(latestAccept, 'yanshouren') },
+							{ label: '验收时间', value: this.field(latestAccept, 'yanshoushijian') }
+						]
+					}
+				]
+			},
+			traceBranchNodes() {
+				if (!this.traceData) {
+					return []
+				}
+				return this.asList(this.traceData.fenZhiList).map((item, index) => {
+					const claim = item.wuzishenling || {}
+					const outList = this.asList(item.chukufenboList)
+					const receiveList = this.asList(item.jieshouxinxiList)
+					const useList = this.asList(item.shiyongfankuiList)
+					const objectionList = this.asList(item.yiyifankuiList)
+					const latestOut = outList[outList.length - 1] || {}
+					const latestReceive = receiveList[receiveList.length - 1] || {}
+					const latestUse = useList[useList.length - 1] || {}
+					const latestObjection = objectionList[objectionList.length - 1] || {}
+					return {
+						key: 'branch-' + index,
+						title: this.field(claim, 'shenlingbianhao'),
+						claim,
+						beforeFeedback: [
+							{
+								key: 'claim-' + index,
+								title: '物资申领',
+								status: this.resolveStatus(claim, '已申领'),
+								state: this.resolveState(claim, ['sfsh', 'chukuzhuangtai']),
+								tagType: this.tagType(this.resolveStatus(claim, '已申领')),
+								fields: [
+									{ label: '申领数量', value: this.field(claim, 'shenlingshuliang') },
+									{ label: '申领时间', value: this.field(claim, 'shenlingshijian') },
+									{ label: '出库状态', value: this.field(claim, 'chukuzhuangtai') }
+								]
+							},
+							{
+								key: 'out-' + index,
+								title: '出库记录',
+								status: outList.length ? this.resolveStatus(latestOut, '已出库') : '暂无记录',
+								state: outList.length ? this.resolveState(latestOut, ['wuliuzhuangtai']) : 'missing',
+								tagType: outList.length ? this.tagType(this.resolveStatus(latestOut, '已出库')) : 'info',
+								fields: [
+									{ label: '记录数', value: outList.length },
+									{ label: '出库数量', value: this.field(latestOut, 'wuzishuliang') },
+									{ label: '物流状态', value: this.field(latestOut, 'wuliuzhuangtai') }
+								]
+							},
+							{
+								key: 'receive-' + index,
+								title: '接收记录',
+								status: receiveList.length ? '已接收' : '暂无记录',
+								state: receiveList.length ? 'done' : 'missing',
+								tagType: receiveList.length ? 'success' : 'info',
+								fields: [
+									{ label: '记录数', value: receiveList.length },
+									{ label: '签收数量', value: this.field(latestReceive, 'wuzishuliang') },
+									{ label: '签收时间', value: this.field(latestReceive, 'qianshoushijian') }
+								]
+							}
+						],
+						feedback: [
+							{
+								key: 'use-' + index,
+								title: '使用反馈',
+								short: '用',
+								status: useList.length ? '已反馈' : '暂无反馈',
+								state: useList.length ? 'done' : 'missing',
+								tagType: useList.length ? 'success' : 'info',
+								fields: [
+									{ label: '反馈数', value: useList.length },
+									{ label: '使用人数', value: this.field(latestUse, 'shiyongrenshu') },
+									{ label: '反馈时间', value: this.field(latestUse, 'fankuishijian') }
+								]
+							},
+							{
+								key: 'objection-' + index,
+								title: '异议反馈',
+								short: '异',
+								status: objectionList.length ? this.resolveStatus(latestObjection, '存在异议') : '暂无异议',
+								state: objectionList.length ? this.resolveObjectionState(latestObjection) : 'missing',
+								tagType: objectionList.length ? (this.resolveObjectionState(latestObjection) === 'pending' ? 'warning' : 'danger') : 'info',
+								fields: [
+									{ label: '异议数', value: objectionList.length },
+									{ label: '审核状态', value: this.field(latestObjection, 'sfsh') },
+									{ label: '提交时间', value: this.field(latestObjection, 'tijiaoshijian') }
+								]
+							}
+						]
+					}
+				})
 			},
 			toDetail(item) {
 				let params = {
@@ -1003,6 +1339,28 @@
 			.el-table /deep/ .table-view:hover {
 				opacity: 0.8;
 			}
+			.el-table /deep/ .table-trace {
+				border: 0;
+				cursor: pointer;
+				border-radius: 4px;
+				padding: 0 10px;
+				margin: 0 5px 2px 0;
+				outline: none;
+				color: #fff;
+				background: #4fc3b1;
+				width: auto;
+				font-size: 14px;
+				height: 32px;
+				.iconfont {
+					margin: 0 0px;
+					color: #fff;
+					font-size: 14px;
+					height: 40px;
+				}
+			}
+			.el-table /deep/ .table-trace:hover {
+				opacity: 0.8;
+			}
 			.el-table /deep/ .table-edit {
 				border: 0;
 				cursor: pointer;
@@ -1069,6 +1427,249 @@
 			.el-table /deep/ .table-btn5:hover {
 				opacity: 0.8;
 			}
+		}
+	}
+	.trace-dialog /deep/ .el-dialog__body {
+		padding: 12px 18px 18px;
+	}
+	.trace-content {
+		color: #27364a;
+	}
+	.trace-summary-band {
+		padding: 18px 20px;
+		margin-bottom: 18px;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		background: #fbfcff;
+	}
+	.trace-summary-title {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-bottom: 16px;
+		color: #27364a;
+		font-size: 20px;
+		font-weight: 700;
+	}
+	.trace-summary-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(130px, 1fr));
+		gap: 12px;
+	}
+	.trace-summary-grid div {
+		padding: 12px;
+		border-radius: 6px;
+		background: #fff;
+	}
+	.trace-summary-grid span,
+	.trace-node-fields span,
+	.trace-section-head span,
+	.trace-branch-meta {
+		color: #7a8391;
+		font-size: 13px;
+	}
+	.trace-summary-grid strong,
+	.trace-node-fields strong {
+		display: block;
+		margin-top: 6px;
+		color: #2f3a4a;
+		font-size: 15px;
+		font-weight: 600;
+		word-break: break-all;
+	}
+	.trace-section {
+		margin-top: 18px;
+	}
+	.trace-section-head {
+		display: flex;
+		align-items: baseline;
+		gap: 12px;
+		margin-bottom: 14px;
+	}
+	.trace-section-head h3 {
+		margin: 0;
+		color: #27364a;
+		font-size: 18px;
+	}
+	.trace-flow-row,
+	.trace-branch-flow {
+		display: flex;
+		align-items: stretch;
+		gap: 28px;
+		overflow-x: auto;
+		padding: 6px 4px 16px;
+	}
+	.trace-node {
+		position: relative;
+		flex: 0 0 260px;
+		min-height: 160px;
+		padding: 16px;
+		border: 1px solid #d7dee8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 22px rgba(39,54,74,.06);
+		box-sizing: border-box;
+	}
+	.trace-node.compact {
+		flex-basis: 230px;
+		min-height: 170px;
+	}
+	.trace-node.has-next:after {
+		content: "";
+		position: absolute;
+		top: 50%;
+		right: -28px;
+		width: 28px;
+		height: 2px;
+		background: #cbd5e1;
+	}
+	.trace-node.has-next:before {
+		content: "";
+		position: absolute;
+		top: calc(50% - 5px);
+		right: -30px;
+		border: 6px solid transparent;
+		border-left-color: #cbd5e1;
+	}
+	.trace-node-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+	}
+	.trace-node-index {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		border-radius: 50%;
+		background: #edf2f7;
+		color: #4a5568;
+		font-weight: 700;
+	}
+	.trace-node h4 {
+		margin: 14px 0 12px;
+		color: #27364a;
+		font-size: 17px;
+	}
+	.trace-node-fields {
+		display: grid;
+		gap: 8px;
+	}
+	.trace-node-fields p {
+		margin: 0;
+	}
+	.trace-node.state-done {
+		border-color: #67c23a;
+		background: #fbfff8;
+	}
+	.trace-node.state-done .trace-node-index {
+		background: #e6f7df;
+		color: #2f8f1f;
+	}
+	.trace-node.state-pending {
+		border-color: #e6a23c;
+		background: #fffaf0;
+	}
+	.trace-node.state-pending .trace-node-index {
+		background: #fdf0d4;
+		color: #b56a00;
+	}
+	.trace-node.state-danger {
+		border-color: #f56c6c;
+		background: #fff7f7;
+	}
+	.trace-node.state-danger .trace-node-index {
+		background: #fde2e2;
+		color: #c73939;
+	}
+	.trace-node.state-missing {
+		border-color: #cbd5e1;
+		background: #f8fafc;
+	}
+	.trace-node.state-missing .trace-node-index {
+		background: #e2e8f0;
+		color: #64748b;
+	}
+	.trace-empty {
+		padding: 42px 20px;
+		color: #909399;
+		text-align: center;
+		background: #fff;
+		border-radius: 8px;
+	}
+	.trace-branch-list {
+		display: grid;
+		gap: 18px;
+	}
+	.trace-branch {
+		padding: 18px;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		background: #fff;
+	}
+	.trace-branch-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 16px;
+	}
+	.trace-branch-head strong {
+		color: #27364a;
+		font-size: 17px;
+	}
+	.trace-branch-number {
+		display: inline-block;
+		margin-right: 10px;
+		padding: 4px 8px;
+		border-radius: 4px;
+		background: #eaf4ff;
+		color: #3179c3;
+		font-weight: 600;
+	}
+	.trace-branch-meta {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+	}
+	.trace-feedback-split {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(2, 230px);
+		gap: 14px;
+		padding-left: 8px;
+	}
+	.trace-split-line {
+		position: absolute;
+		top: 50%;
+		left: -28px;
+		width: 28px;
+		height: 2px;
+		background: #cbd5e1;
+	}
+	@media (max-width: 900px) {
+		.trace-summary-grid {
+			grid-template-columns: repeat(2, minmax(130px, 1fr));
+		}
+		.trace-branch-head {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+		.trace-branch-meta {
+			justify-content: flex-start;
+		}
+	}
+	@media (max-width: 560px) {
+		.trace-summary-grid {
+			grid-template-columns: 1fr;
+		}
+		.trace-feedback-split {
+			grid-template-columns: 230px;
 		}
 	}
 </style>

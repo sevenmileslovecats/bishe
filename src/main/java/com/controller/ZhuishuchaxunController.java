@@ -48,7 +48,14 @@ public class ZhuishuchaxunController {
 	@RequestMapping("/trace")
 	public R trace(@RequestParam String juanzengbianhao, HttpServletRequest request) {
 		Object roleObj = request.getSession().getAttribute("role");
-		if (roleObj == null || !"管理员".equals(roleObj.toString())) {
+		Object tableNameObj = request.getSession().getAttribute("tableName");
+		Object usernameObj = request.getSession().getAttribute("username");
+		String role = roleObj == null ? "" : roleObj.toString();
+		String tableName = tableNameObj == null ? "" : tableNameObj.toString();
+		String username = usernameObj == null ? "" : usernameObj.toString();
+		boolean admin = "管理员".equals(role) || "users".equals(tableName);
+		boolean donor = "捐赠人".equals(role) || "juanzengren".equals(tableName);
+		if (!admin && !donor) {
 			return R.error(403, "无权限");
 		}
 		if (StringUtils.isBlank(juanzengbianhao)) {
@@ -59,6 +66,9 @@ public class ZhuishuchaxunController {
 				.selectOne(new EntityWrapper<JuanzengwuziEntity>().eq("juanzengbianhao", juanzengbianhao));
 		if (juanzengwuzi == null) {
 			return R.error("未找到捐赠记录");
+		}
+		if (donor && !StringUtils.equals(username, juanzengwuzi.getZhanghao())) {
+			return R.error(403, "只能追溯查询自己的捐赠物资");
 		}
 
 		List<String> warnings = new ArrayList<>();

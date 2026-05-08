@@ -55,11 +55,11 @@
 					</el-button>
 					<el-button class="btn18" v-if="isAuth('wuzishenling','机构分拨占比')" type="success" @click="chartDialogShow1">
 						<span class="icon iconfont icon-xihuan" :style='{"padding":"10px","margin":"0 2px","color":"#af7d59","borderRadius":"100%","background":"#e9cfbc20","fontSize":"20px","fontWeight":"500","height":"40px"}'></span>
-						机构分拨占比
+						申领状态构成
 					</el-button>
 					<el-button class="btn18" v-if="isAuth('wuzishenling','区域需求热度')" type="success" @click="chartDialogShow2">
 						<span class="icon iconfont icon-xihuan" :style='{"padding":"10px","margin":"0 2px","color":"#af7d59","borderRadius":"100%","background":"#e9cfbc20","fontSize":"20px","fontWeight":"500","height":"40px"}'></span>
-						区域需求热度
+						物资需求排行
 					</el-button>
 				</el-row>
 			</el-form>
@@ -410,39 +410,32 @@
 			chartDialog1() {
 				this.$nextTick(()=>{
 					var jigoumingchengChart1 = echarts.init(document.getElementById("jigoumingchengChart1"),'macarons');
-					let params = {}
-					if(params.conditionColumn) {
-						params.conditionColumn += ';' + 'sfsh'
-						params.conditionValue += ';' + '是'
-					}else {
-						params.conditionColumn = 'sfsh'
-						params.conditionValue = '是'
-					}
 					this.$http({
-						url: "wuzishenling/group/jigoumingcheng",
-						method: "get",
-						params
+						url: "wuzishenling/group/sfsh",
+						method: "get"
 					}).then(({data})=>{
 						if (data && data.code === 0) {
 							let res = data.data;
-							let xAxis = [];
-							let yAxis = [];
 							let pArray = []
 							for(let i=0;i<res.length;i++){
 								if(this.boardBase&&i==this.boardBase.pieNum){
 									break;
 								}
 								// 统计图设置对了吗
-								xAxis.push(res[i].jigoumingcheng);
-								yAxis.push(parseFloat((res[i].total)));
+								let name = res[i].sfsh || '待审核'
+								if(name == '是') {
+									name = '审核通过'
+								} else if(name == '否') {
+									name = '审核未通过'
+								}
 								pArray.push({
 									value: parseFloat((res[i].total)),
-									name: res[i].jigoumingcheng
+									name: name
 								})
 							}
 							var option = {};
 							let titleObj = this.pie.title
-							titleObj.text = '机构分拨占比'
+							titleObj.text = '申领状态构成'
 							
 							const legendObj = this.pie.legend
 							let tooltipObj = {trigger: 'item',formatter: '{b} : {c} ({d}%)'}
@@ -451,7 +444,6 @@
 							let seriesObj = {
 								type: 'pie',
 								radius: ['25%', '55%'],
-								roseType: 'area',
 								center: ['50%', '60%'],
 								data: pArray,
 								emphasis: {
@@ -492,20 +484,13 @@
 				this.$nextTick(()=>{
 					var quyuChart2 = echarts.init(document.getElementById("quyuChart2"),'macarons');
 					let params = {}
-					if(params.conditionColumn) {
-						params.conditionColumn += ';' + 'sfsh'
-						params.conditionValue += ';' + '是'
-					}else {
-						params.conditionColumn = 'sfsh'
-						params.conditionValue = '是'
-					}
 					this.$http({
-						url: "wuzishenling/group/quyu",
+						url: "wuzishenling/value/wuzimingcheng/shenlingshuliang",
 						method: "get",
 						params
 					}).then(({data})=>{
 						if (data && data.code === 0) {
-							let res = data.data;
+							let res = (data.data||[]).sort((a, b) => parseFloat(b.total || 0) - parseFloat(a.total || 0));
 							let xAxis = [];
 							let yAxis = [];
 							let pArray = []
@@ -514,16 +499,16 @@
 									break;
 								}
 								// 统计图设置对了吗
-								xAxis.push(res[i].quyu);
+								xAxis.push(res[i].wuzimingcheng);
 								yAxis.push(parseFloat((res[i].total)));
 								pArray.push({
 									value: parseFloat((res[i].total)),
-									name: res[i].quyu
+									name: res[i].wuzimingcheng
 								})
 							}
 							var option = {};
 							let titleObj = this.bar.title
-							titleObj.text = '区域需求热度'
+							titleObj.text = '物资需求排行'
 							
 							const legendObj = this.bar.legend
 							let tooltipObj = {trigger: 'item',formatter: '{b} : {c}'}
