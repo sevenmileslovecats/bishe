@@ -49,15 +49,33 @@
 			</div>
 			<div class="list">
 				<div class="list5">
-					<div v-for="(item,index) in dataList" :key="index" class="list-item" @click.stop="toDetail(item)" >
-						<div class="imgbox">
-							<img @click.stop="imgPreView(item.wuzitupian)" v-if="item.wuzitupian && item.wuzitupian.substr(0,4)=='http'&&item.wuzitupian.split(',w').length>1" :src="item.wuzitupian" class="image" />
-							<img @click.stop="imgPreView(item.wuzitupian.split(',')[0])" v-else-if="item.wuzitupian && item.wuzitupian.substr(0,4)=='http'" :src="item.wuzitupian.split(',')[0]" class="image" />
-							<img @click.stop="imgPreView(baseUrl + (item.wuzitupian?item.wuzitupian.split(',')[0]:''))" v-else :src="baseUrl + (item.wuzitupian?item.wuzitupian.split(',')[0]:'')" class="image" />
+					<div v-for="(item,index) in dataList" :key="index" class="list-item material-card" @click.stop="toDetail(item)" >
+						<div class="imgbox material-card-cover">
+							<img v-if="getRecommendImage(item)" @click.stop="imgPreView(getRecommendImage(item))" :src="getRecommendImage(item)" class="image" @error="$event.target.style.display='none'" />
+							<div v-else class="material-card-empty">无图片</div>
+							<div class="material-card-actions" @click.stop>
+								<el-button class="card-detail-btn" size="mini" @click="toDetail(item)">详情</el-button>
+								<el-button class="card-apply-btn" v-if="btnAuth('wuzixinxi','物资申领')" size="mini" @click="goRecommendApply(item)">物资申领</el-button>
+							</div>
 						</div>
-						<div class="infoBox">
-							<div class="name">{{item.wuzimingcheng}}</div>
-							<div class="bottomInfo">
+						<div class="infoBox material-card-body">
+							<div class="name material-card-title" :title="item.wuzimingcheng">{{item.wuzimingcheng || '未命名物资'}}</div>
+							<div class="material-card-tags">
+								<span>{{item.wuzizhonglei || '未分类'}}</span>
+								<span>{{item.wuziguige || '无规格'}}</span>
+							</div>
+							<div class="material-card-metrics">
+								<div>
+									<label>数量</label>
+									<strong>{{item.wuzishuliang || 0}}</strong>
+								</div>
+								<div>
+									<label>保质期</label>
+									<strong>{{item.baozhiqi || '无'}}</strong>
+								</div>
+							</div>
+							<div class="material-card-code">捐赠编号：{{item.juanzengbianhao || '无'}}</div>
+							<div class="bottomInfo" v-if="false">
 								<div class="time_item">
 									<span class="icon iconfont icon-shijian21"></span>
 									<span class="label">发布时间：</span>
@@ -1039,6 +1057,216 @@
 			color: #909399;
 			text-align: center;
 			padding: 40px 0;
+		}
+	}
+
+	/* material-card-view */
+	.list-preview .list {
+		padding: 0 !important;
+		margin-top: 18px;
+	}
+
+	.list-preview .list .list5 {
+		display: grid !important;
+		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+		gap: 18px !important;
+		width: 100% !important;
+	}
+
+	.list-preview .list .list5 .material-card {
+		position: relative !important;
+		overflow: hidden !important;
+		width: 100% !important;
+		min-height: 0 !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border: 1px solid #e5ece8 !important;
+		border-radius: 8px !important;
+		background: #fff !important;
+		box-shadow: 0 8px 20px rgba(24, 39, 75, .06) !important;
+		transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+	}
+
+	.list-preview .list .list5 .material-card:hover {
+		transform: translateY(-2px);
+		border-color: #9bcf9c !important;
+		box-shadow: 0 14px 28px rgba(24, 39, 75, .12) !important;
+	}
+
+	.list-preview .list .list5 .material-card-cover {
+		position: relative !important;
+		overflow: hidden !important;
+		width: 100% !important;
+		aspect-ratio: 16 / 9;
+		background: #eef4ef !important;
+		cursor: pointer;
+	}
+
+	.list-preview .list .list5 .material-card-cover .image {
+		display: block !important;
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: cover !important;
+		opacity: 1 !important;
+		transition: transform .25s ease !important;
+	}
+
+	.list-preview .list .list5 .material-card:hover .material-card-cover .image {
+		transform: scale(1.04);
+	}
+
+	.material-card-empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		color: #8b9a90;
+		font-size: 14px;
+	}
+
+	.material-card-actions {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-content: center;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 8px;
+		padding: 18px;
+		background: linear-gradient(180deg, rgba(15, 23, 42, .1), rgba(15, 23, 42, .62));
+		opacity: 0;
+		transition: opacity .18s ease;
+	}
+
+	.material-card:hover .material-card-actions,
+	.material-card:focus-within .material-card-actions {
+		opacity: 1;
+	}
+
+	.material-card-actions /deep/ .el-button {
+		height: 30px !important;
+		line-height: 30px !important;
+		padding: 0 10px !important;
+		margin: 0 !important;
+		border: 0 !important;
+		border-radius: 6px !important;
+		color: #fff !important;
+		font-size: 12px !important;
+		font-weight: 700;
+		box-shadow: 0 6px 14px rgba(15, 23, 42, .18) !important;
+	}
+
+	.card-detail-btn {
+		background: #4f9f45 !important;
+	}
+
+	.card-apply-btn {
+		background: #278f7f !important;
+	}
+
+	.list-preview .list .list5 .material-card-body {
+		position: static !important;
+		left: auto !important;
+		bottom: auto !important;
+		width: auto !important;
+		padding: 14px 14px 16px !important;
+		background: #fff !important;
+		text-align: left !important;
+	}
+
+	.list-preview .list .list5 .material-card-title {
+		overflow: hidden !important;
+		margin-bottom: 10px !important;
+		color: #172033 !important;
+		font-size: 16px !important;
+		font-weight: 800 !important;
+		line-height: 22px !important;
+		text-align: left !important;
+		text-overflow: ellipsis !important;
+		white-space: nowrap !important;
+	}
+
+	.material-card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+
+	.material-card-tags span {
+		max-width: 100%;
+		padding: 4px 9px;
+		border-radius: 999px;
+		background: #f0f7ef;
+		color: #427246;
+		font-size: 12px;
+		line-height: 18px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.material-card-metrics {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+
+	.material-card-metrics div {
+		padding: 9px 10px;
+		border-radius: 8px;
+		background: #f8faf8;
+	}
+
+	.material-card-metrics label {
+		display: block;
+		margin-bottom: 3px;
+		color: #718071;
+		font-size: 12px;
+	}
+
+	.material-card-metrics strong {
+		display: block;
+		color: #243124;
+		font-size: 15px;
+		line-height: 20px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.material-card-code {
+		color: #64748b;
+		font-size: 13px;
+		line-height: 20px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.material-card .bottomInfo {
+		display: none !important;
+	}
+
+	@media (hover: none), (max-width: 960px) {
+		.material-card-actions {
+			position: static;
+			opacity: 1;
+			background: #f7fbf6;
+			padding: 10px 12px;
+			justify-content: flex-start;
+		}
+		.material-card-actions /deep/ .el-button {
+			box-shadow: none !important;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.list-preview .list .list5 {
+			grid-template-columns: 1fr !important;
 		}
 	}
 </style>

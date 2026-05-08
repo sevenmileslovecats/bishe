@@ -45,106 +45,77 @@
 					</el-button>
 				</el-row>
 			</el-form>
-			<div :style='{"padding":"20px","boxShadow":"none","borderColor":"#ff9164","borderRadius":"10px","background":"#fff","borderWidth":"4px 0 0","width":"100%","borderStyle":"solid"}'>
-				<el-table class="tables"
-					:stripe='false'
-					:style='{"padding":"0","borderColor":"#eee","borderRadius":"10px","borderWidth":"1px 0 0 0px","background":"#fff","width":"100%","borderStyle":"solid"}' 
-					:border='false'
-					:row-class-name="tableRowClassName"
-					v-if="isAuth('wuzixinxi','查看')"
-					:data="dataList"
-					v-loading="dataListLoading"
-					@selection-change="selectionChangeHandler">
-					<el-table-column :resizable='true' type="selection" align="center" width="50"></el-table-column>
-					<el-table-column :resizable='true' :sortable='true' label="序号" type="index" width="50" />
-					<el-table-column :resizable='true' :sortable='true'
-												prop="juanzengbianhao"
-						label="捐赠编号">
-						<template slot-scope="scope">
-							{{scope.row.juanzengbianhao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuzimingcheng"
-						label="物资名称">
-						<template slot-scope="scope">
-							{{scope.row.wuzimingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuzizhonglei"
-						label="物资种类">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhonglei}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuziguige"
-						label="物资规格">
-						<template slot-scope="scope">
-							{{scope.row.wuziguige}}
-						</template>
-					</el-table-column>
-					<el-table-column  :resizable='true' prop="wuzitupian" width="200" label="物资图片">
-						<template slot-scope="scope">
-							<div v-if="scope.row.wuzitupian">
-								<img v-if="scope.row.wuzitupian.substring(0,4)=='http'&&scope.row.wuzitupian.split(',w').length>1" :src="scope.row.wuzitupian" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.wuzitupian)">
-								<img v-else-if="scope.row.wuzitupian.substring(0,4)=='http'" :src="scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.wuzitupian.split(',')[0])">
-								<img v-else :src="$base.url+scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView($base.url+scope.row.wuzitupian.split(',')[0])">
+			<div class="material-card-panel" v-if="isAuth('wuzixinxi','查看')" v-loading="dataListLoading">
+				<div class="material-card-toolbar">
+					<div class="toolbar-summary">共 {{ totalPage }} 条物资</div>
+					<div class="toolbar-sort">
+						<span>排序</span>
+						<el-select v-model="cardSortField" size="small" @change="cardSortChange">
+							<el-option label="序号" value="id"></el-option>
+							<el-option label="捐赠编号" value="juanzengbianhao"></el-option>
+							<el-option label="物资名称" value="wuzimingcheng"></el-option>
+							<el-option label="物资种类" value="wuzizhonglei"></el-option>
+							<el-option label="物资规格" value="wuziguige"></el-option>
+							<el-option label="物资数量" value="wuzishuliang"></el-option>
+							<el-option label="保质期" value="baozhiqi"></el-option>
+						</el-select>
+						<el-button size="small" class="sort-order-btn" @click="toggleCardSortOrder">
+							{{ cardSortOrder == 'asc' ? '升序' : '降序' }}
+						</el-button>
+					</div>
+				</div>
+				<el-empty v-if="!dataList.length" description="暂无物资信息"></el-empty>
+				<div v-else class="material-card-grid">
+					<div
+						v-for="item in dataList"
+						:key="item.id"
+						class="material-card"
+						:class="{ selected: isCardSelected(item), warning: changeInList(item.wuzimingcheng, baozhiqiRemind) }"
+					>
+						<el-checkbox
+							v-if="isAuth('wuzixinxi','删除')"
+							class="material-card-check"
+							:value="isCardSelected(item)"
+							@change="toggleCardSelection(item)"
+						></el-checkbox>
+						<div class="material-card-cover" @click="getMaterialImage(item) && imgPreView(getMaterialImage(item))">
+							<img v-if="getMaterialImage(item)" :src="getMaterialImage(item)" @error="$event.target.style.display='none'">
+							<div v-else class="material-card-empty">无图片</div>
+							<div class="material-card-actions" @click.stop>
+								<el-button class="view" v-if="isAuth('wuzixinxi','查看')" size="mini" @click="addOrUpdateHandler(item.id,'info')">详情</el-button>
+								<el-button class="btn8" v-if="isAuth('wuzixinxi','物资申领')" size="mini" @click="wuzishenlingCrossAddOrUpdateHandler(item,'cross','','','','')">物资申领</el-button>
+								<el-button class="btn8" v-if="isAuth('wuzixinxi','出库分拨')" size="mini" @click="chukufenboCrossAddOrUpdateHandler(item,'cross','','','','')">出库分拨</el-button>
+								<el-button class="edit" v-if="isAuth('wuzixinxi','修改')" size="mini" @click="addOrUpdateHandler(item.id)">修改</el-button>
+								<el-button class="del" v-if="isAuth('wuzixinxi','删除')" size="mini" @click="deleteHandler(item.id)">删除</el-button>
 							</div>
-							<div v-else>无图片</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-						class-name="showColor1"						prop="wuzishuliang"
-						label="物资数量">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-						class-name="showColor2"						prop="baozhiqi"
-						label="保质期">
-						<template slot-scope="scope">
-							{{scope.row.baozhiqi}}
-						</template>
-					</el-table-column>
-					<el-table-column width="300" label="操作">
-						<template slot-scope="scope">
-							<el-button class="view" v-if=" isAuth('wuzixinxi','查看')" type="success" @click="addOrUpdateHandler(scope.row.id,'info')">
-								<span class="icon iconfont icon-chakan14" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								详情
-							</el-button>
-							<el-button class="btn8" v-if="isAuth('wuzixinxi','物资申领')" @click="wuzishenlingCrossAddOrUpdateHandler(scope.row,'cross','','','','')" type="success">
-								<span class="icon iconfont icon-xihuan" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								物资申领
-							</el-button>
-							<el-button class="btn8" v-if="isAuth('wuzixinxi','出库分拨')" @click="chukufenboCrossAddOrUpdateHandler(scope.row,'cross','','','','')" type="success">
-								<span class="icon iconfont icon-xihuan" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								出库分拨
-							</el-button>
-							<el-button class="edit" v-if=" isAuth('wuzixinxi','修改') " type="success" @click="addOrUpdateHandler(scope.row.id)">
-								<span class="icon iconfont icon-xiugai13" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								修改
-							</el-button>
-
-
-
-
-							<el-button class="del" v-if="isAuth('wuzixinxi','删除')" type="primary" @click="deleteHandler(scope.row.id)">
-								<span class="icon iconfont icon-shanchu6" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								删除
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
+						</div>
+						<div class="material-card-body">
+							<div class="material-card-title" :title="item.wuzimingcheng">{{ item.wuzimingcheng || '未命名物资' }}</div>
+							<div class="material-card-tags">
+								<span>{{ item.wuzizhonglei || '未分类' }}</span>
+								<span>{{ item.wuziguige || '无规格' }}</span>
+							</div>
+							<div class="material-card-metrics">
+								<div>
+									<label>数量</label>
+									<strong>{{ item.wuzishuliang || 0 }}</strong>
+								</div>
+								<div>
+									<label>保质期</label>
+									<strong>{{ item.baozhiqi || '无' }}</strong>
+								</div>
+							</div>
+							<div class="material-card-code">捐赠编号：{{ item.juanzengbianhao || '无' }}</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<el-pagination
 				@size-change="sizeChangeHandle"
 				@current-change="currentChangeHandle"
 				:current-page="pageIndex"
 				background
-				:page-sizes="[10, 50, 100, 200]"
+				:page-sizes="[12, 24, 48, 96]"
 				:page-size="pageSize"
 				:layout="layouts.join()"
 				:total="totalPage"
@@ -232,11 +203,13 @@
 				form:{},
 				dataList: [],
 				pageIndex: 1,
-				pageSize: 10,
+				pageSize: 12,
 				totalPage: 0,
 				dataListLoading: false,
 				dataListSelections: [],
 				showFlag: true,
+				cardSortField: 'id',
+				cardSortOrder: 'desc',
 				line: {"backgroundColor":"transparent","yAxis":{"axisLabel":{"borderType":"solid","rotate":0,"padding":0,"shadowOffsetX":0,"margin":15,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"width":"","fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#666","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"minInterval":1,"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(25,25,25,0.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"xAxis":{"axisLabel":{"borderType":"solid","rotate":30,"padding":0,"shadowOffsetX":0,"margin":10,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"truncate","borderRadius":0,"borderWidth":0,"width":120,"interval":0,"fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":false},"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(25,25,25,.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"color":["#ff7f00","#ffce49","#ffa171","#e6a09c","#a5cd66","#ced04f","#ffc065","#fda0e6","#dfa0fd"],"legend":{"padding":0,"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":14,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":"auto","top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"80%","itemWidth":20,"textStyle":{"textBorderWidth":0,"color":"inherit","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"series":{"showSymbol":true,"symbol":"emptyCircle","symbolSize":4},"tooltip":{"backgroundColor":"#123","textStyle":{"color":"#fff"}},"title":{"borderType":"solid","padding":0,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"shadowBlur":0,"bottom":"auto","show":true,"right":"auto","top":"auto","borderRadius":0,"left":"left","borderWidth":0,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","fontSize":14,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":600,"textBorderColor":"#666","textShadowBlur":0},"shadowColor":"transparent"}},
 				bar: {"backgroundColor":"transparent","yAxis":{"axisLabel":{"borderType":"solid","rotate":0,"padding":0,"shadowOffsetX":0,"margin":12,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"width":"","fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#666","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"minInterval":1,"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(25,25,25,0.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"xAxis":{"axisLabel":{"borderType":"solid","rotate":30,"padding":0,"shadowOffsetX":0,"margin":10,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"truncate","borderRadius":0,"borderWidth":0,"width":120,"interval":0,"fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":false},"minInterval":1,"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(25,25,25,.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"color":["#ff7f00","#ffce49","#ffa171","#e6a09c","#a5cd66","#ced04f","#ffc065","#fda0e6","#dfa0fd"],"legend":{"padding":0,"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":14,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":"auto","top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"80%","itemWidth":20,"textStyle":{"textBorderWidth":0,"color":"inherit","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":12,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"grid":{"x":"25%","y":"15%","y2":"15%","x2":"5%"},"series":{"barWidth":"auto","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"#666","shadowOffsetY":0,"color":"","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"#000"},"colorBy":"data","barCategoryGap":"20%"},"tooltip":{"backgroundColor":"#123","textStyle":{"color":"#fff"}},"title":{"borderType":"solid","padding":0,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"shadowBlur":0,"bottom":"auto","show":true,"right":"auto","top":"auto","borderRadius":0,"left":"left","borderWidth":0,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","fontSize":14,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":600,"textBorderColor":"#666","textShadowBlur":0},"shadowColor":"transparent"},"base":{"animate":false,"interval":2000}},
 				pie: {"tooltip":{"backgroundColor":"#123","textStyle":{"color":"#fff"}},"backgroundColor":"transparent","color":["#ff7f00","#ffce49","#ffa171","#e6a09c","#a5cd66","#ced04f","#ffc065","#fda0e6","#dfa0fd"],"title":{"borderType":"solid","padding":[5,0,0,0],"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"shadowBlur":0,"bottom":"auto","show":true,"right":"auto","top":"auto","borderRadius":0,"left":"left","borderWidth":0,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","fontSize":14,"lineHeight":14,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":600,"textBorderColor":"#666","textShadowBlur":0},"shadowColor":"transparent"},"legend":{"padding":[5,0,0,0],"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":2,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":0,"top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"80%","itemWidth":2,"textStyle":{"textBorderWidth":0,"color":"inherit","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":12,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"series":{"itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"#666","shadowOffsetY":0,"color":"","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"#000"},"label":{"borderType":"solid","rotate":0,"padding":0,"textBorderWidth":0,"backgroundColor":"transparent","borderColor":"#666","color":"inherit","show":true,"textShadowColor":"transparent","distanceToLabelLine":5,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"fontSize":12,"lineHeight":18,"textShadowOffsetX":0,"position":"outside","textShadowOffsetY":0,"textBorderType":"solid","textBorderColor":"#666","textShadowBlur":0},"labelLine":{"show":true,"length":10,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"#666","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"#000"},"length2":14,"smooth":false}}},
@@ -336,6 +309,37 @@
 				this.previewImg = url
 				this.previewVisible = true
 				
+			},
+			getMaterialImage(item) {
+				if (!item || !item.wuzitupian) {
+					return ''
+				}
+				let img = item.wuzitupian
+				if (img.indexOf(',') !== -1 && !(img.substring(0, 4) == 'http' && img.split(',w').length > 1)) {
+					img = img.split(',')[0]
+				}
+				if (img.substring(0, 4) == 'http') {
+					return img
+				}
+				return this.$base.url + img
+			},
+			isCardSelected(item) {
+				return this.dataListSelections.some(row => row.id === item.id)
+			},
+			toggleCardSelection(item) {
+				if (this.isCardSelected(item)) {
+					this.dataListSelections = this.dataListSelections.filter(row => row.id !== item.id)
+				} else {
+					this.dataListSelections = this.dataListSelections.concat(item)
+				}
+			},
+			cardSortChange() {
+				this.pageIndex = 1
+				this.getDataList()
+			},
+			toggleCardSortOrder() {
+				this.cardSortOrder = this.cardSortOrder == 'asc' ? 'desc' : 'asc'
+				this.cardSortChange()
 			},
 			smartRecommend(){
 				this.recommendLoading = true
@@ -633,8 +637,8 @@
 				let params = {
 					page: this.pageIndex,
 					limit: this.pageSize,
-					sort: 'id',
-					order: 'desc',
+					sort: this.cardSortField,
+					order: this.cardSortOrder,
 				}
 				if(this.searchForm.wuzimingcheng) {
 					params['wuzimingcheng'] =  '%' + this.searchForm.wuzimingcheng + '%'
@@ -654,9 +658,11 @@
 					if (data && data.code === 0) {
 						this.dataList = data.data.list;
 						this.totalPage = data.data.total;
+						this.dataListSelections = [];
 					} else {
 						this.dataList = [];
 						this.totalPage = 0;
+						this.dataListSelections = [];
 					}
 					this.dataListLoading = false;
 				});
@@ -1698,6 +1704,259 @@
 	.center-form-pv /deep/ .el-input,
 	.center-form-pv /deep/ .el-select {
 		width: 100%;
+	}
+}
+
+/* material-card-view */
+.material-card-panel {
+	padding: 18px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 10px 28px rgba(32, 45, 64, .07) !important;
+}
+
+.material-card-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.toolbar-summary {
+	color: #334155;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.toolbar-sort {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #64748b;
+	font-size: 13px;
+}
+
+.toolbar-sort /deep/ .el-select {
+	width: 138px;
+}
+
+.sort-order-btn {
+	border-radius: 6px !important;
+	border-color: #d7e5d8 !important;
+	color: #3c7a40 !important;
+	background: #f4fbf3 !important;
+}
+
+.material-card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	gap: 18px;
+}
+
+.material-card {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid #e5ece8;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 8px 20px rgba(24, 39, 75, .06);
+	transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.material-card:hover,
+.material-card.selected {
+	transform: translateY(-2px);
+	border-color: #9bcf9c;
+	box-shadow: 0 14px 28px rgba(24, 39, 75, .12);
+}
+
+.material-card.warning {
+	border-color: #f3c56b;
+}
+
+.material-card-check {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	z-index: 3;
+	padding: 4px 6px;
+	border-radius: 6px;
+	background: rgba(255, 255, 255, .9);
+	box-shadow: 0 4px 12px rgba(15, 23, 42, .12);
+}
+
+.material-card-cover {
+	position: relative;
+	overflow: hidden;
+	aspect-ratio: 16 / 9;
+	background: #eef4ef;
+	cursor: pointer;
+}
+
+.material-card-cover img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform .25s ease;
+}
+
+.material-card:hover .material-card-cover img {
+	transform: scale(1.04);
+}
+
+.material-card-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	color: #8b9a90;
+	font-size: 14px;
+}
+
+.material-card-actions {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-content: center;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 18px;
+	background: linear-gradient(180deg, rgba(15, 23, 42, .1), rgba(15, 23, 42, .62));
+	opacity: 0;
+	transition: opacity .18s ease;
+}
+
+.material-card:hover .material-card-actions,
+.material-card:focus-within .material-card-actions {
+	opacity: 1;
+}
+
+.material-card-actions /deep/ .el-button {
+	height: 30px !important;
+	line-height: 30px !important;
+	padding: 0 10px !important;
+	margin: 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	color: #fff !important;
+	font-size: 12px !important;
+	font-weight: 700;
+	box-shadow: 0 6px 14px rgba(15, 23, 42, .18) !important;
+}
+
+.material-card-actions /deep/ .view {
+	background: #4f9f45 !important;
+}
+
+.material-card-actions /deep/ .btn8,
+.material-card-actions /deep/ .edit {
+	background: #278f7f !important;
+}
+
+.material-card-actions /deep/ .del {
+	background: #d9534f !important;
+}
+
+.material-card-body {
+	padding: 14px 14px 16px;
+}
+
+.material-card-title {
+	overflow: hidden;
+	margin-bottom: 10px;
+	color: #172033;
+	font-size: 16px;
+	font-weight: 800;
+	line-height: 22px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.material-card-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.material-card-tags span {
+	max-width: 100%;
+	padding: 4px 9px;
+	border-radius: 999px;
+	background: #f0f7ef;
+	color: #427246;
+	font-size: 12px;
+	line-height: 18px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.material-card-metrics {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.material-card-metrics div {
+	padding: 9px 10px;
+	border-radius: 8px;
+	background: #f8faf8;
+}
+
+.material-card-metrics label {
+	display: block;
+	margin-bottom: 3px;
+	color: #718071;
+	font-size: 12px;
+}
+
+.material-card-metrics strong {
+	display: block;
+	color: #243124;
+	font-size: 15px;
+	line-height: 20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.material-card-code {
+	color: #64748b;
+	font-size: 13px;
+	line-height: 20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@media (hover: none), (max-width: 960px) {
+	.material-card-actions {
+		position: static;
+		opacity: 1;
+		background: #f7fbf6;
+		padding: 10px 12px;
+		justify-content: flex-start;
+	}
+	.material-card-actions /deep/ .el-button {
+		box-shadow: none !important;
+	}
+}
+
+@media (max-width: 640px) {
+	.material-card-toolbar {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+	.material-card-grid {
+		grid-template-columns: 1fr;
 	}
 }
 </style>
