@@ -384,9 +384,28 @@ export default {
 				title,
 				records: this.asList(list).map(row => fields.map(item => ({
 					label: item[0],
-					value: this.field(row, item[1])
+					value: this.plainText(this.field(row, item[1]))
 				})))
 			}
+		},
+		plainText(value) {
+			if (value === undefined || value === null) {
+				return value
+			}
+			const text = String(value)
+			if (!/[<&]/.test(text)) {
+				return text
+			}
+			const normalized = text
+				.replace(/<br\s*\/?>/gi, '\n')
+				.replace(/<\/p\s*>/gi, '\n')
+				.replace(/<\\\/?p\s*>/gi, '\n')
+				.replace(/<p[^>]*>/gi, '')
+			const parser = document.createElement('div')
+			parser.innerHTML = normalized
+			return (parser.textContent || parser.innerText || '')
+				.replace(/\n{3,}/g, '\n\n')
+				.trim()
 		},
 		resolveStatus(row, fallback) {
 			if (!row) {
@@ -823,6 +842,7 @@ export default {
 	font-size: 14px;
 	font-weight: 600;
 	line-height: 1.45;
+	white-space: pre-line;
 	word-break: break-all;
 }
 

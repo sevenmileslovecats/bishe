@@ -70,9 +70,9 @@
 					<el-table-column  :resizable='true' prop="zuozhengtupian" width="200" label="佐证图片">
 						<template slot-scope="scope">
 							<div v-if="scope.row.zuozhengtupian">
-								<img v-if="scope.row.zuozhengtupian.substring(0,4)=='http'&&scope.row.zuozhengtupian.split(',w').length>1" :src="scope.row.zuozhengtupian" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.zuozhengtupian)">
-								<img v-else-if="scope.row.zuozhengtupian.substring(0,4)=='http'" :src="scope.row.zuozhengtupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.zuozhengtupian.split(',')[0])">
-								<img v-else :src="$base.url+scope.row.zuozhengtupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView($base.url+scope.row.zuozhengtupian.split(',')[0])">
+								<img v-if="scope.row.zuozhengtupian.substring(0,4)=='http'&&scope.row.zuozhengtupian.split(',w').length>1" :src="scope.row.zuozhengtupian" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.zuozhengtupian)">
+								<img v-else-if="scope.row.zuozhengtupian.substring(0,4)=='http'" :src="scope.row.zuozhengtupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.zuozhengtupian.split(',')[0])">
+								<img v-else :src="$base.url+scope.row.zuozhengtupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView($base.url+scope.row.zuozhengtupian.split(',')[0])">
 							</div>
 							<div v-else>无图片</div>
 						</template>
@@ -1194,4 +1194,237 @@
 	.chartDialog /deep/ .el-dialog {
 		background: #fff;
 	}
+
+/* admin-list-polish */
+.main-content {
+	padding: 24px !important;
+	background: #f5f7fb !important;
+	min-height: calc(100vh - 48px);
+	box-sizing: border-box;
+}
+
+.center-form-pv {
+	margin: 0 0 16px !important;
+}
+
+.center-form-pv > .el-row:first-child {
+	padding: 18px 20px 4px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 8px 22px rgba(32, 45, 64, .06) !important;
+	display: flex !important;
+	align-items: flex-end;
+	gap: 12px 16px;
+}
+
+.center-form-pv > .el-row:first-child > div {
+	margin: 0 0 14px !important;
+	display: flex !important;
+	align-items: center;
+}
+
+.center-form-pv .item-label {
+	height: 36px !important;
+	line-height: 36px !important;
+	margin: 0 8px 0 0 !important;
+	color: #44505c !important;
+	font-size: 14px !important;
+	font-weight: 600 !important;
+}
+
+.center-form-pv /deep/ .el-input,
+.center-form-pv /deep/ .el-select {
+	width: 190px;
+}
+
+.center-form-pv /deep/ .el-input__inner {
+	height: 36px;
+	line-height: 36px;
+	border-color: #dfe7ef;
+	border-radius: 6px;
+	color: #334155;
+}
+
+.center-form-pv /deep/ .el-input__inner:focus {
+	border-color: #6aac5a;
+}
+
+.center-form-pv .search,
+.center-form-pv .add,
+.center-form-pv .btn18,
+.center-form-pv .del {
+	height: 36px !important;
+	line-height: 36px !important;
+	padding: 0 15px !important;
+	margin: 0 8px 12px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 14px !important;
+	font-weight: 600;
+	box-shadow: none !important;
+}
+
+.center-form-pv .search,
+.center-form-pv .add {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+
+.center-form-pv .btn18 {
+	background: #eef7ee !important;
+	color: #35663b !important;
+	border: 1px solid #cfe6cf !important;
+}
+
+.center-form-pv .del {
+	background: #fff1f1 !important;
+	color: #c94b4b !important;
+	border: 1px solid #f0caca !important;
+}
+
+.center-form-pv .actions {
+	margin: 12px 0 16px !important;
+	width: 100% !important;
+	gap: 8px;
+}
+
+.center-form-pv .actions .icon,
+.center-form-pv .actions .iconfont,
+.center-form-pv .search .icon,
+.center-form-pv .search .iconfont {
+	padding: 0 !important;
+	margin: 0 4px 0 0 !important;
+	background: transparent !important;
+	color: inherit !important;
+	font-size: 14px !important;
+	height: auto !important;
+}
+
+.center-form-pv + div {
+	padding: 16px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 10px 28px rgba(32, 45, 64, .07) !important;
+	overflow-x: auto;
+}
+
+.tables {
+	min-width: 1180px;
+	border: 0 !important;
+	border-radius: 8px !important;
+	overflow: hidden;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr,
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	background: #f6faf7 !important;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	padding: 10px 0 !important;
+	border-color: #e7edf0 !important;
+	color: #22302a !important;
+	font-weight: 700 !important;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr th .cell,
+.tables /deep/ .el-table__body-wrapper tbody tr td .cell {
+	padding: 0 12px !important;
+	line-height: 22px !important;
+}
+
+.tables /deep/ .el-table__body-wrapper tbody tr td {
+	padding: 10px 0 !important;
+	border-color: #eef2f3 !important;
+	color: #3d4b43 !important;
+	background: #fff !important;
+}
+
+.tables /deep/ .el-table__body-wrapper tbody tr:hover td,
+.tables /deep/ .el-table__body-wrapper tbody tr.current-row td,
+.tables /deep/ .el-table__body-wrapper tbody tr.hover-row td {
+	background: #f7fbf6 !important;
+}
+
+.tables /deep/ img {
+	width: 64px !important;
+	height: 64px !important;
+	border-radius: 6px;
+	object-fit: cover;
+	display: block;
+	background: #f0f4f1;
+	box-shadow: inset 0 0 0 1px #e5ebe6;
+	cursor: pointer;
+}
+
+.tables /deep/ .el-tag {
+	border-radius: 14px;
+	padding: 0 12px;
+}
+
+.tables /deep/ .el-button {
+	height: 32px !important;
+	line-height: 32px !important;
+	padding: 0 12px !important;
+	margin: 0 6px 4px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 13px !important;
+	box-shadow: none !important;
+}
+
+.tables /deep/ .view {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .edit,
+.tables /deep/ .btn8 {
+	background: #278f7f !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .del {
+	background: #d9534f !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .btn18,
+.tables /deep/ .btn3,
+.tables /deep/ .btn4,
+.tables /deep/ .btn5 {
+	background: #e89232 !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .el-button--text {
+	color: #2474d4 !important;
+	background: transparent !important;
+	padding: 0 !important;
+}
+
+.el-pagination {
+	padding: 14px 0 0 !important;
+	margin: 16px 0 0 !important;
+	justify-content: flex-end !important;
+}
+
+.el-pagination /deep/ .btn-prev,
+.el-pagination /deep/ .btn-next,
+.el-pagination /deep/ .el-pager li {
+	border-radius: 6px !important;
+}
+
+@media (max-width: 960px) {
+	.main-content {
+		padding: 14px !important;
+	}
+	.center-form-pv > .el-row:first-child > div,
+	.center-form-pv /deep/ .el-input,
+	.center-form-pv /deep/ .el-select {
+		width: 100%;
+	}
+}
 </style>

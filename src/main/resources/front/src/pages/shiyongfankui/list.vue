@@ -77,9 +77,9 @@
 					<el-table-column :resizable='true' prop="changjingzhaopian" width="200" label="场景照片">
 						<template slot-scope="scope">
 							<div v-if="scope.row.changjingzhaopian">
-								<img v-if="scope.row.changjingzhaopian.substring(0,4)=='http'&&scope.row.changjingzhaopian.split(',w').length>1" :src="scope.row.changjingzhaopian" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.changjingzhaopian)">
-								<img v-else-if="scope.row.changjingzhaopian.substring(0,4)=='http'" :src="scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.changjingzhaopian.split(',')[0])">
-								<img v-else :src="baseUrl+scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(baseUrl+scope.row.changjingzhaopian.split(',')[0])">
+								<img v-if="scope.row.changjingzhaopian.substring(0,4)=='http'&&scope.row.changjingzhaopian.split(',w').length>1" :src="scope.row.changjingzhaopian" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.changjingzhaopian)">
+								<img v-else-if="scope.row.changjingzhaopian.substring(0,4)=='http'" :src="scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.changjingzhaopian.split(',')[0])">
+								<img v-else :src="baseUrl+scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(baseUrl+scope.row.changjingzhaopian.split(',')[0])">
 							</div>
 							<div v-else>无图片</div>
 						</template>
@@ -812,4 +812,241 @@
 			}
 		}
 	}
+.breadcrumb-preview {
+	max-width: 1760px;
+	margin: 0 auto;
+	padding: 18px 24px 0;
+	box-sizing: border-box;
+}
+
+.back_box {
+	max-width: 1760px;
+	margin: 12px auto 0;
+	padding: 0 24px;
+	text-align: right;
+	box-sizing: border-box;
+	.backBtn {
+		border: 0;
+		border-radius: 6px;
+		color: #fff;
+		background: #5ba84d;
+		height: 34px;
+		padding: 0 16px;
+	}
+}
+
+.list-preview {
+	max-width: 1760px;
+	width: 100% !important;
+	margin: 0 auto !important;
+	padding: 20px 24px 44px !important;
+	box-sizing: border-box;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	background: #f7faf8;
+	.list-form-pv {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 18px 18px 8px !important;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 24px rgba(34, 62, 43, .06);
+		display: flex;
+		align-items: flex-end;
+		flex-wrap: wrap;
+		gap: 12px 16px;
+		order: 1;
+		.list-item {
+			margin: 0 0 10px !important;
+			.lable {
+				margin: 0 0 6px !important;
+				color: #4d5d53;
+				font-size: 13px !important;
+				line-height: 18px !important;
+				font-weight: 600;
+			}
+			.el-input {
+				width: 190px !important;
+			}
+			/deep/ .el-input__inner {
+				height: 36px;
+				line-height: 36px;
+				border-color: #dfe9df;
+				border-radius: 6px;
+			}
+		}
+		.list-btn-box {
+			margin: 0 0 10px !important;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			align-items: center;
+		}
+		.el-button {
+			height: 36px;
+			padding: 0 16px;
+			border: 0;
+			border-radius: 6px;
+			font-size: 14px;
+		}
+		.list-search-btn {
+			background: #4f9f45;
+		}
+		.list-add-btn {
+			background: #278f7f;
+		}
+		.list-static-btn {
+			color: #35633b;
+			background: #edf7ed;
+			border: 1px solid #cfe6cf;
+		}
+	}
+	.select2 {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 12px 16px !important;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 24px rgba(34, 62, 43, .05);
+		order: 2;
+		.select2-list {
+			margin: 0 !important;
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+			.label {
+				min-width: 86px;
+				color: #56645b;
+				font-weight: 600;
+				line-height: 32px;
+			}
+			.item-body {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				.item {
+					margin: 0 !important;
+					padding: 0 14px !important;
+					border-radius: 16px !important;
+					color: #52645a !important;
+					background: #f4f7f4 !important;
+					font-size: 14px !important;
+					line-height: 30px !important;
+				}
+				.item:hover,
+				.item.active {
+					color: #fff !important;
+					background: #5ba84d !important;
+				}
+			}
+		}
+	}
+	.sort_view {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		order: 3;
+		.collect-sort-btn {
+			height: 34px;
+			padding: 0 14px;
+			border: 1px solid #dbe9db;
+			border-radius: 17px;
+			color: #47604f;
+			background: #fff;
+		}
+	}
+	.list {
+		width: 100% !important;
+		margin: 0 !important;
+		flex: none !important;
+		order: 4;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 12px 30px rgba(34, 62, 43, .08);
+		overflow-x: auto;
+		.el-table {
+			border: 0 !important;
+			min-width: 1120px;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr,
+		.el-table /deep/ .el-table__header-wrapper thead tr th {
+			background: #f3f8f4 !important;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr th {
+			padding: 10px 0 !important;
+			border-color: #e6eee7 !important;
+			color: #26342b;
+			font-weight: 700;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr th .cell,
+		.el-table /deep/ .el-table__body-wrapper tbody tr td .cell {
+			padding: 0 12px !important;
+			line-height: 22px !important;
+		}
+		.el-table /deep/ .el-table__body-wrapper tbody tr td {
+			padding: 10px 0 !important;
+			border-color: #eef2ef !important;
+			color: #3e4d45 !important;
+			background: #fff !important;
+		}
+		.el-table /deep/ .el-table__body-wrapper tbody tr:hover td {
+			background: #f7fbf6 !important;
+		}
+		.el-table /deep/ img {
+			width: 64px !important;
+			height: 64px !important;
+			border-radius: 6px;
+			object-fit: cover;
+			display: block;
+			background: #f0f4f1;
+			box-shadow: inset 0 0 0 1px #e5ebe6;
+			cursor: pointer;
+		}
+		.el-table /deep/ .el-button {
+			height: 32px;
+			padding: 0 12px;
+			border: 0;
+			border-radius: 6px;
+			font-size: 13px;
+		}
+		.el-table /deep/ .table-view {
+			background: #4f9f45 !important;
+		}
+		.el-table /deep/ .table-btn1,
+		.el-table /deep/ .table-btn5 {
+			background: #e89232 !important;
+		}
+		.el-table /deep/ .el-tag {
+			border-radius: 14px;
+			padding: 0 12px;
+		}
+	}
+	.pagination {
+		width: 100%;
+		margin: 8px 0 0 !important;
+		padding: 14px 0 0;
+		text-align: center;
+		order: 5;
+	}
+}
+
+@media (max-width: 900px) {
+	.breadcrumb-preview,
+	.back_box,
+	.list-preview {
+		padding-left: 12px !important;
+		padding-right: 12px !important;
+	}
+	.list-preview .list-form-pv .list-item,
+	.list-preview .list-form-pv .list-item .el-input {
+		width: 100% !important;
+	}
+	.list-preview .list-form-pv .list-btn-box {
+		width: 100%;
+	}
+}
 </style>
