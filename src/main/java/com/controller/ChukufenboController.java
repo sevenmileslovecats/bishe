@@ -38,11 +38,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 出库分拨
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:01
+ * 出库分拨 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/chukufenbo")
@@ -50,7 +47,9 @@ public class ChukufenboController {
     @Autowired
     private ChukufenboService chukufenboService;
     /**
-     * 后台列表
+     * 功能：分页查询出库分拨数据。
+     * 使用端：管理端出库分拨管理列表页。
+     * 前端触发：admin/src/views/modules/chukufenbo/list.vue 通过 $http.get('chukufenbo/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,ChukufenboEntity chukufenbo,
@@ -73,9 +72,11 @@ public class ChukufenboController {
 
 
     /**
-     * 前台列表
+     * 功能：查询出库分拨前台列表数据。
+     * 使用端：前台出库分拨列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/chukufenbo/list.vue 通过 $http.get('chukufenbo/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,ChukufenboEntity chukufenbo,
                 @RequestParam(required = false) Double wuzishuliangstart,
@@ -101,8 +102,10 @@ public class ChukufenboController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询出库分拨不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('chukufenbo/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( ChukufenboEntity chukufenbo){
@@ -111,8 +114,10 @@ public class ChukufenboController {
         return R.ok().put("data", chukufenboService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条出库分拨视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('chukufenbo/query') 触发。
      */
     @RequestMapping("/query")
     public R query(ChukufenboEntity chukufenbo){
@@ -123,7 +128,9 @@ public class ChukufenboController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询出库分拨管理端详情。
+     * 使用端：管理端出库分拨列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('chukufenbo/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -135,9 +142,11 @@ public class ChukufenboController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询出库分拨前台详情。
+     * 使用端：前台出库分拨详情页或编辑回显页。
+     * 前端触发：front/src/pages/chukufenbo/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         ChukufenboEntity chukufenbo = chukufenboService.selectById(id);
@@ -151,7 +160,9 @@ public class ChukufenboController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增出库分拨记录。
+     * 使用端：管理端出库分拨新增表单。
+     * 前端触发：管理端表单通过 $http.post('chukufenbo/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增出库分拨")
@@ -162,7 +173,9 @@ public class ChukufenboController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增出库分拨记录。
+     * 使用端：前台出库分拨新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('chukufenbo/add') 触发。
      */
     @SysLog("新增出库分拨")
     @RequestMapping("/add")
@@ -172,7 +185,9 @@ public class ChukufenboController {
         return R.ok().put("data",chukufenbo.getId());
     }
     /**
-     * 修改
+     * 功能：修改出库分拨记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('chukufenbo/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -186,7 +201,9 @@ public class ChukufenboController {
 
 
     /**
-     * 删除
+     * 功能：删除出库分拨记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('chukufenbo/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除出库分拨")

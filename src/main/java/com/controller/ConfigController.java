@@ -23,17 +23,20 @@ import com.utils.R;
 import com.utils.ValidatorUtils;
 
 /**
- * 登录相关
+ * 配置/轮播图 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
-@RequestMapping("config")
 @RestController
+@RequestMapping("config")
 public class ConfigController{
-	
+
 	@Autowired
 	private ConfigService configService;
 
-	/**
-     * 列表
+    /**
+     * 功能：分页查询配置/轮播图数据。
+     * 使用端：管理端配置/轮播图管理列表页。
+     * 前端触发：admin/src/views/modules/config/list.vue 通过 $http.get('config/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,ConfigEntity config){
@@ -41,9 +44,11 @@ public class ConfigController{
     	PageUtils page = configService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, config), params), params));
         return R.ok().put("data", page);
     }
-    
-	/**
-     * 列表
+
+    /**
+     * 功能：查询配置/轮播图前台列表数据。
+     * 使用端：前台配置/轮播图列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/config/list.vue 通过 $http.get('config/list') 触发。
      */
     @IgnoreAuth
     @RequestMapping("/list")
@@ -54,16 +59,20 @@ public class ConfigController{
     }
 
     /**
-     * 信息
+     * 功能：查询配置/轮播图管理端详情。
+     * 使用端：管理端配置/轮播图列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('config/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") String id){
         ConfigEntity config = configService.selectById(id);
         return R.ok().put("data", config);
     }
-    
+
     /**
-     * 详情
+     * 功能：查询配置/轮播图前台详情。
+     * 使用端：前台配置/轮播图详情页或编辑回显页。
+     * 前端触发：front/src/pages/config/detail.vue 或 add.vue 触发。
      */
     @IgnoreAuth
     @RequestMapping("/detail/{id}")
@@ -71,9 +80,11 @@ public class ConfigController{
         ConfigEntity config = configService.selectById(id);
         return R.ok().put("data", config);
     }
-    
+
     /**
-     * 根据name获取信息
+     * 功能：按配置名称查询配置项。
+     * 使用端：登录页、首页、注册页读取背景图和 Logo。
+     * 前端触发：前端通过 $http.get('config/info?name=...') 触发。
      */
     @IgnoreAuth
     @RequestMapping("/info")
@@ -81,9 +92,11 @@ public class ConfigController{
         ConfigEntity config = configService.selectOne(new EntityWrapper<ConfigEntity>().eq("name", name));
         return R.ok().put("data", config);
     }
-    
+
     /**
-     * 保存
+     * 功能：管理端新增配置/轮播图记录。
+     * 使用端：管理端配置/轮播图新增表单。
+     * 前端触发：管理端表单通过 $http.post('config/save') 触发。
      */
     @PostMapping("/save")
     public R save(@RequestBody ConfigEntity config){
@@ -93,7 +106,9 @@ public class ConfigController{
     }
 
     /**
-     * 修改
+     * 功能：修改配置/轮播图记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('config/update') 触发。
      */
     @RequestMapping("/update")
     public R update(@RequestBody ConfigEntity config){
@@ -103,7 +118,9 @@ public class ConfigController{
     }
 
     /**
-     * 删除
+     * 功能：删除配置/轮播图记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('config/delete') 触发。
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] ids){

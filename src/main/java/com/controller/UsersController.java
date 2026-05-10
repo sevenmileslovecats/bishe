@@ -40,32 +40,24 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 管理员
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:02
+ * 管理员 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/users")
 public class UsersController {
     @Autowired
     private UsersService usersService;
-
-
-
-
-
-
-
 	@Autowired
 	private TokenService tokenService;
 
-	/**
-	 * 登录
-	 */
+    /**
+     * 功能：管理员登录认证，生成并返回访问 Token。
+     * 使用端：管理端/前台登录页。
+     * 前端触发：登录页提交账号密码时通过 $http.get('users/login') 触发。
+     */
 	@IgnoreAuth
-	@RequestMapping(value = "/login")
+    @RequestMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
 		if(!VerifyCodeUtils.validateCaptcha(request, captcha)) {
 			return R.error("\u9a8c\u8bc1\u7801\u9519\u8bef");
@@ -83,11 +75,12 @@ public class UsersController {
 	}
 
 
-
-	/**
-     * 注册
+    /**
+     * 功能：注册管理员账号。
+     * 使用端：前台注册页或管理端注册入口。
+     * 前端触发：注册页提交表单时通过 $http.post('users/register') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/register")
     public R register(@RequestBody UsersEntity users){
     	//ValidatorUtils.validateEntity(users);
@@ -106,8 +99,10 @@ public class UsersController {
 
 
     /**
-    * 注销账户
-    */
+     * 功能：注销管理员账号。
+     * 使用端：管理端管理员账号维护。
+     * 前端触发：账号注销操作通过 $http.post('users/logoff') 触发。
+     */
     @RequestMapping("/logoff")
     public R logOff(HttpServletRequest request){
         Long id = (Long)request.getSession().getAttribute("userId");
@@ -119,17 +114,21 @@ public class UsersController {
         return R.ok("注销成功");
     }
 
-	/**
-	 * 退出
-	 */
-	@RequestMapping("/logout")
+    /**
+     * 功能：退出当前管理员登录会话。
+     * 使用端：管理端/前台顶部退出登录按钮。
+     * 前端触发：退出按钮通过 $http.get('users/logout') 触发。
+     */
+    @RequestMapping("/logout")
 	public R logout(HttpServletRequest request) {
 		request.getSession().invalidate();
 		return R.ok("退出成功");
 	}
 
-	/**
-     * 获取用户的session用户信息
+    /**
+     * 功能：获取当前登录管理员的 Session 用户信息。
+     * 使用端：个人中心、表单自动带入当前用户信息。
+     * 前端触发：页面初始化时通过 $http.get('users/session') 触发。
      */
     @RequestMapping("/session")
     public R getCurrUser(HttpServletRequest request){
@@ -139,10 +138,12 @@ public class UsersController {
     }
 
     /**
-     * 密码重置
+     * 功能：重置管理员账号密码。
+     * 使用端：管理端账号维护或找回密码流程。
+     * 前端触发：前端通过 $http.get('users/resetPass') 触发。
      */
     @IgnoreAuth
-	@RequestMapping(value = "/resetPass")
+    @RequestMapping(value = "/resetPass")
     public R resetPass(String username, HttpServletRequest request){
     	//根据登录账号判断是否存在用户信息，否则返回错误信息
         UsersEntity u = usersService.selectOne(new EntityWrapper<UsersEntity>().eq("username", username));
@@ -155,7 +156,9 @@ public class UsersController {
     }
 
     /**
-     * 获取账号列表
+     * 功能：查询管理员账号列表。
+     * 使用端：后台账号选择、关联账号下拉场景。
+     * 前端触发：账号选择组件通过 $http.get('users/accountList') 触发。
      */
     @RequestMapping("/accountList")
     public R getAccountList(@RequestParam Map<String, Object> params,UsersEntity users){
@@ -172,11 +175,10 @@ public class UsersController {
 
 
 
-
-
-
     /**
-     * 后台列表
+     * 功能：分页查询管理员数据。
+     * 使用端：管理端管理员管理列表页。
+     * 前端触发：admin/src/views/modules/users/list.vue 通过 $http.get('users/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,UsersEntity users,
@@ -195,9 +197,11 @@ public class UsersController {
 
 
     /**
-     * 前台列表
+     * 功能：查询管理员前台列表数据。
+     * 使用端：前台管理员列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/users/list.vue 通过 $http.get('users/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,UsersEntity users,
 		HttpServletRequest request){
@@ -215,8 +219,10 @@ public class UsersController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询管理员不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('users/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( UsersEntity users){
@@ -225,8 +231,10 @@ public class UsersController {
         return R.ok().put("data", usersService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条管理员视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('users/query') 触发。
      */
     @RequestMapping("/query")
     public R query(UsersEntity users){
@@ -237,7 +245,9 @@ public class UsersController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询管理员管理端详情。
+     * 使用端：管理端管理员列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('users/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -249,9 +259,11 @@ public class UsersController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询管理员前台详情。
+     * 使用端：前台管理员详情页或编辑回显页。
+     * 前端触发：front/src/pages/users/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         UsersEntity users = usersService.selectById(id);
@@ -265,7 +277,9 @@ public class UsersController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增管理员记录。
+     * 使用端：管理端管理员新增表单。
+     * 前端触发：管理端表单通过 $http.post('users/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增管理员")
@@ -282,7 +296,9 @@ public class UsersController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增管理员记录。
+     * 使用端：前台管理员新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('users/add') 触发。
      */
     @SysLog("新增管理员")
     @RequestMapping("/add")
@@ -300,8 +316,10 @@ public class UsersController {
 
 
 
-     /**
-     * 获取用户密保
+    /**
+     * 功能：校验管理员账号是否存在。
+     * 使用端：注册、找回或账号校验表单。
+     * 前端触发：前端通过 $http.get('users/security') 触发。
      */
     @RequestMapping("/security")
     @IgnoreAuth
@@ -312,7 +330,9 @@ public class UsersController {
 
 
     /**
-     * 修改
+     * 功能：修改管理员记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('users/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -336,7 +356,9 @@ public class UsersController {
 
 
     /**
-     * 删除
+     * 功能：删除管理员记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('users/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除管理员")
@@ -345,42 +367,35 @@ public class UsersController {
         return R.ok();
     }
 
-	/**
-     * 前台智能排序
+    /**
+     * 功能：按点击量等条件返回管理员自动排序列表。
+     * 使用端：前台推荐列表或首页推荐区域。
+     * 前端触发：前端推荐组件通过 $http.get('users/autoSort') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/autoSort")
-    public R autoSort(@RequestParam Map<String, Object> params,UsersEntity users, HttpServletRequest request,String pre){
+    public R autoSort(@RequestParam Map<String, Object> params,UsersEntity users, HttpServletRequest request,String pre) {
         EntityWrapper<UsersEntity> ew = new EntityWrapper<UsersEntity>();
         Map<String, Object> newMap = new HashMap<String, Object>();
         Map<String, Object> param = new HashMap<String, Object>();
         // 组装参数
-		Iterator<Map.Entry<String, Object>> it = param.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, Object> entry = it.next();
-			String key = entry.getKey();
-			String newKey = entry.getKey();
-			if (pre.endsWith(".")) {
-				newMap.put(pre + newKey, entry.getValue());
-			} else if (StringUtils.isEmpty(pre)) {
-				newMap.put(newKey, entry.getValue());
-			} else {
-				newMap.put(pre + "." + newKey, entry.getValue());
-			}
-		}
-		params.put("sort", "clicktime");
+        Iterator<Map.Entry<String, Object>> it = param.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Object> entry = it.next();
+            String key = entry.getKey();
+            String newKey = entry.getKey();
+            if (pre.endsWith(".")) {
+                newMap.put(pre + newKey, entry.getValue());
+            } else if (StringUtils.isEmpty(pre)) {
+                newMap.put(newKey, entry.getValue());
+            } else {
+                newMap.put(pre + "." + newKey, entry.getValue());
+            }
+        }
+        params.put("sort", "clicktime");
         params.put("order", "desc");
 
-		PageUtils page = usersService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, users), params), params));
+        PageUtils page = usersService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, users), params), params));
         return R.ok().put("data", page);
     }
-
-
-
-
-
-
-
-
-
 }

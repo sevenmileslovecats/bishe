@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 物资智能推荐服务。
+ * 说明：为接收机构物资信息列表页提供规则推荐和 DeepSeek 推荐兜底能力。
+ */
 @Service("wuziRecommendService")
 public class WuziRecommendService {
 
@@ -40,7 +44,9 @@ public class WuziRecommendService {
 
     @Autowired
     private DeepseekClient deepseekClient;
-
+    /**
+     * 为当前登录接收机构生成物资推荐结果，供前台物资信息列表页的智能推荐按钮调用。
+     */
     public R recommend(HttpServletRequest request) {
         String tableName = String.valueOf(request.getSession().getAttribute("tableName"));
         String jigouzhanghao = String.valueOf(request.getSession().getAttribute("username"));
@@ -99,8 +105,17 @@ public class WuziRecommendService {
                 totalApplyCount++;
                 int quantity = item.getShenlingshuliang() == null ? 0 : item.getShenlingshuliang();
                 totalApplyQuantity += quantity;
+              /**
+               * Service方法，服务WuziRecommend相关业务查询。
+               */
                 addCount(categoryCount, item.getWuzizhonglei(), 1);
+              /**
+               * Service方法，服务WuziRecommend相关业务查询。
+               */
                 addCount(nameCount, item.getWuzimingcheng(), 1);
+              /**
+               * Service方法，服务WuziRecommend相关业务查询。
+               */
                 addCount(categoryQuantity, item.getWuzizhonglei(), quantity);
             }
         }
@@ -152,6 +167,9 @@ public class WuziRecommendService {
         String source = checked.isEmpty() ? "rule" : "deepseek";
         String message = checked.isEmpty() ? modelResponse.getMessage() : "DeepSeek 已参与推荐";
         if(checked.size() >= RECOMMEND_LIMIT) {
+            /**
+             * Service方法，服务WuziRecommend相关业务查询。
+             */
             return new RecommendResult(checked, source, message);
         }
 
@@ -170,6 +188,9 @@ public class WuziRecommendService {
                 break;
             }
         }
+        /**
+         * Service方法，服务WuziRecommend相关业务查询。
+         */
         return new RecommendResult(checked, source, message);
     }
 

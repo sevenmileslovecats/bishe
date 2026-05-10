@@ -38,11 +38,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 物资申领
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:01
+ * 物资申领 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/wuzishenling")
@@ -62,7 +59,9 @@ public class WuzishenlingController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询物资申领数据。
+     * 使用端：管理端物资申领管理列表页。
+     * 前端触发：admin/src/views/modules/wuzishenling/list.vue 通过 $http.get('wuzishenling/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,WuzishenlingEntity wuzishenling,
@@ -85,9 +84,11 @@ public class WuzishenlingController {
 
 
     /**
-     * 前台列表
+     * 功能：查询物资申领前台列表数据。
+     * 使用端：前台物资申领列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/wuzishenling/list.vue 通过 $http.get('wuzishenling/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,WuzishenlingEntity wuzishenling,
                 @RequestParam(required = false) Double shenlingshuliangstart,
@@ -113,8 +114,10 @@ public class WuzishenlingController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询物资申领不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('wuzishenling/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( WuzishenlingEntity wuzishenling){
@@ -123,8 +126,10 @@ public class WuzishenlingController {
         return R.ok().put("data", wuzishenlingService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条物资申领视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('wuzishenling/query') 触发。
      */
     @RequestMapping("/query")
     public R query(WuzishenlingEntity wuzishenling){
@@ -135,7 +140,9 @@ public class WuzishenlingController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询物资申领管理端详情。
+     * 使用端：管理端物资申领列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('wuzishenling/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -147,9 +154,11 @@ public class WuzishenlingController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询物资申领前台详情。
+     * 使用端：前台物资申领详情页或编辑回显页。
+     * 前端触发：front/src/pages/wuzishenling/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         WuzishenlingEntity wuzishenling = wuzishenlingService.selectById(id);
@@ -163,7 +172,9 @@ public class WuzishenlingController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增物资申领记录。
+     * 使用端：管理端物资申领新增表单。
+     * 前端触发：管理端表单通过 $http.post('wuzishenling/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增物资申领")
@@ -178,7 +189,9 @@ public class WuzishenlingController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增物资申领记录。
+     * 使用端：前台物资申领新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('wuzishenling/add') 触发。
      */
     @SysLog("新增物资申领")
     @RequestMapping("/add")
@@ -284,7 +297,9 @@ public class WuzishenlingController {
 
 
     /**
-     * 修改
+     * 功能：修改物资申领记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('wuzishenling/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -301,7 +316,9 @@ public class WuzishenlingController {
     }
 
     /**
-     * 审核
+     * 功能：批量审核物资申领记录。
+     * 使用端：管理端物资申领审核按钮。
+     * 前端触发：列表页审核操作通过 $http.post('wuzishenling/shBatch') 触发。
      */
     @RequestMapping("/shBatch")
     @Transactional
@@ -322,7 +339,9 @@ public class WuzishenlingController {
 
 
     /**
-     * 删除
+     * 功能：删除物资申领记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('wuzishenling/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除物资申领")
@@ -338,7 +357,9 @@ public class WuzishenlingController {
 
 
     /**
-     * （按值统计）
+     * 功能：统计物资申领图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
      */
     @RequestMapping("/value/{xColumnName}/{yColumnName}")
     public R value(@PathVariable("yColumnName") String yColumnName, @PathVariable("xColumnName") String xColumnName, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, @RequestParam(required = false, defaultValue = "总和") String func, HttpServletRequest request) throws IOException {
@@ -405,7 +426,9 @@ public class WuzishenlingController {
     }
 
     /**
-     * （按值统计(多)）
+     * 功能：统计物资申领图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
      */
     @RequestMapping("/valueMul/{xColumnName}")
     public R valueMul(@PathVariable("xColumnName") String xColumnName,@RequestParam String yColumnNameMul, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, HttpServletRequest request)  throws IOException {
@@ -476,7 +499,9 @@ public class WuzishenlingController {
     }
 
     /**
-     * （按值统计）时间统计类型
+     * 功能：统计物资申领图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
      */
     @RequestMapping("/value/{xColumnName}/{yColumnName}/{timeStatType}")
     public R valueDay(@PathVariable("yColumnName") String yColumnName, @PathVariable("xColumnName") String xColumnName, @PathVariable("timeStatType") String timeStatType, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, @RequestParam(required = false, defaultValue = "总和") String func, HttpServletRequest request) throws IOException {
@@ -543,7 +568,9 @@ public class WuzishenlingController {
     }
 
     /**
-     * （按值统计）时间统计类型(多)
+     * 功能：统计物资申领图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
      */
     @RequestMapping("/valueMul/{xColumnName}/{timeStatType}")
     public R valueMulDay(@PathVariable("xColumnName") String xColumnName, @PathVariable("timeStatType") String timeStatType, @RequestParam String yColumnNameMul, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, HttpServletRequest request) throws IOException {
@@ -614,7 +641,9 @@ public class WuzishenlingController {
     }
 
     /**
-     * 分组统计
+     * 功能：按字段分组统计物资申领数据。
+     * 使用端：管理端首页统计、前台统计图表。
+     * 前端触发：图表组件通过 group 接口触发。
      */
     @RequestMapping("/group/{columnName}")
     public R group(@PathVariable("columnName") String columnName, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, HttpServletRequest request) throws IOException {
@@ -674,7 +703,9 @@ public class WuzishenlingController {
 
 
     /**
-     * 总数量
+     * 功能：统计物资申领总数。
+     * 使用端：首页总数卡片或模块统计区域。
+     * 前端触发：首页统计组件通过 $http.get('wuzishenling/count') 触发。
      */
     @RequestMapping("/count")
     public R count(@RequestParam Map<String, Object> params,WuzishenlingEntity wuzishenling, HttpServletRequest request){

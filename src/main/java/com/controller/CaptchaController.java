@@ -10,9 +10,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * 验证码 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
+ */
 @RestController
 public class CaptchaController {
 
+    /**
+     * 功能：生成登录验证码图片，并把验证码写入 Session。
+     * 使用端：管理端/前台登录页。
+     * 前端触发：登录页验证码图片访问 '/captcha' 或 '/captcha.jpg' 触发。
+     */
     @IgnoreAuth
     @GetMapping(value = {"/captcha", "/captcha.jpg"}, produces = MediaType.IMAGE_JPEG_VALUE)
     public void captcha(HttpServletRequest request, HttpServletResponse response) throws Exception {

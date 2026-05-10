@@ -40,11 +40,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 接收机构
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:00
+ * 接收机构 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/jieshoujigou")
@@ -61,11 +58,13 @@ public class JieshoujigouController {
 	@Autowired
 	private TokenService tokenService;
 
-	/**
-	 * 登录
-	 */
+    /**
+     * 功能：接收机构登录认证，生成并返回访问 Token。
+     * 使用端：管理端/前台登录页。
+     * 前端触发：登录页提交账号密码时通过 $http.get('jieshoujigou/login') 触发。
+     */
 	@IgnoreAuth
-	@RequestMapping(value = "/login")
+    @RequestMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
 		if(!VerifyCodeUtils.validateCaptcha(request, captcha)) {
 			return R.error("\u9a8c\u8bc1\u7801\u9519\u8bef");
@@ -91,10 +90,12 @@ public class JieshoujigouController {
 
 
 
-	/**
-     * 注册
+    /**
+     * 功能：注册接收机构账号。
+     * 使用端：前台注册页或管理端注册入口。
+     * 前端触发：注册页提交表单时通过 $http.post('jieshoujigou/register') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/register")
     public R register(@RequestBody JieshoujigouEntity jieshoujigou){
     	//ValidatorUtils.validateEntity(jieshoujigou);
@@ -112,17 +113,21 @@ public class JieshoujigouController {
 
 
 
-	/**
-	 * 退出
-	 */
-	@RequestMapping("/logout")
+    /**
+     * 功能：退出当前接收机构登录会话。
+     * 使用端：管理端/前台顶部退出登录按钮。
+     * 前端触发：退出按钮通过 $http.get('jieshoujigou/logout') 触发。
+     */
+    @RequestMapping("/logout")
 	public R logout(HttpServletRequest request) {
 		request.getSession().invalidate();
 		return R.ok("退出成功");
 	}
 
-	/**
-     * 获取用户的session用户信息
+    /**
+     * 功能：获取当前登录接收机构的 Session 用户信息。
+     * 使用端：个人中心、表单自动带入当前用户信息。
+     * 前端触发：页面初始化时通过 $http.get('jieshoujigou/session') 触发。
      */
     @RequestMapping("/session")
     public R getCurrUser(HttpServletRequest request){
@@ -132,10 +137,12 @@ public class JieshoujigouController {
     }
 
     /**
-     * 密码重置
+     * 功能：重置接收机构账号密码。
+     * 使用端：管理端账号维护或找回密码流程。
+     * 前端触发：前端通过 $http.get('jieshoujigou/resetPass') 触发。
      */
     @IgnoreAuth
-	@RequestMapping(value = "/resetPass")
+    @RequestMapping(value = "/resetPass")
     public R resetPass(String username, HttpServletRequest request){
     	//根据登录账号判断是否存在用户信息，否则返回错误信息
         JieshoujigouEntity u = jieshoujigouService.selectOne(new EntityWrapper<JieshoujigouEntity>().eq("jigouzhanghao", username));
@@ -149,7 +156,9 @@ public class JieshoujigouController {
     }
 
     /**
-     * 获取账号列表
+     * 功能：查询接收机构账号列表。
+     * 使用端：后台账号选择、关联账号下拉场景。
+     * 前端触发：账号选择组件通过 $http.get('jieshoujigou/accountList') 触发。
      */
     @RequestMapping("/accountList")
     public R getAccountList(@RequestParam Map<String, Object> params,JieshoujigouEntity jieshoujigou){
@@ -170,7 +179,9 @@ public class JieshoujigouController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询接收机构数据。
+     * 使用端：管理端接收机构管理列表页。
+     * 前端触发：admin/src/views/modules/jieshoujigou/list.vue 通过 $http.get('jieshoujigou/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,JieshoujigouEntity jieshoujigou,
@@ -189,9 +200,11 @@ public class JieshoujigouController {
 
 
     /**
-     * 前台列表
+     * 功能：查询接收机构前台列表数据。
+     * 使用端：前台接收机构列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/jieshoujigou/list.vue 通过 $http.get('jieshoujigou/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,JieshoujigouEntity jieshoujigou,
                 @RequestParam(required = false) Double statusstart,
@@ -213,8 +226,10 @@ public class JieshoujigouController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询接收机构不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('jieshoujigou/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( JieshoujigouEntity jieshoujigou){
@@ -223,8 +238,10 @@ public class JieshoujigouController {
         return R.ok().put("data", jieshoujigouService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条接收机构视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('jieshoujigou/query') 触发。
      */
     @RequestMapping("/query")
     public R query(JieshoujigouEntity jieshoujigou){
@@ -235,7 +252,9 @@ public class JieshoujigouController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询接收机构管理端详情。
+     * 使用端：管理端接收机构列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('jieshoujigou/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -247,9 +266,11 @@ public class JieshoujigouController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询接收机构前台详情。
+     * 使用端：前台接收机构详情页或编辑回显页。
+     * 前端触发：front/src/pages/jieshoujigou/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         JieshoujigouEntity jieshoujigou = jieshoujigouService.selectById(id);
@@ -263,7 +284,9 @@ public class JieshoujigouController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增接收机构记录。
+     * 使用端：管理端接收机构新增表单。
+     * 前端触发：管理端表单通过 $http.post('jieshoujigou/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增接收机构")
@@ -281,7 +304,9 @@ public class JieshoujigouController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增接收机构记录。
+     * 使用端：前台接收机构新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('jieshoujigou/add') 触发。
      */
     @SysLog("新增接收机构")
     @RequestMapping("/add")
@@ -303,7 +328,9 @@ public class JieshoujigouController {
 
 
     /**
-     * 修改
+     * 功能：修改接收机构记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('jieshoujigou/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -323,7 +350,9 @@ public class JieshoujigouController {
     }
 
     /**
-     * 审核
+     * 功能：批量审核接收机构记录。
+     * 使用端：管理端接收机构审核按钮。
+     * 前端触发：列表页审核操作通过 $http.post('jieshoujigou/shBatch') 触发。
      */
     @RequestMapping("/shBatch")
     @Transactional
@@ -344,7 +373,9 @@ public class JieshoujigouController {
 
 
     /**
-     * 删除
+     * 功能：删除接收机构记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('jieshoujigou/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除接收机构")

@@ -38,11 +38,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 收藏表
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:02
+ * 收藏/评论 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/storeup")
@@ -60,7 +57,9 @@ public class StoreupController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询收藏/评论数据。
+     * 使用端：管理端收藏/评论管理列表页。
+     * 前端触发：admin/src/views/modules/storeup/list.vue 通过 $http.get('storeup/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,StoreupEntity storeup,
@@ -82,9 +81,11 @@ public class StoreupController {
 
 
     /**
-     * 前台列表
+     * 功能：查询收藏/评论前台列表数据。
+     * 使用端：前台收藏/评论列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/storeup/list.vue 通过 $http.get('storeup/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,StoreupEntity storeup,
 		HttpServletRequest request){
@@ -102,8 +103,10 @@ public class StoreupController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询收藏/评论不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('storeup/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( StoreupEntity storeup){
@@ -112,8 +115,10 @@ public class StoreupController {
         return R.ok().put("data", storeupService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条收藏/评论视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('storeup/query') 触发。
      */
     @RequestMapping("/query")
     public R query(StoreupEntity storeup){
@@ -124,7 +129,9 @@ public class StoreupController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询收藏/评论管理端详情。
+     * 使用端：管理端收藏/评论列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('storeup/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -136,9 +143,11 @@ public class StoreupController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询收藏/评论前台详情。
+     * 使用端：前台收藏/评论详情页或编辑回显页。
+     * 前端触发：front/src/pages/storeup/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         StoreupEntity storeup = storeupService.selectById(id);
@@ -152,7 +161,9 @@ public class StoreupController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增收藏/评论记录。
+     * 使用端：管理端收藏/评论新增表单。
+     * 前端触发：管理端表单通过 $http.post('storeup/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增收藏表")
@@ -166,7 +177,9 @@ public class StoreupController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增收藏/评论记录。
+     * 使用端：前台收藏/评论新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('storeup/add') 触发。
      */
     @SysLog("新增收藏表")
     @RequestMapping("/add")
@@ -178,8 +191,10 @@ public class StoreupController {
 
 
 
-     /**
-     * 获取用户密保
+    /**
+     * 功能：校验收藏/评论账号是否存在。
+     * 使用端：注册、找回或账号校验表单。
+     * 前端触发：前端通过 $http.get('storeup/security') 触发。
      */
     @RequestMapping("/security")
     @IgnoreAuth
@@ -190,7 +205,9 @@ public class StoreupController {
 
 
     /**
-     * 修改
+     * 功能：修改收藏/评论记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('storeup/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -207,7 +224,9 @@ public class StoreupController {
 
 
     /**
-     * 删除
+     * 功能：删除收藏/评论记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('storeup/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除收藏表")
@@ -216,10 +235,12 @@ public class StoreupController {
         return R.ok();
     }
 
-	/**
-     * 前台智能排序
+    /**
+     * 功能：按点击量等条件返回收藏/评论自动排序列表。
+     * 使用端：前台推荐列表或首页推荐区域。
+     * 前端触发：前端推荐组件通过 $http.get('storeup/autoSort') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/autoSort")
     public R autoSort(@RequestParam Map<String, Object> params,StoreupEntity storeup, HttpServletRequest request,String pre){
         EntityWrapper<StoreupEntity> ew = new EntityWrapper<StoreupEntity>();

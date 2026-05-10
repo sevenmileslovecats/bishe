@@ -38,11 +38,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 异议反馈
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:02
+ * 异议反馈 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/yiyifankui")
@@ -60,7 +57,9 @@ public class YiyifankuiController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询异议反馈数据。
+     * 使用端：管理端异议反馈管理列表页。
+     * 前端触发：admin/src/views/modules/yiyifankui/list.vue 通过 $http.get('yiyifankui/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,YiyifankuiEntity yiyifankui,
@@ -83,9 +82,11 @@ public class YiyifankuiController {
 
 
     /**
-     * 前台列表
+     * 功能：查询异议反馈前台列表数据。
+     * 使用端：前台异议反馈列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/yiyifankui/list.vue 通过 $http.get('yiyifankui/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,YiyifankuiEntity yiyifankui,
                 @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date tijiaoshijianstart,
@@ -111,8 +112,10 @@ public class YiyifankuiController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询异议反馈不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('yiyifankui/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( YiyifankuiEntity yiyifankui){
@@ -121,8 +124,10 @@ public class YiyifankuiController {
         return R.ok().put("data", yiyifankuiService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条异议反馈视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('yiyifankui/query') 触发。
      */
     @RequestMapping("/query")
     public R query(YiyifankuiEntity yiyifankui){
@@ -133,7 +138,9 @@ public class YiyifankuiController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询异议反馈管理端详情。
+     * 使用端：管理端异议反馈列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('yiyifankui/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -145,9 +152,11 @@ public class YiyifankuiController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询异议反馈前台详情。
+     * 使用端：前台异议反馈详情页或编辑回显页。
+     * 前端触发：front/src/pages/yiyifankui/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         YiyifankuiEntity yiyifankui = yiyifankuiService.selectById(id);
@@ -161,7 +170,9 @@ public class YiyifankuiController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增异议反馈记录。
+     * 使用端：管理端异议反馈新增表单。
+     * 前端触发：管理端表单通过 $http.post('yiyifankui/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增异议反馈")
@@ -172,7 +183,9 @@ public class YiyifankuiController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增异议反馈记录。
+     * 使用端：前台异议反馈新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('yiyifankui/add') 触发。
      */
     @SysLog("新增异议反馈")
     @RequestMapping("/add")
@@ -187,7 +200,9 @@ public class YiyifankuiController {
 
 
     /**
-     * 修改
+     * 功能：修改异议反馈记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('yiyifankui/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -200,7 +215,9 @@ public class YiyifankuiController {
     }
 
     /**
-     * 审核
+     * 功能：批量审核异议反馈记录。
+     * 使用端：管理端异议反馈审核按钮。
+     * 前端触发：列表页审核操作通过 $http.post('yiyifankui/shBatch') 触发。
      */
     @RequestMapping("/shBatch")
     @Transactional
@@ -221,7 +238,9 @@ public class YiyifankuiController {
 
 
     /**
-     * 删除
+     * 功能：删除异议反馈记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('yiyifankui/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除异议反馈")

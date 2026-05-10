@@ -12,27 +12,42 @@ import com.entity.view.SyslogView;
 
 
 /**
- * 系统日志
- *
- * @author 
- * @email 
- * @date 2026-04-27 08:55:02
+ * 系统日志 服务层。
+ * 说明：承接 Controller 业务，封装分页查询、VO/View 查询和统计查询等服务能力。
  */
 public interface SyslogService extends IService<SyslogEntity> {
 
+    /**
+     * 分页查询系统日志数据，供 Controller 列表接口调用。
+     */
     PageUtils queryPage(Map<String, Object> params);
-    
-   	List<SyslogVO> selectListVO(Wrapper<SyslogEntity> wrapper);
-   	
-   	SyslogVO selectVO(@Param("ew") Wrapper<SyslogEntity> wrapper);
-   	
-   	List<SyslogView> selectListView(Wrapper<SyslogEntity> wrapper);
-   	
-   	SyslogView selectView(@Param("ew") Wrapper<SyslogEntity> wrapper);
-   	
-   	PageUtils queryPage(Map<String, Object> params,Wrapper<SyslogEntity> wrapper);
 
-   	
+    /**
+     * 查询系统日志VO 列表，给需要精简字段的业务场景使用。
+     */
+    List<SyslogVO> selectListVO(Wrapper<SyslogEntity> wrapper);
+
+    /**
+     * 查询单条系统日志VO 数据。
+     */
+    SyslogVO selectVO(@Param("ew") Wrapper<SyslogEntity> wrapper);
+
+    /**
+     * 查询系统日志视图列表，包含页面展示需要的扩展字段。
+     */
+    List<SyslogView> selectListView(Wrapper<SyslogEntity> wrapper);
+
+    /**
+     * 查询单条系统日志视图数据。
+     */
+    SyslogView selectView(@Param("ew") Wrapper<SyslogEntity> wrapper);
+
+    /**
+     * 分页查询系统日志数据，供 Controller 列表接口调用。
+     */
+    PageUtils queryPage(Map<String, Object> params,Wrapper<SyslogEntity> wrapper);
+
+
 
 }
 

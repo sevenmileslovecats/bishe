@@ -34,11 +34,8 @@ import cn.hutool.core.lang.Console;
 import java.io.IOException;
 
 /**
- * 验收记录
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:01
+ * 验收记录 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/yanshoujilu")
@@ -60,7 +57,9 @@ public class YanshoujiluController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询验收记录数据。
+     * 使用端：管理端验收记录管理列表页。
+     * 前端触发：admin/src/views/modules/yanshoujilu/list.vue 通过 $http.get('yanshoujilu/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,YanshoujiluEntity yanshoujilu,
@@ -83,9 +82,11 @@ public class YanshoujiluController {
 
 
     /**
-     * 前台列表
+     * 功能：查询验收记录前台列表数据。
+     * 使用端：前台验收记录列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/yanshoujilu/list.vue 通过 $http.get('yanshoujilu/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,YanshoujiluEntity yanshoujilu,
                 @RequestParam(required = false) Double wuzishuliangstart,
@@ -115,8 +116,10 @@ public class YanshoujiluController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询验收记录不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('yanshoujilu/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( YanshoujiluEntity yanshoujilu){
@@ -125,8 +128,10 @@ public class YanshoujiluController {
         return R.ok().put("data", yanshoujiluService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条验收记录视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('yanshoujilu/query') 触发。
      */
     @RequestMapping("/query")
     public R query(YanshoujiluEntity yanshoujilu){
@@ -137,7 +142,9 @@ public class YanshoujiluController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询验收记录管理端详情。
+     * 使用端：管理端验收记录列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('yanshoujilu/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -149,9 +156,11 @@ public class YanshoujiluController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询验收记录前台详情。
+     * 使用端：前台验收记录详情页或编辑回显页。
+     * 前端触发：front/src/pages/yanshoujilu/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         YanshoujiluEntity yanshoujilu = yanshoujiluService.selectById(id);
@@ -165,7 +174,9 @@ public class YanshoujiluController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增验收记录记录。
+     * 使用端：管理端验收记录新增表单。
+     * 前端触发：管理端表单通过 $http.post('yanshoujilu/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增验收记录")
@@ -181,7 +192,9 @@ public class YanshoujiluController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增验收记录记录。
+     * 使用端：前台验收记录新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('yanshoujilu/add') 触发。
      */
     @SysLog("新增验收记录")
     @RequestMapping("/add")
@@ -196,6 +209,11 @@ public class YanshoujiluController {
         return R.ok().put("data",yanshoujilu.getId());
     }
 
+    /**
+     * 功能：验收捐赠物资并同步生成/更新验收记录。
+     * 使用端：管理端或前台验收记录表单。
+     * 前端触发：front/src/pages/yanshoujilu/add.vue 通过 $http.post('yanshoujilu/accept') 触发。
+     */
     @RequestMapping("/accept")
     @Transactional
     @SysLog("验收捐赠物资")
@@ -273,7 +291,9 @@ public class YanshoujiluController {
 
 
     /**
-     * 修改
+     * 功能：修改验收记录记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('yanshoujilu/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -290,7 +310,9 @@ public class YanshoujiluController {
 
 
     /**
-     * 删除
+     * 功能：删除验收记录记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('yanshoujilu/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除验收记录")

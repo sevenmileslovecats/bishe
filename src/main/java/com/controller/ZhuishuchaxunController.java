@@ -27,6 +27,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 追溯查询 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
+ */
 @RestController
 @RequestMapping("/zhuishuchaxun")
 public class ZhuishuchaxunController {
@@ -45,7 +49,12 @@ public class ZhuishuchaxunController {
 	@Autowired
 	private YiyifankuiService yiyifankuiService;
 
-	@RequestMapping("/trace")
+    /**
+     * 功能：按捐赠编号查询物资全流程追溯信息。
+     * 使用端：前台捐赠物资列表页的追溯查询弹窗。
+     * 前端触发：front/src/pages/juanzengwuzi/list.vue 通过 $http.get('zhuishuchaxun/trace') 触发。
+     */
+    @RequestMapping("/trace")
 	public R trace(@RequestParam String juanzengbianhao, HttpServletRequest request) {
 		Object roleObj = request.getSession().getAttribute("role");
 		Object tableNameObj = request.getSession().getAttribute("tableName");

@@ -38,11 +38,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 物资种类
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:01
+ * 物资种类 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/wuzizhonglei")
@@ -60,7 +57,9 @@ public class WuzizhongleiController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询物资种类数据。
+     * 使用端：管理端物资种类管理列表页。
+     * 前端触发：admin/src/views/modules/wuzizhonglei/list.vue 通过 $http.get('wuzizhonglei/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,WuzizhongleiEntity wuzizhonglei,
@@ -79,9 +78,11 @@ public class WuzizhongleiController {
 
 
     /**
-     * 前台列表
+     * 功能：查询物资种类前台列表数据。
+     * 使用端：前台物资种类列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/wuzizhonglei/list.vue 通过 $http.get('wuzizhonglei/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,WuzizhongleiEntity wuzizhonglei,
 		HttpServletRequest request){
@@ -99,8 +100,10 @@ public class WuzizhongleiController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询物资种类不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('wuzizhonglei/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( WuzizhongleiEntity wuzizhonglei){
@@ -109,8 +112,10 @@ public class WuzizhongleiController {
         return R.ok().put("data", wuzizhongleiService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条物资种类视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('wuzizhonglei/query') 触发。
      */
     @RequestMapping("/query")
     public R query(WuzizhongleiEntity wuzizhonglei){
@@ -121,7 +126,9 @@ public class WuzizhongleiController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询物资种类管理端详情。
+     * 使用端：管理端物资种类列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('wuzizhonglei/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -133,9 +140,11 @@ public class WuzizhongleiController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询物资种类前台详情。
+     * 使用端：前台物资种类详情页或编辑回显页。
+     * 前端触发：front/src/pages/wuzizhonglei/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         WuzizhongleiEntity wuzizhonglei = wuzizhongleiService.selectById(id);
@@ -149,7 +158,9 @@ public class WuzizhongleiController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增物资种类记录。
+     * 使用端：管理端物资种类新增表单。
+     * 前端触发：管理端表单通过 $http.post('wuzizhonglei/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增物资种类")
@@ -164,7 +175,9 @@ public class WuzizhongleiController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增物资种类记录。
+     * 使用端：前台物资种类新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('wuzizhonglei/add') 触发。
      */
     @SysLog("新增物资种类")
     @RequestMapping("/add")
@@ -183,7 +196,9 @@ public class WuzizhongleiController {
 
 
     /**
-     * 修改
+     * 功能：修改物资种类记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('wuzizhonglei/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -204,7 +219,9 @@ public class WuzizhongleiController {
 
 
     /**
-     * 删除
+     * 功能：删除物资种类记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('wuzizhonglei/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除物资种类")

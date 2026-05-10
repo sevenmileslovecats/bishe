@@ -38,11 +38,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 使用反馈评论
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:02
+ * 使用反馈评论 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/discussshiyongfankui")
@@ -60,7 +57,9 @@ public class DiscussshiyongfankuiController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询使用反馈评论数据。
+     * 使用端：管理端使用反馈评论管理列表页。
+     * 前端触发：admin/src/views/modules/discussshiyongfankui/list.vue 通过 $http.get('discussshiyongfankui/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,DiscussshiyongfankuiEntity discussshiyongfankui,
@@ -79,9 +78,11 @@ public class DiscussshiyongfankuiController {
 
 
     /**
-     * 前台列表
+     * 功能：查询使用反馈评论前台列表数据。
+     * 使用端：前台使用反馈评论列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/discussshiyongfankui/list.vue 通过 $http.get('discussshiyongfankui/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,DiscussshiyongfankuiEntity discussshiyongfankui,
                 @RequestParam(required = false) Double thumbsupnumstart,
@@ -111,8 +112,10 @@ public class DiscussshiyongfankuiController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询使用反馈评论不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('discussshiyongfankui/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( DiscussshiyongfankuiEntity discussshiyongfankui){
@@ -121,8 +124,10 @@ public class DiscussshiyongfankuiController {
         return R.ok().put("data", discussshiyongfankuiService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条使用反馈评论视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('discussshiyongfankui/query') 触发。
      */
     @RequestMapping("/query")
     public R query(DiscussshiyongfankuiEntity discussshiyongfankui){
@@ -133,7 +138,9 @@ public class DiscussshiyongfankuiController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询使用反馈评论管理端详情。
+     * 使用端：管理端使用反馈评论列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('discussshiyongfankui/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -145,9 +152,11 @@ public class DiscussshiyongfankuiController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询使用反馈评论前台详情。
+     * 使用端：前台使用反馈评论详情页或编辑回显页。
+     * 前端触发：front/src/pages/discussshiyongfankui/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         DiscussshiyongfankuiEntity discussshiyongfankui = discussshiyongfankuiService.selectById(id);
@@ -161,7 +170,9 @@ public class DiscussshiyongfankuiController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增使用反馈评论记录。
+     * 使用端：管理端使用反馈评论新增表单。
+     * 前端触发：管理端表单通过 $http.post('discussshiyongfankui/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增使用反馈评论")
@@ -172,7 +183,9 @@ public class DiscussshiyongfankuiController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增使用反馈评论记录。
+     * 使用端：前台使用反馈评论新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('discussshiyongfankui/add') 触发。
      */
     @SysLog("新增使用反馈评论")
     @RequestMapping("/add")
@@ -184,8 +197,10 @@ public class DiscussshiyongfankuiController {
 
 
 
-     /**
-     * 获取用户密保
+    /**
+     * 功能：校验使用反馈评论账号是否存在。
+     * 使用端：注册、找回或账号校验表单。
+     * 前端触发：前端通过 $http.get('discussshiyongfankui/security') 触发。
      */
     @RequestMapping("/security")
     @IgnoreAuth
@@ -196,7 +211,9 @@ public class DiscussshiyongfankuiController {
 
 
     /**
-     * 修改
+     * 功能：修改使用反馈评论记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('discussshiyongfankui/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -213,7 +230,9 @@ public class DiscussshiyongfankuiController {
 
 
     /**
-     * 删除
+     * 功能：删除使用反馈评论记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('discussshiyongfankui/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除使用反馈评论")
@@ -222,10 +241,12 @@ public class DiscussshiyongfankuiController {
         return R.ok();
     }
 
-	/**
-     * 前台智能排序
+    /**
+     * 功能：按点击量等条件返回使用反馈评论自动排序列表。
+     * 使用端：前台推荐列表或首页推荐区域。
+     * 前端触发：前端推荐组件通过 $http.get('discussshiyongfankui/autoSort') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/autoSort")
     public R autoSort(@RequestParam Map<String, Object> params,DiscussshiyongfankuiEntity discussshiyongfankui, HttpServletRequest request,String pre){
         EntityWrapper<DiscussshiyongfankuiEntity> ew = new EntityWrapper<DiscussshiyongfankuiEntity>();
