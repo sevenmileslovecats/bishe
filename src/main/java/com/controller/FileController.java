@@ -87,6 +87,27 @@ public class FileController {
             // 保存文件到目标位置
             file.transferTo(dest);
 
+            // 特殊业务逻辑：更新配置
+            if (StringUtils.isNotBlank(type) && type.equals("1")) {
+                ConfigEntity configEntity = configService.selectOne(new EntityWrapper<ConfigEntity>().eq("name", "faceFile"));
+                if (configEntity == null) {
+                    configEntity = new ConfigEntity();
+                    configEntity.setName("faceFile");
+                }
+                configEntity.setValue(fileName);
+                configService.insertOrUpdate(configEntity);
+            }
+
+            return R.ok().put("file", fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return R.error("文件上传失败：" + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.error("系统异常，请检查配置或联系管理员");
+        }
+    }
+
     /**
      * 功能：下载或预览已上传文件。
      * 使用端：前后台文件预览、下载入口。
@@ -94,7 +115,7 @@ public class FileController {
      */
     @IgnoreAuth
     @RequestMapping("/download")
-    public ResponseEntity<byte[]> download(public ResponseEntity<byte[]> download(@RequestParam String fileName) {
+    public ResponseEntity<byte[]> download(@RequestParam String fileName) {
         if (fileName == null || fileName.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
