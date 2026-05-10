@@ -158,6 +158,7 @@
 				type: '',
 				userTableName: localStorage.getItem('UserTableName'),
 				ruleForm: {
+					wuzixinxiid: '',
 					juanzengbianhao: '',
 					shenlingbianhao: this.getUUID(),
 					wuzimingcheng: '',
@@ -243,6 +244,10 @@
 				this.type = type;
 				if(type=='cross'){
 					var obj = JSON.parse(localStorage.getItem('crossObj'));
+					var crossTable = localStorage.getItem('crossTable');
+					if(crossTable=='wuzixinxi' && obj.id){
+						this.ruleForm.wuzixinxiid = obj.id;
+					}
 					for (var o in obj){
 						if(o=='juanzengbianhao'){
 							this.ruleForm.juanzengbianhao = obj[o];

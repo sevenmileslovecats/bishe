@@ -84,8 +84,8 @@
 						<div class="swiper-wrapper">
 							<div class="swiper-slide" v-for="item in detailBanner" :key="item.id">
 								<div class="swiper-item">
-									<img v-if="item.substr(0,4)=='http'" :src="item" class="image">
-									<img v-else :src="baseUrl + item" class="image">
+									<img v-if="item.substr(0,4)=='http'" :src="item" class="image" @error="$event.target.style.display='none'">
+									<img v-else :src="baseUrl + item" class="image" @error="$event.target.style.display='none'">
 								</div>
 							</div>
 						</div>
@@ -102,8 +102,8 @@
 						<div class="swiper-wrapper">
 							<div class="swiper-slide" v-for="item in detailBanner" :key="item.id">
 								<div class="swiper-item">
-									<img v-if="item.substr(0,4)=='http'" :src="item" class="image">
-									<img v-else :src="baseUrl + item" class="image">
+									<img v-if="item.substr(0,4)=='http'" :src="item" class="image" @error="$event.target.style.display='none'">
+									<img v-else :src="baseUrl + item" class="image" @error="$event.target.style.display='none'">
 								</div>
 							</div>
 						</div>
@@ -704,6 +704,163 @@
 				background: #fff;
 				width: 100%;
 				font-size: 16px;
+			}
+		}
+	}
+
+	.breadcrumb-preview {
+		max-width: 1280px;
+		margin: 0 auto;
+		padding: 18px 24px 6px;
+	}
+	.back_box {
+		max-width: 1280px;
+		margin: 0 auto;
+		padding: 0 24px;
+		display: flex;
+		justify-content: flex-end;
+	}
+	.back_box .backBtn {
+		border: 0;
+		border-radius: 6px;
+		background: #5fa85a;
+		color: #fff;
+		height: 36px;
+		padding: 0 18px;
+		font-weight: 600;
+	}
+	.detail-preview {
+		max-width: 1280px;
+		padding: 24px;
+		margin: 0 auto 40px;
+		gap: 28px;
+		align-items: flex-start;
+		.attr {
+			margin: 0;
+			min-width: 420px;
+			order: 2;
+			.info {
+				border: 1px solid #edf0f3;
+				border-radius: 8px;
+				padding: 24px;
+				box-shadow: 0 10px 28px rgba(32, 45, 64, 0.08);
+				background: #fff;
+				.title-item {
+					padding: 0 0 16px;
+					margin: 0 0 16px;
+					border-color: #edf0f3;
+					.detail-title {
+						font-size: 24px;
+						line-height: 32px;
+						color: #1f2d3d;
+					}
+				}
+				.item {
+					display: grid;
+					grid-template-columns: 112px minmax(0, 1fr);
+					align-items: center;
+					gap: 10px;
+					padding: 10px 0;
+					border-bottom: 1px dashed #edf0f3;
+					.lable {
+						padding: 0;
+						color: #53616f;
+						font-size: 14px;
+						font-weight: 600;
+						line-height: 22px;
+						text-align: left;
+					}
+					.text {
+						padding: 0;
+						color: #1f2d3d;
+						font-size: 15px;
+						line-height: 22px;
+					}
+					.uploadBtn {
+						border: 1px solid #5fa85a;
+						border-radius: 6px;
+						background: #f5fbf5;
+						color: #357d3a;
+						height: 34px;
+						line-height: 32px;
+						font-weight: 600;
+					}
+				}
+				.btn_box {
+					padding: 20px 0 0;
+					gap: 10px;
+				}
+				.editBtn,
+				.delBtn,
+				.auditBtn {
+					border: 0;
+					border-radius: 6px;
+					padding: 0 18px;
+					margin: 0;
+					height: 38px;
+					line-height: 38px;
+					font-weight: 600;
+				}
+				.editBtn,
+				.auditBtn {
+					background: #5fa85a;
+				}
+				.delBtn {
+					background: #d95f54;
+				}
+			}
+		}
+		.detail-swpier2 {
+			width: 420px;
+			height: auto;
+			margin: 0;
+			order: 1;
+			.swiper21 .swiper-item {
+				position: relative;
+				border: 1px solid #edf0f3;
+				border-radius: 8px;
+				background: linear-gradient(135deg, #f7faf8, #eef5f2);
+				overflow: hidden;
+				min-height: 420px;
+				&::before {
+					content: "暂无图片";
+					position: absolute;
+					inset: 0;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #8a98a8;
+					font-size: 15px;
+				}
+				img {
+					position: relative;
+					z-index: 1;
+					border: 0;
+					width: 100%;
+					height: 420px;
+					background: #fff;
+				}
+			}
+		}
+	}
+	@media (max-width: 900px) {
+		.detail-preview {
+			padding: 16px;
+			.attr {
+				min-width: 0;
+				width: 100%;
+				.info .item {
+					grid-template-columns: 96px minmax(0, 1fr);
+				}
+			}
+			.detail-swpier2 {
+				width: 100%;
+				.swiper21 .swiper-item {
+					min-height: 280px;
+					img {
+						height: 280px;
+					}
+				}
 			}
 		}
 	}

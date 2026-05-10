@@ -52,6 +52,9 @@ public class WuzishenlingEntity<T> implements Serializable {
     @TableId(type = IdType.AUTO)
 	private Long id;
 	private String juanzengbianhao;
+
+	@TableField(exist = false)
+	private Long wuzixinxiid;
 	/**
 	 * 申领编号
 	 */

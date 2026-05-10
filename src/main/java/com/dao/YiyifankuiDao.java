@@ -13,24 +13,36 @@ import com.entity.view.YiyifankuiView;
 
 
 /**
- * 异议反馈
- * 
- * @author 
- * @email 
- * @date 2026-04-27 08:55:02
+ * 异议反馈 DAO 层。
+ * 说明：对应数据库表的 MyBatis-Plus 基础 CRUD，并提供页面展示、统计图表所需的自定义查询。
  */
 public interface YiyifankuiDao extends BaseMapper<YiyifankuiEntity> {
-	
+
+	/**
+	 * 查询异议反馈VO 列表，给需要精简字段的业务场景使用。
+	 */
 	List<YiyifankuiVO> selectListVO(@Param("ew") Wrapper<YiyifankuiEntity> wrapper);
-	
+
+	/**
+	 * 查询单条异议反馈VO 数据。
+	 */
 	YiyifankuiVO selectVO(@Param("ew") Wrapper<YiyifankuiEntity> wrapper);
-	
+
+	/**
+	 * 查询异议反馈视图列表，包含页面展示需要的扩展字段。
+	 */
 	List<YiyifankuiView> selectListView(@Param("ew") Wrapper<YiyifankuiEntity> wrapper);
 
+	/**
+	 * 查询异议反馈视图列表，包含页面展示需要的扩展字段。
+	 */
 	List<YiyifankuiView> selectListView(Pagination page,@Param("ew") Wrapper<YiyifankuiEntity> wrapper);
 
-	
+
+	/**
+	 * 查询单条异议反馈视图数据。
+	 */
 	YiyifankuiView selectView(@Param("ew") Wrapper<YiyifankuiEntity> wrapper);
-	
+
 
 }

@@ -244,6 +244,11 @@
 							this.ro.wuzitupian = true;
 							continue;
 						}
+						if(o=='shenlingshuliang'){
+							this.ruleForm.wuzishuliang = obj[o];
+							this.ro.wuzishuliang = true;
+							continue;
+						}
 						if(o=='wuzishuliang'){
 							this.ruleForm.wuzishuliang = obj[o];
 							this.ro.wuzishuliang = true;
@@ -265,8 +270,8 @@
 							continue;
 						}
 					}
-					this.ruleForm.wuzishuliang = 0
-					this.ro.wuzishuliang = false
+					// this.ruleForm.wuzishuliang = 0
+					// this.ro.wuzishuliang = false
 					this.ruleForm.wuliuzhuangtai = '配送中'; 				}else if(type=='edit'){
 					this.info()
 				}
@@ -314,6 +319,15 @@
 						}
 						if(res.data.data.jigoumingcheng){
 							this.ruleForm.jigoumingcheng = res.data.data.jigoumingcheng
+						}
+						if(res.data.data.wuzitupian){
+							this.ruleForm.wuzitupian = res.data.data.wuzitupian
+						}
+						// 物资申领表中字段为 shenlingshuliang，出库分拨表中字段为 wuzishuliang。
+						if(res.data.data.shenlingshuliang !== undefined && res.data.data.shenlingshuliang !== null && res.data.data.shenlingshuliang !== ''){
+							this.ruleForm.wuzishuliang = res.data.data.shenlingshuliang
+						}else if(res.data.data.wuzishuliang !== undefined && res.data.data.wuzishuliang !== null && res.data.data.wuzishuliang !== ''){
+							this.ruleForm.wuzishuliang = res.data.data.wuzishuliang
 						}
 					}
 				});

@@ -40,128 +40,125 @@
 				</el-row>
 			</el-form>
 			<div :style='{"padding":"20px","boxShadow":"none","borderColor":"#ff9164","borderRadius":"10px","background":"#fff","borderWidth":"4px 0 0","width":"100%","borderStyle":"solid"}'>
-				<el-table class="tables"
-					:stripe='false'
-					:style='{"padding":"0","borderColor":"#eee","borderRadius":"10px","borderWidth":"1px 0 0 0px","background":"#fff","width":"100%","borderStyle":"solid"}' 
-					:border='false'
-					v-if="isAuth('shiyongfankui','查看')"
-					:data="dataList"
-					v-loading="dataListLoading"
-					@selection-change="selectionChangeHandler">
-					<el-table-column :resizable='true' type="selection" align="center" width="50"></el-table-column>
-					<el-table-column :resizable='true' :sortable='true' label="序号" type="index" width="50" />
-					<el-table-column :resizable='true' :sortable='true'
-												prop="shiyongrenshu"
-						label="使用人数">
-						<template slot-scope="scope">
-							{{scope.row.shiyongrenshu}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="jutiyongtu"
-						label="具体用途">
-						<template slot-scope="scope">
-							{{scope.row.jutiyongtu}}
-						</template>
-					</el-table-column>
-					<el-table-column  :resizable='true' prop="changjingzhaopian" width="200" label="场景照片">
-						<template slot-scope="scope">
-							<div v-if="scope.row.changjingzhaopian">
-								<img v-if="scope.row.changjingzhaopian.substring(0,4)=='http'&&scope.row.changjingzhaopian.split(',w').length>1" :src="scope.row.changjingzhaopian" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.changjingzhaopian)">
-								<img v-else-if="scope.row.changjingzhaopian.substring(0,4)=='http'" :src="scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.changjingzhaopian.split(',')[0])">
-								<img v-else :src="$base.url+scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView($base.url+scope.row.changjingzhaopian.split(',')[0])">
+				<div v-if="isAuth('shiyongfankui','查看')" class="split-list-layout" v-loading="dataListLoading">
+					<div class="split-list-left">
+						<div v-if="dataList.length">
+							<div
+								v-for="(item,index) in dataList"
+								:key="item.id"
+								class="split-list-item"
+								:class="{active: currentRow && currentRow.id === item.id}"
+								@click="selectRow(item)"
+							>
+								<div class="split-check" @click.stop>
+									<el-checkbox
+										:value="isSelected(item)"
+										@change="toggleSelection(item, $event)"
+									></el-checkbox>
+								</div>
+								<div class="split-index">{{(pageIndex - 1) * pageSize + index + 1}}</div>
+								<div class="split-thumb" @click.stop="getImageUrl(item) && imgPreView(getImageUrl(item))">
+									<img
+										v-if="getImageUrl(item)"
+										:key="item.id + '-thumb-' + getImageUrl(item)"
+										:src="getImageUrl(item)"
+										data-image-index="0"
+										@error="handleImageError($event, item)"
+									>
+									<span v-if="getImageUrl(item)" class="split-img-fallback">暂无图片</span>
+									<span v-else>暂无图片</span>
+								</div>
+								<div class="split-item-main">
+									<div class="split-item-title">{{formatValue(item.wuzimingcheng, '未命名物资')}}</div>
+									<div class="split-item-meta">
+										<span>编号：{{formatValue(item.shenlingbianhao, '暂无')}}</span>
+										<span>反馈：{{formatValue(item.fankuishijian, '暂无')}}</span>
+									</div>
+									<div class="split-item-status">
+										<el-tag size="mini" type="info">评论 {{formatValue(item.discussnum, 0)}}</el-tag>
+										<el-tag size="mini" type="success">收藏 {{formatValue(item.storeupnum, 0)}}</el-tag>
+									</div>
+								</div>
 							</div>
-							<div v-else>无图片</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="fankuishijian"
-						label="反馈时间">
-						<template slot-scope="scope">
-							{{scope.row.fankuishijian}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="shenlingbianhao"
-						label="申领编号">
-						<template slot-scope="scope">
-							{{scope.row.shenlingbianhao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuzimingcheng"
-						label="物资名称">
-						<template slot-scope="scope">
-							{{scope.row.wuzimingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuzizhonglei"
-						label="物资种类">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhonglei}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="jigouzhanghao"
-						label="机构账号">
-						<template slot-scope="scope">
-							{{scope.row.jigouzhanghao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="jigoumingcheng"
-						label="机构名称">
-						<template slot-scope="scope">
-							{{scope.row.jigoumingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuzishuliang"
-						label="出库数量">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="discussnum"
-						label="评论数">
-						<template slot-scope="scope">
-							{{scope.row.discussnum}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="storeupnum"
-						label="收藏数">
-						<template slot-scope="scope">
-							{{scope.row.storeupnum}}
-						</template>
-					</el-table-column>
-					<el-table-column width="300" label="操作">
-						<template slot-scope="scope">
-							<el-button class="view" v-if=" isAuth('shiyongfankui','查看')" type="success" @click="addOrUpdateHandler(scope.row.id,'info')">
-								<span class="icon iconfont icon-chakan14" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								详情
-							</el-button>
-							<el-button class="edit" v-if=" isAuth('shiyongfankui','修改') " type="success" @click="addOrUpdateHandler(scope.row.id)">
-								<span class="icon iconfont icon-xiugai13" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								修改
-							</el-button>
-
-							<el-button class="view" v-if="isAuth('shiyongfankui','查看评论')" type="success" @click="disscussListHandler(scope.row.id)">
-								<span class="icon iconfont icon-chakan14" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								查看评论
-							</el-button>
-
-
-
-							<el-button class="del" v-if="isAuth('shiyongfankui','删除')" type="primary" @click="deleteHandler(scope.row.id)">
-								<span class="icon iconfont icon-shanchu6" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								删除
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
+						</div>
+						<div v-else class="split-empty">暂无使用反馈数据</div>
+					</div>
+					<div class="split-detail-right">
+						<div v-if="currentRow" class="split-detail">
+							<div class="split-detail-head">
+								<div class="split-detail-img" @click="getImageUrl(currentRow) && imgPreView(getImageUrl(currentRow))">
+									<img
+										v-if="getImageUrl(currentRow)"
+										:key="currentRow.id + '-detail-' + getImageUrl(currentRow)"
+										:src="getImageUrl(currentRow)"
+										data-image-index="0"
+										@error="handleImageError($event, currentRow)"
+									>
+									<span v-if="getImageUrl(currentRow)" class="split-img-fallback">暂无图片</span>
+									<span v-else>暂无图片</span>
+								</div>
+								<div class="split-detail-title">
+									<h3>{{formatValue(currentRow.wuzimingcheng, '未命名物资')}}</h3>
+									<p>{{formatValue(currentRow.shenlingbianhao, '暂无申领编号')}}</p>
+									<el-tag type="info">反馈时间：{{formatValue(currentRow.fankuishijian, '暂无')}}</el-tag>
+								</div>
+							</div>
+							<div class="split-detail-grid">
+								<div class="split-detail-cell full">
+									<div class="split-label">具体用途</div>
+									<div class="split-value">{{formatValue(currentRow.jutiyongtu, '暂无')}}</div>
+								</div>
+								<div class="split-detail-cell">
+									<div class="split-label">使用人数</div>
+									<div class="split-value">{{formatValue(currentRow.shiyongrenshu)}}</div>
+								</div>
+								<div class="split-detail-cell">
+									<div class="split-label">物资种类</div>
+									<div class="split-value">{{formatValue(currentRow.wuzizhonglei)}}</div>
+								</div>
+								<div class="split-detail-cell">
+									<div class="split-label">机构账号</div>
+									<div class="split-value">{{formatValue(currentRow.jigouzhanghao)}}</div>
+								</div>
+								<div class="split-detail-cell">
+									<div class="split-label">机构名称</div>
+									<div class="split-value">{{formatValue(currentRow.jigoumingcheng)}}</div>
+								</div>
+								<div class="split-detail-cell">
+									<div class="split-label">出库数量</div>
+									<div class="split-value">{{formatValue(currentRow.wuzishuliang)}}</div>
+								</div>
+								<div class="split-detail-cell">
+									<div class="split-label">评论数</div>
+									<div class="split-value">{{formatValue(currentRow.discussnum, 0)}}</div>
+								</div>
+								<div class="split-detail-cell">
+									<div class="split-label">收藏数</div>
+									<div class="split-value">{{formatValue(currentRow.storeupnum, 0)}}</div>
+								</div>
+							</div>
+							<div class="split-actions">
+								<el-button class="view" v-if="isAuth('shiyongfankui','查看')" type="success" @click="addOrUpdateHandler(currentRow.id,'info')">
+									<span class="icon iconfont icon-chakan14"></span>
+									详情
+								</el-button>
+								<el-button class="edit" v-if="isAuth('shiyongfankui','修改')" type="success" @click="addOrUpdateHandler(currentRow.id)">
+									<span class="icon iconfont icon-xiugai13"></span>
+									修改
+								</el-button>
+								<el-button class="view" v-if="isAuth('shiyongfankui','查看评论')" type="success" @click="disscussListHandler(currentRow.id)">
+									<span class="icon iconfont icon-chakan14"></span>
+									查看评论
+								</el-button>
+								<el-button class="del" v-if="isAuth('shiyongfankui','删除')" type="primary" @click="deleteHandler(currentRow.id)">
+									<span class="icon iconfont icon-shanchu6"></span>
+									删除
+								</el-button>
+							</div>
+						</div>
+						<div v-else class="split-empty">请选择左侧使用反馈查看详情</div>
+					</div>
+				</div>
 			</div>
 			<el-pagination
 				@size-change="sizeChangeHandle"
@@ -213,6 +210,7 @@
 				totalPage: 0,
 				dataListLoading: false,
 				dataListSelections: [],
+				currentRow: null,
 				showFlag: true,
 				addOrUpdateFlag:false,
 				layouts: ["total","prev","pager","next","sizes","jumper"],
@@ -261,6 +259,96 @@
 				this.previewVisible = true
 				
 			},
+			getImageUrl(row) {
+				if(row && row.__imageLoadFailed) {
+					return ''
+				}
+				const candidates = this.getImageCandidates(row)
+				if(row && row.__displayImageUrl && candidates.indexOf(row.__displayImageUrl) !== -1) {
+					return row.__displayImageUrl
+				}
+				return candidates.length ? candidates[0] : ''
+			},
+			getImageCandidates(row) {
+				if(!row) {
+					return []
+				}
+				const imageValues = [row.changjingzhaopian, row.wuzitupian, row.tupian]
+				if(row.wuzimingcheng) {
+					imageValues.push(`upload/shiyongfankui_${row.wuzimingcheng}1.jpg`)
+					imageValues.push(`upload/wuzixinxi_${row.wuzimingcheng}1.jpg`)
+				}
+				let urls = []
+				imageValues.forEach(value => {
+					if(!value) {
+						return
+					}
+					String(value).split(',').forEach(item => {
+						const url = this.normalizeImageUrl(item)
+						if(url && urls.indexOf(url) === -1) {
+							urls.push(url)
+						}
+					})
+				})
+				return urls
+			},
+			normalizeImageUrl(value) {
+				const image = String(value || '').trim()
+				if(!image) {
+					return ''
+				}
+				if(image.substring(0,4)=='http') {
+					return image
+				}
+				return this.$base.url + image.replace(/^\/+/, '')
+			},
+			handleImageError(event, row) {
+				const candidates = this.getImageCandidates(row)
+				const image = event.target
+				let currentIndex = candidates.indexOf(row.__displayImageUrl || image.src)
+				if(currentIndex === -1) {
+					currentIndex = Number(image.dataset.imageIndex || 0)
+				}
+				const nextIndex = currentIndex + 1
+				if(nextIndex < candidates.length) {
+					image.dataset.imageIndex = nextIndex
+					this.$set(row, '__imageLoadFailed', false)
+					this.$set(row, '__displayImageUrl', candidates[nextIndex])
+					image.src = candidates[nextIndex]
+					image.style.display = ''
+					if(image.parentNode) {
+						image.parentNode.classList.remove('image-load-failed')
+					}
+					return
+				}
+				this.$set(row, '__displayImageUrl', '')
+				this.$set(row, '__imageLoadFailed', true)
+				image.style.display = 'none'
+				if(image.parentNode) {
+					image.parentNode.classList.add('image-load-failed')
+				}
+			},
+			selectRow(row) {
+				this.currentRow = row
+			},
+			toggleSelection(row, checked) {
+				if(checked) {
+					if(!this.isSelected(row)) {
+						this.dataListSelections.push(row)
+					}
+				} else {
+					this.dataListSelections = this.dataListSelections.filter(item => item.id !== row.id)
+				}
+			},
+			isSelected(row) {
+				return this.dataListSelections.some(item => item.id === row.id)
+			},
+			formatValue(value, fallback = '-') {
+				if(value === undefined || value === null || value === '') {
+					return fallback
+				}
+				return value
+			},
 			init () {
 			},
 			search() {
@@ -301,6 +389,8 @@
 						this.dataList = [];
 						this.totalPage = 0;
 					}
+					this.dataListSelections = [];
+					this.currentRow = this.dataList.length ? this.dataList[0] : null;
 					this.dataListLoading = false;
 				});
 			},
@@ -1069,4 +1159,616 @@
 	.chartDialog /deep/ .el-dialog {
 		background: #fff;
 	}
+
+/* admin-list-polish */
+.main-content {
+	padding: 24px !important;
+	background: #f5f7fb !important;
+	min-height: calc(100vh - 48px);
+	box-sizing: border-box;
+}
+
+.center-form-pv {
+	margin: 0 0 16px !important;
+}
+
+.center-form-pv > .el-row:first-child {
+	padding: 18px 20px 4px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 8px 22px rgba(32, 45, 64, .06) !important;
+	display: flex !important;
+	align-items: flex-end;
+	gap: 12px 16px;
+}
+
+.center-form-pv > .el-row:first-child > div {
+	margin: 0 0 14px !important;
+	display: flex !important;
+	align-items: center;
+}
+
+.center-form-pv .item-label {
+	height: 36px !important;
+	line-height: 36px !important;
+	margin: 0 8px 0 0 !important;
+	color: #44505c !important;
+	font-size: 14px !important;
+	font-weight: 600 !important;
+}
+
+.center-form-pv /deep/ .el-input,
+.center-form-pv /deep/ .el-select {
+	width: 190px;
+}
+
+.center-form-pv /deep/ .el-input__inner {
+	height: 36px;
+	line-height: 36px;
+	border-color: #dfe7ef;
+	border-radius: 6px;
+	color: #334155;
+}
+
+.center-form-pv /deep/ .el-input__inner:focus {
+	border-color: #6aac5a;
+}
+
+.center-form-pv .search,
+.center-form-pv .add,
+.center-form-pv .btn18,
+.center-form-pv .del {
+	height: 36px !important;
+	line-height: 36px !important;
+	padding: 0 15px !important;
+	margin: 0 8px 12px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 14px !important;
+	font-weight: 600;
+	box-shadow: none !important;
+}
+
+.center-form-pv .search,
+.center-form-pv .add {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+
+.center-form-pv .btn18 {
+	background: #eef7ee !important;
+	color: #35663b !important;
+	border: 1px solid #cfe6cf !important;
+}
+
+.center-form-pv .del {
+	background: #fff1f1 !important;
+	color: #c94b4b !important;
+	border: 1px solid #f0caca !important;
+}
+
+.center-form-pv .actions {
+	margin: 12px 0 16px !important;
+	width: 100% !important;
+	gap: 8px;
+}
+
+.center-form-pv .actions .icon,
+.center-form-pv .actions .iconfont,
+.center-form-pv .search .icon,
+.center-form-pv .search .iconfont {
+	padding: 0 !important;
+	margin: 0 4px 0 0 !important;
+	background: transparent !important;
+	color: inherit !important;
+	font-size: 14px !important;
+	height: auto !important;
+}
+
+.center-form-pv + div {
+	padding: 16px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 10px 28px rgba(32, 45, 64, .07) !important;
+	overflow-x: auto;
+}
+
+.tables {
+	min-width: 1180px;
+	border: 0 !important;
+	border-radius: 8px !important;
+	overflow: hidden;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr,
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	background: #f6faf7 !important;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	padding: 10px 0 !important;
+	border-color: #e7edf0 !important;
+	color: #22302a !important;
+	font-weight: 700 !important;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr th .cell,
+.tables /deep/ .el-table__body-wrapper tbody tr td .cell {
+	padding: 0 12px !important;
+	line-height: 22px !important;
+}
+
+.tables /deep/ .el-table__body-wrapper tbody tr td {
+	padding: 10px 0 !important;
+	border-color: #eef2f3 !important;
+	color: #3d4b43 !important;
+	background: #fff !important;
+}
+
+.tables /deep/ .el-table__body-wrapper tbody tr:hover td,
+.tables /deep/ .el-table__body-wrapper tbody tr.current-row td,
+.tables /deep/ .el-table__body-wrapper tbody tr.hover-row td {
+	background: #f7fbf6 !important;
+}
+
+.tables /deep/ img {
+	width: 64px !important;
+	height: 64px !important;
+	border-radius: 6px;
+	object-fit: cover;
+	display: block;
+	background: #f0f4f1;
+	box-shadow: inset 0 0 0 1px #e5ebe6;
+	cursor: pointer;
+}
+
+.tables /deep/ .el-tag {
+	border-radius: 14px;
+	padding: 0 12px;
+}
+
+.tables /deep/ .el-button {
+	height: 32px !important;
+	line-height: 32px !important;
+	padding: 0 12px !important;
+	margin: 0 6px 4px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 13px !important;
+	box-shadow: none !important;
+}
+
+.tables /deep/ .view {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .edit,
+.tables /deep/ .btn8 {
+	background: #278f7f !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .del {
+	background: #d9534f !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .btn18,
+.tables /deep/ .btn3,
+.tables /deep/ .btn4,
+.tables /deep/ .btn5 {
+	background: #e89232 !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .el-button--text {
+	color: #2474d4 !important;
+	background: transparent !important;
+	padding: 0 !important;
+}
+
+.el-pagination {
+	padding: 14px 0 0 !important;
+	margin: 16px 0 0 !important;
+	justify-content: flex-end !important;
+}
+
+.el-pagination /deep/ .btn-prev,
+.el-pagination /deep/ .btn-next,
+.el-pagination /deep/ .el-pager li {
+	border-radius: 6px !important;
+}
+
+@media (max-width: 960px) {
+	.main-content {
+		padding: 14px !important;
+	}
+	.center-form-pv > .el-row:first-child > div,
+	.center-form-pv /deep/ .el-input,
+	.center-form-pv /deep/ .el-select {
+		width: 100%;
+	}
+}
+
+/* business-list-polish */
+.main-content {
+	background: #f5f7fb !important;
+}
+.center-form-pv > .el-row:first-child {
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 8px 22px rgba(32, 45, 64, .06) !important;
+}
+.center-form-pv .item-label {
+	color: #44505c !important;
+	font-size: 14px !important;
+	font-weight: 700 !important;
+}
+.center-form-pv /deep/ .el-input__inner,
+.center-form-pv /deep/ .el-select .el-input__inner {
+	height: 36px !important;
+	line-height: 36px !important;
+	border-color: #dfe7ef !important;
+	border-radius: 6px !important;
+	color: #334155 !important;
+}
+.center-form-pv + div,
+.data-table-card {
+	padding: 16px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 10px 28px rgba(32, 45, 64, .07) !important;
+	overflow-x: auto;
+}
+.tables {
+	min-width: 1180px;
+	border: 0 !important;
+	border-radius: 8px !important;
+	overflow: hidden;
+}
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	padding: 10px 0 !important;
+	background: #f6faf7 !important;
+	border-color: #e7edf0 !important;
+	color: #22302a !important;
+	font-weight: 800 !important;
+}
+.tables /deep/ .el-table__body-wrapper tbody tr td {
+	padding: 10px 0 !important;
+	border-color: #eef2f3 !important;
+	color: #3d4b43 !important;
+	background: #fff !important;
+}
+.tables /deep/ .el-table__body-wrapper tbody tr:hover td,
+.tables /deep/ .el-table__body-wrapper tbody tr.hover-row td,
+.tables /deep/ .el-table__body-wrapper tbody tr.current-row td {
+	background: #f7fbf6 !important;
+}
+.tables /deep/ .cell {
+	line-height: 22px !important;
+	word-break: break-word !important;
+}
+.tables /deep/ img {
+	display: block;
+	width: 64px !important;
+	height: 64px !important;
+	border-radius: 6px;
+	object-fit: cover;
+	background: #f0f4f1;
+	box-shadow: inset 0 0 0 1px #e5ebe6;
+	cursor: pointer;
+}
+.tables /deep/ .el-tag {
+	border-radius: 999px !important;
+	padding: 0 12px !important;
+	font-weight: 700;
+}
+.tables /deep/ .el-button {
+	height: 32px !important;
+	line-height: 32px !important;
+	padding: 0 12px !important;
+	margin: 0 6px 4px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 13px !important;
+	font-weight: 700;
+	box-shadow: none !important;
+}
+.tables /deep/ .view,
+.tables /deep/ .table-view {
+	background: #2f80c9 !important;
+	color: #fff !important;
+}
+.tables /deep/ .edit,
+.tables /deep/ .table-edit {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+.tables /deep/ .del,
+.tables /deep/ .table-del {
+	background: #d9534f !important;
+	color: #fff !important;
+}
+.tables /deep/ .btn8,
+.tables /deep/ .btn18,
+.tables /deep/ .btn3,
+.tables /deep/ .btn4,
+.tables /deep/ .btn5,
+.tables /deep/ .table-btn5,
+.tables /deep/ .table-trace {
+	background: #278f7f !important;
+	color: #fff !important;
+}
+.el-pagination {
+	padding: 14px 0 0 !important;
+	margin: 16px 0 0 !important;
+	justify-content: flex-end !important;
+}
+@media (max-width: 960px) {
+	.center-form-pv > .el-row:first-child > div,
+	.center-form-pv /deep/ .el-input,
+	.center-form-pv /deep/ .el-select {
+		width: 100% !important;
+	}
+}
+
+.split-list-layout {
+	display: grid;
+	grid-template-columns: minmax(360px, 38%) minmax(0, 1fr);
+	gap: 18px;
+	align-items: stretch;
+	height: calc(100vh - 320px);
+	min-height: 520px;
+}
+
+.split-list-left,
+.split-detail-right {
+	border: 1px solid #e6edf5;
+	border-radius: 8px;
+	background: #f8fafc;
+	height: 100%;
+	overflow-y: auto;
+	box-sizing: border-box;
+}
+
+.split-list-left {
+	padding: 12px;
+}
+
+.split-list-item {
+	display: grid;
+	grid-template-columns: 24px 40px 64px minmax(0, 1fr);
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+	padding: 12px;
+	border: 1px solid #e1e8f0;
+	border-radius: 8px;
+	background: #fff;
+	cursor: pointer;
+	transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+	position: relative;
+}
+
+.split-list-item:last-child {
+	margin-bottom: 0;
+}
+
+.split-list-item:hover {
+	border-color: #bcd9c0;
+	box-shadow: 0 8px 20px rgba(45, 91, 63, .08);
+}
+
+.split-list-item.active {
+	border-color: #9fd3a7;
+	background: #f4fbf5;
+	box-shadow: inset 4px 0 0 #67c23a;
+}
+
+.split-check {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.split-index {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 8px;
+	background: #eef4f8;
+	color: #5c7a95;
+	font-weight: 700;
+}
+
+.split-thumb,
+.split-detail-img {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	border-radius: 8px;
+	background: #eef3f7;
+	color: #8a9bae;
+	font-size: 12px;
+	text-align: center;
+}
+
+.split-thumb {
+	width: 64px;
+	height: 64px;
+}
+
+.split-thumb img,
+.split-detail-img img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.split-img-fallback {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	color: #8a9bae;
+}
+
+.image-load-failed .split-img-fallback {
+	display: flex;
+}
+
+.split-item-main {
+	min-width: 0;
+}
+
+.split-item-title {
+	margin-bottom: 7px;
+	color: #1f2d3d;
+	font-size: 16px;
+	font-weight: 700;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.split-item-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+	margin-bottom: 8px;
+	color: #59718a;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.split-item-status {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.split-empty {
+	padding: 56px 20px;
+	color: #8a9bae;
+	text-align: center;
+}
+
+.split-detail-right {
+	padding: 20px;
+}
+
+.split-detail-head {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	padding-bottom: 18px;
+	margin-bottom: 18px;
+	border-bottom: 1px solid #e6edf5;
+}
+
+.split-detail-img {
+	flex: 0 0 116px;
+	width: 116px;
+	height: 116px;
+	cursor: pointer;
+}
+
+.split-detail-title {
+	min-width: 0;
+}
+
+.split-detail-title h3 {
+	margin: 0 0 8px;
+	color: #1f2d3d;
+	font-size: 22px;
+	line-height: 1.3;
+	word-break: break-word;
+}
+
+.split-detail-title p {
+	margin: 0 0 10px;
+	color: #66788a;
+}
+
+.split-detail-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.split-detail-cell {
+	padding: 12px 14px;
+	border: 1px solid #e6edf5;
+	border-radius: 8px;
+	background: #fff;
+	min-width: 0;
+}
+
+.split-detail-cell.full {
+	grid-column: 1 / -1;
+}
+
+.split-label {
+	margin-bottom: 6px;
+	color: #8a9bae;
+	font-size: 13px;
+}
+
+.split-value {
+	color: #2f3f50;
+	font-size: 14px;
+	line-height: 1.6;
+	word-break: break-word;
+}
+
+.split-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 18px;
+}
+
+@media (max-width: 1100px) {
+	.split-list-layout {
+		grid-template-columns: 1fr;
+		height: auto;
+	}
+	.split-list-left,
+	.split-detail-right {
+		height: auto;
+		overflow-y: visible;
+	}
+}
+
+@media (max-width: 640px) {
+	.split-list-item {
+		grid-template-columns: 22px 34px 54px minmax(0, 1fr);
+		gap: 8px;
+		padding: 10px;
+	}
+	.split-thumb {
+		width: 54px;
+		height: 54px;
+	}
+	.split-detail-head {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+	.split-detail-grid {
+		grid-template-columns: 1fr;
+	}
+	.split-actions {
+		justify-content: flex-start;
+	}
+}
 </style>

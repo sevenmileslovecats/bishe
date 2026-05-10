@@ -12,27 +12,42 @@ import com.entity.view.WuzizhongleiView;
 
 
 /**
- * 物资种类
- *
- * @author 
- * @email 
- * @date 2026-04-27 08:55:01
+ * 物资种类 服务层。
+ * 说明：承接 Controller 业务，封装分页查询、VO/View 查询和统计查询等服务能力。
  */
 public interface WuzizhongleiService extends IService<WuzizhongleiEntity> {
 
+    /**
+     * 分页查询物资种类数据，供 Controller 列表接口调用。
+     */
     PageUtils queryPage(Map<String, Object> params);
-    
-   	List<WuzizhongleiVO> selectListVO(Wrapper<WuzizhongleiEntity> wrapper);
-   	
-   	WuzizhongleiVO selectVO(@Param("ew") Wrapper<WuzizhongleiEntity> wrapper);
-   	
-   	List<WuzizhongleiView> selectListView(Wrapper<WuzizhongleiEntity> wrapper);
-   	
-   	WuzizhongleiView selectView(@Param("ew") Wrapper<WuzizhongleiEntity> wrapper);
-   	
-   	PageUtils queryPage(Map<String, Object> params,Wrapper<WuzizhongleiEntity> wrapper);
 
-   	
+    /**
+     * 查询物资种类VO 列表，给需要精简字段的业务场景使用。
+     */
+    List<WuzizhongleiVO> selectListVO(Wrapper<WuzizhongleiEntity> wrapper);
+
+    /**
+     * 查询单条物资种类VO 数据。
+     */
+    WuzizhongleiVO selectVO(@Param("ew") Wrapper<WuzizhongleiEntity> wrapper);
+
+    /**
+     * 查询物资种类视图列表，包含页面展示需要的扩展字段。
+     */
+    List<WuzizhongleiView> selectListView(Wrapper<WuzizhongleiEntity> wrapper);
+
+    /**
+     * 查询单条物资种类视图数据。
+     */
+    WuzizhongleiView selectView(@Param("ew") Wrapper<WuzizhongleiEntity> wrapper);
+
+    /**
+     * 分页查询物资种类数据，供 Controller 列表接口调用。
+     */
+    PageUtils queryPage(Map<String, Object> params,Wrapper<WuzizhongleiEntity> wrapper);
+
+
 
 }
 

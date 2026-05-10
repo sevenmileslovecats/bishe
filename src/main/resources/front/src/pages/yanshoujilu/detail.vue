@@ -87,8 +87,8 @@
 						<div class="swiper-wrapper">
 							<div class="swiper-slide" v-for="item in detailBanner" :key="item.id">
 								<div class="swiper-item">
-									<img v-if="item.substr(0,4)=='http'" :src="item" class="image">
-									<img v-else :src="baseUrl + item" class="image">
+									<img v-if="item.substr(0,4)=='http'" :src="item" class="image" @error="$event.target.style.display='none'">
+									<img v-else :src="baseUrl + item" class="image" @error="$event.target.style.display='none'">
 								</div>
 							</div>
 						</div>
@@ -105,8 +105,8 @@
 						<div class="swiper-wrapper">
 							<div class="swiper-slide" v-for="item in detailBanner" :key="item.id">
 								<div class="swiper-item">
-									<img v-if="item.substr(0,4)=='http'" :src="item" class="image">
-									<img v-else :src="baseUrl + item" class="image">
+									<img v-if="item.substr(0,4)=='http'" :src="item" class="image" @error="$event.target.style.display='none'">
+									<img v-else :src="baseUrl + item" class="image" @error="$event.target.style.display='none'">
 								</div>
 							</div>
 						</div>
@@ -630,4 +630,170 @@
 			}
 		}
 	}
+.breadcrumb-preview {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 18px 24px 0;
+	box-sizing: border-box;
+}
+
+.back_box {
+	max-width: 1280px;
+	margin: 12px auto 0;
+	padding: 0 24px;
+	text-align: right;
+	box-sizing: border-box;
+	.backBtn {
+		border: 0;
+		border-radius: 6px;
+		color: #fff;
+		background: #5ba84d;
+		height: 34px;
+		padding: 0 16px;
+	}
+}
+
+.detail-preview {
+	max-width: 1280px;
+	width: 100% !important;
+	margin: 0 auto !important;
+	padding: 26px 24px 48px !important;
+	box-sizing: border-box;
+	display: grid !important;
+	grid-template-columns: minmax(360px, 520px) minmax(420px, 1fr);
+	gap: 28px;
+	align-items: start;
+	background: #f7faf8;
+	.detail-swpier2 {
+		width: 100% !important;
+		height: auto !important;
+		margin: 0 !important;
+		order: 1;
+		border: 1px solid #e6eee7;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 12px 30px rgba(34, 62, 43, .07);
+		overflow: hidden;
+		position: relative;
+	}
+	.detail-swpier2:before {
+		content: "暂无图片";
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #9aa7a0;
+		font-size: 15px;
+		background: #f4f7f5;
+	}
+	.detail-swpier2 .swiper21,
+	.detail-swpier2 .swiper-container,
+	.detail-swpier2 .swiper-wrapper,
+	.detail-swpier2 .swiper-slide,
+	.detail-swpier2 .swiper-item {
+		position: relative;
+		z-index: 1;
+	}
+	.detail-swpier2 .swiper21 .swiper-item img {
+		width: 100% !important;
+		height: 430px !important;
+		border: 0 !important;
+		object-fit: contain !important;
+		background: #fbfcfb;
+	}
+	.attr {
+		width: 100% !important;
+		margin: 0 !important;
+		order: 2;
+	}
+	.attr .info {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 26px 28px !important;
+		border: 1px solid #e6eee7;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 12px 30px rgba(34, 62, 43, .08);
+		box-sizing: border-box;
+	}
+	.title-item {
+		margin: 0 0 18px !important;
+		padding: 0 0 14px;
+		border-bottom: 1px solid #edf2ee;
+	}
+	.detail-title {
+		color: #23362b !important;
+		font-size: 24px !important;
+		line-height: 32px !important;
+		font-weight: 700;
+	}
+	.item {
+		display: grid !important;
+		grid-template-columns: 96px 1fr;
+		gap: 12px;
+		align-items: start;
+		min-height: 32px;
+		margin: 0 !important;
+		padding: 8px 0 !important;
+		border-bottom: 1px dashed #edf2ee;
+	}
+	.item .lable {
+		width: auto !important;
+		padding: 0 !important;
+		color: #5e6d63 !important;
+		font-size: 14px !important;
+		line-height: 24px !important;
+		font-weight: 600;
+		text-align: left !important;
+	}
+	.item .text {
+		padding: 0 !important;
+		color: #2f3f35 !important;
+		font-size: 14px !important;
+		line-height: 24px !important;
+		word-break: break-word;
+	}
+	.item:nth-child(9),
+	.item:nth-child(10),
+	.item:nth-child(11),
+	.item:nth-child(12) {
+		background: #f7fcf6;
+		margin: 0 -12px !important;
+		padding: 10px 12px !important;
+		border-bottom-color: #dcecdc;
+	}
+	.btn_box {
+		margin-top: 16px;
+		padding: 0 !important;
+		gap: 8px;
+	}
+	.editBtn,
+	.delBtn {
+		height: 36px !important;
+		line-height: 36px !important;
+		border-radius: 6px !important;
+		padding: 0 16px !important;
+	}
+	.editBtn {
+		background: #278f7f !important;
+	}
+	.delBtn {
+		background: #d9534f !important;
+	}
+}
+
+@media (max-width: 960px) {
+	.detail-preview {
+		grid-template-columns: 1fr;
+		padding-left: 12px !important;
+		padding-right: 12px !important;
+	}
+	.detail-preview .detail-swpier2 .swiper21 .swiper-item img {
+		height: 300px !important;
+	}
+	.detail-preview .item {
+		grid-template-columns: 86px 1fr;
+	}
+}
 </style>

@@ -12,27 +12,42 @@ import com.entity.view.JuanzengzhengshuView;
 
 
 /**
- * 捐赠证书
- *
- * @author 
- * @email 
- * @date 2026-04-27 08:55:01
+ * 捐赠证书 服务层。
+ * 说明：承接 Controller 业务，封装分页查询、VO/View 查询和统计查询等服务能力。
  */
 public interface JuanzengzhengshuService extends IService<JuanzengzhengshuEntity> {
 
+    /**
+     * 分页查询捐赠证书数据，供 Controller 列表接口调用。
+     */
     PageUtils queryPage(Map<String, Object> params);
-    
-   	List<JuanzengzhengshuVO> selectListVO(Wrapper<JuanzengzhengshuEntity> wrapper);
-   	
-   	JuanzengzhengshuVO selectVO(@Param("ew") Wrapper<JuanzengzhengshuEntity> wrapper);
-   	
-   	List<JuanzengzhengshuView> selectListView(Wrapper<JuanzengzhengshuEntity> wrapper);
-   	
-   	JuanzengzhengshuView selectView(@Param("ew") Wrapper<JuanzengzhengshuEntity> wrapper);
-   	
-   	PageUtils queryPage(Map<String, Object> params,Wrapper<JuanzengzhengshuEntity> wrapper);
 
-   	
+    /**
+     * 查询捐赠证书VO 列表，给需要精简字段的业务场景使用。
+     */
+    List<JuanzengzhengshuVO> selectListVO(Wrapper<JuanzengzhengshuEntity> wrapper);
+
+    /**
+     * 查询单条捐赠证书VO 数据。
+     */
+    JuanzengzhengshuVO selectVO(@Param("ew") Wrapper<JuanzengzhengshuEntity> wrapper);
+
+    /**
+     * 查询捐赠证书视图列表，包含页面展示需要的扩展字段。
+     */
+    List<JuanzengzhengshuView> selectListView(Wrapper<JuanzengzhengshuEntity> wrapper);
+
+    /**
+     * 查询单条捐赠证书视图数据。
+     */
+    JuanzengzhengshuView selectView(@Param("ew") Wrapper<JuanzengzhengshuEntity> wrapper);
+
+    /**
+     * 分页查询捐赠证书数据，供 Controller 列表接口调用。
+     */
+    PageUtils queryPage(Map<String, Object> params,Wrapper<JuanzengzhengshuEntity> wrapper);
+
+
 
 }
 

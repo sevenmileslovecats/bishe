@@ -27,6 +27,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 追溯查询 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
+ */
 @RestController
 @RequestMapping("/zhuishuchaxun")
 public class ZhuishuchaxunController {
@@ -45,10 +49,22 @@ public class ZhuishuchaxunController {
 	@Autowired
 	private YiyifankuiService yiyifankuiService;
 
-	@RequestMapping("/trace")
+    /**
+     * 功能：按捐赠编号查询物资全流程追溯信息。
+     * 使用端：前台捐赠物资列表页的追溯查询弹窗。
+     * 前端触发：front/src/pages/juanzengwuzi/list.vue 通过 $http.get('zhuishuchaxun/trace') 触发。
+     */
+    @RequestMapping("/trace")
 	public R trace(@RequestParam String juanzengbianhao, HttpServletRequest request) {
 		Object roleObj = request.getSession().getAttribute("role");
-		if (roleObj == null || !"管理员".equals(roleObj.toString())) {
+		Object tableNameObj = request.getSession().getAttribute("tableName");
+		Object usernameObj = request.getSession().getAttribute("username");
+		String role = roleObj == null ? "" : roleObj.toString();
+		String tableName = tableNameObj == null ? "" : tableNameObj.toString();
+		String username = usernameObj == null ? "" : usernameObj.toString();
+		boolean admin = "管理员".equals(role) || "users".equals(tableName);
+		boolean donor = "捐赠人".equals(role) || "juanzengren".equals(tableName);
+		if (!admin && !donor) {
 			return R.error(403, "无权限");
 		}
 		if (StringUtils.isBlank(juanzengbianhao)) {
@@ -59,6 +75,9 @@ public class ZhuishuchaxunController {
 				.selectOne(new EntityWrapper<JuanzengwuziEntity>().eq("juanzengbianhao", juanzengbianhao));
 		if (juanzengwuzi == null) {
 			return R.error("未找到捐赠记录");
+		}
+		if (donor && !StringUtils.equals(username, juanzengwuzi.getZhanghao())) {
+			return R.error(403, "只能追溯查询自己的捐赠物资");
 		}
 
 		List<String> warnings = new ArrayList<>();

@@ -187,6 +187,7 @@
 				},
 			
 				ruleForm: {
+					wuzixinxiid: '',
 					juanzengbianhao: '',
 					shenlingbianhao: this.getUUID(),
 					wuzimingcheng: '',
@@ -279,6 +280,10 @@
 					this.info(id);
 				}else if(this.type=='cross'){
 					var obj = this.$storage.getObj('crossObj');
+					var crossTable = this.$storage.get('crossTable');
+					if(crossTable=='wuzixinxi' && obj.id){
+						this.ruleForm.wuzixinxiid = obj.id;
+					}
 					for (var o in obj){
 						if(o=='juanzengbianhao'){
 							this.ruleForm.juanzengbianhao = obj[o];

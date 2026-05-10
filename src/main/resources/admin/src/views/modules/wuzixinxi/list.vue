@@ -39,115 +39,83 @@
 						<span class="icon iconfont icon-xihuan" :style='{"padding":"10px","margin":"0 2px","color":"#af7d59","borderRadius":"100%","background":"#e9cfbc20","fontSize":"20px","fontWeight":"500","height":"40px"}'></span>
 						库存数量
 					</el-button>
+					<el-button class="btn18" v-if="isJieshoujigou" type="primary" :loading="recommendLoading" @click="smartRecommend">
+						<span class="icon iconfont icon-xihuan" :style='{"padding":"10px","margin":"0 2px","color":"#409EFF","borderRadius":"100%","background":"#ecf5ff","fontSize":"20px","fontWeight":"500","height":"40px"}'></span>
+						智能推荐物资
+					</el-button>
 				</el-row>
 			</el-form>
-			<div :style='{"padding":"20px","boxShadow":"none","borderColor":"#ff9164","borderRadius":"10px","background":"#fff","borderWidth":"4px 0 0","width":"100%","borderStyle":"solid"}'>
-				<el-table class="tables"
-					:stripe='false'
-					:style='{"padding":"0","borderColor":"#eee","borderRadius":"10px","borderWidth":"1px 0 0 0px","background":"#fff","width":"100%","borderStyle":"solid"}' 
-					:border='false'
-					:row-class-name="tableRowClassName"
-					v-if="isAuth('wuzixinxi','查看')"
-					:data="dataList"
-					v-loading="dataListLoading"
-					@selection-change="selectionChangeHandler">
-					<el-table-column :resizable='true' type="selection" align="center" width="50"></el-table-column>
-					<el-table-column :resizable='true' :sortable='true' label="序号" type="index" width="50" />
-					<el-table-column :resizable='true' :sortable='true'
-												prop="juanzengbianhao"
-						label="捐赠编号">
-						<template slot-scope="scope">
-							{{scope.row.juanzengbianhao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuzimingcheng"
-						label="物资名称">
-						<template slot-scope="scope">
-							{{scope.row.wuzimingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuzizhonglei"
-						label="物资种类">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhonglei}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="wuziguige"
-						label="物资规格">
-						<template slot-scope="scope">
-							{{scope.row.wuziguige}}
-						</template>
-					</el-table-column>
-					<el-table-column  :resizable='true' prop="wuzitupian" width="200" label="物资图片">
-						<template slot-scope="scope">
-							<div v-if="scope.row.wuzitupian">
-								<img v-if="scope.row.wuzitupian.substring(0,4)=='http'&&scope.row.wuzitupian.split(',w').length>1" :src="scope.row.wuzitupian" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.wuzitupian)">
-								<img v-else-if="scope.row.wuzitupian.substring(0,4)=='http'" :src="scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.wuzitupian.split(',')[0])">
-								<img v-else :src="$base.url+scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView($base.url+scope.row.wuzitupian.split(',')[0])">
+			<div class="material-card-panel" v-if="isAuth('wuzixinxi','查看')" v-loading="dataListLoading">
+				<div class="material-card-toolbar">
+					<div class="toolbar-summary">共 {{ totalPage }} 条物资</div>
+					<div class="toolbar-sort">
+						<span>排序</span>
+						<el-select v-model="cardSortField" size="small" @change="cardSortChange">
+							<el-option label="序号" value="id"></el-option>
+							<el-option label="捐赠编号" value="juanzengbianhao"></el-option>
+							<el-option label="物资名称" value="wuzimingcheng"></el-option>
+							<el-option label="物资种类" value="wuzizhonglei"></el-option>
+							<el-option label="物资规格" value="wuziguige"></el-option>
+							<el-option label="物资数量" value="wuzishuliang"></el-option>
+							<el-option label="保质期" value="baozhiqi"></el-option>
+						</el-select>
+						<el-button size="small" class="sort-order-btn" @click="toggleCardSortOrder">
+							{{ cardSortOrder == 'asc' ? '升序' : '降序' }}
+						</el-button>
+					</div>
+				</div>
+				<el-empty v-if="!dataList.length" description="暂无物资信息"></el-empty>
+				<div v-else class="material-card-grid">
+					<div
+						v-for="item in dataList"
+						:key="item.id"
+						class="material-card"
+						:class="{ selected: isCardSelected(item), warning: changeInList(item.wuzimingcheng, baozhiqiRemind) }"
+					>
+						<el-checkbox
+							v-if="isAuth('wuzixinxi','删除')"
+							class="material-card-check"
+							:value="isCardSelected(item)"
+							@change="toggleCardSelection(item)"
+						></el-checkbox>
+						<div class="material-card-cover" @click="getMaterialImage(item) && imgPreView(getMaterialImage(item))">
+							<img v-if="getMaterialImage(item)" :src="getMaterialImage(item)" @error="$event.target.style.display='none'">
+							<div v-else class="material-card-empty">无图片</div>
+							<div class="material-card-actions" @click.stop>
+								<el-button class="view" v-if="isAuth('wuzixinxi','查看')" size="mini" @click="addOrUpdateHandler(item.id,'info')">详情</el-button>
+								<el-button class="btn8" v-if="isAuth('wuzixinxi','物资申领')" size="mini" @click="wuzishenlingCrossAddOrUpdateHandler(item,'cross','','','','')">物资申领</el-button>
+								<el-button class="btn8" v-if="isAuth('wuzixinxi','出库分拨')" size="mini" @click="chukufenboCrossAddOrUpdateHandler(item,'cross','','','','')">出库分拨</el-button>
+								<el-button class="edit" v-if="isAuth('wuzixinxi','修改')" size="mini" @click="addOrUpdateHandler(item.id)">修改</el-button>
+								<el-button class="del" v-if="isAuth('wuzixinxi','删除')" size="mini" @click="deleteHandler(item.id)">删除</el-button>
 							</div>
-							<div v-else>无图片</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-						class-name="showColor1"						prop="wuzishuliang"
-						label="物资数量">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-						class-name="showColor2"						prop="baozhiqi"
-						label="保质期">
-						<template slot-scope="scope">
-							{{scope.row.baozhiqi}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='true'
-												prop="cunchuweizhi"
-						label="存储位置">
-						<template slot-scope="scope">
-							{{scope.row.cunchuweizhi}}
-						</template>
-					</el-table-column>
-					<el-table-column width="300" label="操作">
-						<template slot-scope="scope">
-							<el-button class="view" v-if=" isAuth('wuzixinxi','查看')" type="success" @click="addOrUpdateHandler(scope.row.id,'info')">
-								<span class="icon iconfont icon-chakan14" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								详情
-							</el-button>
-							<el-button class="btn8" v-if="isAuth('wuzixinxi','物资申领')" @click="wuzishenlingCrossAddOrUpdateHandler(scope.row,'cross','','','','')" type="success">
-								<span class="icon iconfont icon-xihuan" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								物资申领
-							</el-button>
-							<el-button class="btn8" v-if="isAuth('wuzixinxi','出库分拨')" @click="chukufenboCrossAddOrUpdateHandler(scope.row,'cross','','','','')" type="success">
-								<span class="icon iconfont icon-xihuan" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								出库分拨
-							</el-button>
-							<el-button class="edit" v-if=" isAuth('wuzixinxi','修改') " type="success" @click="addOrUpdateHandler(scope.row.id)">
-								<span class="icon iconfont icon-xiugai13" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								修改
-							</el-button>
-
-
-
-
-							<el-button class="del" v-if="isAuth('wuzixinxi','删除')" type="primary" @click="deleteHandler(scope.row.id)">
-								<span class="icon iconfont icon-shanchu6" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
-								删除
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
+						</div>
+						<div class="material-card-body">
+							<div class="material-card-title" :title="item.wuzimingcheng">{{ item.wuzimingcheng || '未命名物资' }}</div>
+							<div class="material-card-tags">
+								<span>{{ item.wuzizhonglei || '未分类' }}</span>
+								<span>{{ item.wuziguige || '无规格' }}</span>
+							</div>
+							<div class="material-card-metrics">
+								<div>
+									<label>数量</label>
+									<strong>{{ item.wuzishuliang || 0 }}</strong>
+								</div>
+								<div>
+									<label>保质期</label>
+									<strong>{{ item.baozhiqi || '无' }}</strong>
+								</div>
+							</div>
+							<div class="material-card-code">捐赠编号：{{ item.juanzengbianhao || '无' }}</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<el-pagination
 				@size-change="sizeChangeHandle"
 				@current-change="currentChangeHandle"
 				:current-page="pageIndex"
 				background
-				:page-sizes="[10, 50, 100, 200]"
+				:page-sizes="[12, 24, 48, 96]"
 				:page-size="pageSize"
 				:layout="layouts.join()"
 				:total="totalPage"
@@ -172,6 +140,39 @@
 			<div id="wuzishuliangChart1" style="width:100%;height:600px;"></div>
 			<span slot="footer" class="dialog-footer">
 				<el-button @click="chartVisiable1 = false">返回</el-button>
+			</span>
+		</el-dialog>
+
+		<el-dialog title="智能推荐物资" :visible.sync="recommendVisible" width="900px">
+			<el-alert
+				v-if="recommendSourceMessage"
+				:title="recommendSourceMessage"
+				:type="recommendSource == 'deepseek' ? 'success' : 'warning'"
+				:closable="false"
+				show-icon
+				style="margin-bottom: 12px;">
+			</el-alert>
+			<div v-if="recommendList.length" class="recommend-list">
+				<div class="recommend-item" v-for="(item,index) in recommendList" :key="item.id">
+					<div class="recommend-rank">TOP {{index + 1}}</div>
+					<img class="recommend-img" :src="getRecommendImage(item)" />
+					<div class="recommend-info">
+						<div class="recommend-title">{{item.wuzimingcheng}}</div>
+						<div class="recommend-meta">
+							<span>{{item.wuzizhonglei}}</span>
+							<span>库存：{{item.wuzishuliang}}</span>
+							<span>评分：{{item.score}}</span>
+						</div>
+						<div class="recommend-reason">{{item.reason}}</div>
+					</div>
+					<div class="recommend-actions">
+						<el-button size="mini" type="warning" @click="goRecommendApply(item)">去申领</el-button>
+					</div>
+				</div>
+			</div>
+			<div v-else class="recommend-empty">暂无可推荐物资</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="recommendVisible = false">关闭</el-button>
 			</span>
 		</el-dialog>
 
@@ -202,11 +203,13 @@
 				form:{},
 				dataList: [],
 				pageIndex: 1,
-				pageSize: 10,
+				pageSize: 12,
 				totalPage: 0,
 				dataListLoading: false,
 				dataListSelections: [],
 				showFlag: true,
+				cardSortField: 'id',
+				cardSortOrder: 'desc',
 				line: {"backgroundColor":"transparent","yAxis":{"axisLabel":{"borderType":"solid","rotate":0,"padding":0,"shadowOffsetX":0,"margin":15,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"width":"","fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#666","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"minInterval":1,"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(25,25,25,0.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"xAxis":{"axisLabel":{"borderType":"solid","rotate":30,"padding":0,"shadowOffsetX":0,"margin":10,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"truncate","borderRadius":0,"borderWidth":0,"width":120,"interval":0,"fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":false},"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(25,25,25,.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"color":["#ff7f00","#ffce49","#ffa171","#e6a09c","#a5cd66","#ced04f","#ffc065","#fda0e6","#dfa0fd"],"legend":{"padding":0,"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":14,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":"auto","top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"80%","itemWidth":20,"textStyle":{"textBorderWidth":0,"color":"inherit","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"series":{"showSymbol":true,"symbol":"emptyCircle","symbolSize":4},"tooltip":{"backgroundColor":"#123","textStyle":{"color":"#fff"}},"title":{"borderType":"solid","padding":0,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"shadowBlur":0,"bottom":"auto","show":true,"right":"auto","top":"auto","borderRadius":0,"left":"left","borderWidth":0,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","fontSize":14,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":600,"textBorderColor":"#666","textShadowBlur":0},"shadowColor":"transparent"}},
 				bar: {"backgroundColor":"transparent","yAxis":{"axisLabel":{"borderType":"solid","rotate":0,"padding":0,"shadowOffsetX":0,"margin":12,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"width":"","fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#666","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"minInterval":1,"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(25,25,25,0.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"xAxis":{"axisLabel":{"borderType":"solid","rotate":30,"padding":0,"shadowOffsetX":0,"margin":10,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"truncate","borderRadius":0,"borderWidth":0,"width":120,"interval":0,"fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":false},"minInterval":1,"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(25,25,25,.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"color":["#ff7f00","#ffce49","#ffa171","#e6a09c","#a5cd66","#ced04f","#ffc065","#fda0e6","#dfa0fd"],"legend":{"padding":0,"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":14,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":"auto","top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"80%","itemWidth":20,"textStyle":{"textBorderWidth":0,"color":"inherit","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":12,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"grid":{"x":"25%","y":"15%","y2":"15%","x2":"5%"},"series":{"barWidth":"auto","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"#666","shadowOffsetY":0,"color":"","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"#000"},"colorBy":"data","barCategoryGap":"20%"},"tooltip":{"backgroundColor":"#123","textStyle":{"color":"#fff"}},"title":{"borderType":"solid","padding":0,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"shadowBlur":0,"bottom":"auto","show":true,"right":"auto","top":"auto","borderRadius":0,"left":"left","borderWidth":0,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","fontSize":14,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":600,"textBorderColor":"#666","textShadowBlur":0},"shadowColor":"transparent"},"base":{"animate":false,"interval":2000}},
 				pie: {"tooltip":{"backgroundColor":"#123","textStyle":{"color":"#fff"}},"backgroundColor":"transparent","color":["#ff7f00","#ffce49","#ffa171","#e6a09c","#a5cd66","#ced04f","#ffc065","#fda0e6","#dfa0fd"],"title":{"borderType":"solid","padding":[5,0,0,0],"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"shadowBlur":0,"bottom":"auto","show":true,"right":"auto","top":"auto","borderRadius":0,"left":"left","borderWidth":0,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","fontSize":14,"lineHeight":14,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":600,"textBorderColor":"#666","textShadowBlur":0},"shadowColor":"transparent"},"legend":{"padding":[5,0,0,0],"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#666","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":2,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":0,"top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"80%","itemWidth":2,"textStyle":{"textBorderWidth":0,"color":"inherit","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":12,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"series":{"itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"#666","shadowOffsetY":0,"color":"","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"#000"},"label":{"borderType":"solid","rotate":0,"padding":0,"textBorderWidth":0,"backgroundColor":"transparent","borderColor":"#666","color":"inherit","show":true,"textShadowColor":"transparent","distanceToLabelLine":5,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"fontSize":12,"lineHeight":18,"textShadowOffsetX":0,"position":"outside","textShadowOffsetY":0,"textBorderType":"solid","textBorderColor":"#666","textShadowBlur":0},"labelLine":{"show":true,"length":10,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"#666","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"#000"},"length2":14,"smooth":false}}},
@@ -223,6 +226,11 @@
 				previewVisible: false,
 				wuzishuliangRemind: [],
 				baozhiqiRemind: [],
+				recommendVisible: false,
+				recommendLoading: false,
+				recommendList: [],
+				recommendSource: '',
+				recommendSourceMessage: '',
 			};
 		},
 		created() {
@@ -247,6 +255,10 @@
 			},
 			role(){
 				return this.$storage.get('role')
+			},
+			isJieshoujigou(){
+				return this.$storage.get('sessionTable') == 'jieshoujigou'
+					|| this.$storage.get('role') == '接收机构'
 			},
 		},
 		components: {
@@ -297,6 +309,71 @@
 				this.previewImg = url
 				this.previewVisible = true
 				
+			},
+			getMaterialImage(item) {
+				if (!item || !item.wuzitupian) {
+					return ''
+				}
+				let img = item.wuzitupian
+				if (img.indexOf(',') !== -1 && !(img.substring(0, 4) == 'http' && img.split(',w').length > 1)) {
+					img = img.split(',')[0]
+				}
+				if (img.substring(0, 4) == 'http') {
+					return img
+				}
+				return this.$base.url + img
+			},
+			isCardSelected(item) {
+				return this.dataListSelections.some(row => row.id === item.id)
+			},
+			toggleCardSelection(item) {
+				if (this.isCardSelected(item)) {
+					this.dataListSelections = this.dataListSelections.filter(row => row.id !== item.id)
+				} else {
+					this.dataListSelections = this.dataListSelections.concat(item)
+				}
+			},
+			cardSortChange() {
+				this.pageIndex = 1
+				this.getDataList()
+			},
+			toggleCardSortOrder() {
+				this.cardSortOrder = this.cardSortOrder == 'asc' ? 'desc' : 'asc'
+				this.cardSortChange()
+			},
+			smartRecommend(){
+				this.recommendLoading = true
+				this.$http({
+					url: 'wuzixinxi/intelligentRecommend',
+					method: 'get'
+				}).then(({data}) => {
+					this.recommendLoading = false
+					if(data && data.code === 0) {
+						this.recommendList = data.data || []
+						this.recommendSource = data.source || 'rule'
+						this.recommendSourceMessage = data.sourceMessage || ''
+						this.recommendVisible = true
+					} else {
+						this.$message.error(data && data.msg ? data.msg : '智能推荐失败')
+					}
+				}).catch(() => {
+					this.recommendLoading = false
+					this.$message.error('智能推荐失败，请稍后重试')
+				})
+			},
+			getRecommendImage(item){
+				if(!item || !item.wuzitupian) {
+					return ''
+				}
+				let img = item.wuzitupian.split(',')[0]
+				if(img.substring(0,4) == 'http') {
+					return img
+				}
+				return this.$base.url + img
+			},
+			goRecommendApply(item){
+				this.recommendVisible = false
+				this.wuzishenlingCrossAddOrUpdateHandler(item,'cross','','','','')
 			},
 			wuzishenlingCrossAddOrUpdateHandler(row,type,crossOptAudit,crossOptPay,statusColumnName,tips,statusColumnValue){
 				this.showFlag = false;
@@ -560,8 +637,8 @@
 				let params = {
 					page: this.pageIndex,
 					limit: this.pageSize,
-					sort: 'id',
-					order: 'desc',
+					sort: this.cardSortField,
+					order: this.cardSortOrder,
 				}
 				if(this.searchForm.wuzimingcheng) {
 					params['wuzimingcheng'] =  '%' + this.searchForm.wuzimingcheng + '%'
@@ -574,16 +651,18 @@
 				}
 				let user = JSON.parse(this.$storage.getObj('userForm'))
 				this.$http({
-					url: "wuzixinxi/page",
+					url: this.isJieshoujigou ? "wuzixinxi/page/jg" : "wuzixinxi/page",
 					method: "get",
 					params: params
 				}).then(({ data }) => {
 					if (data && data.code === 0) {
 						this.dataList = data.data.list;
 						this.totalPage = data.data.total;
+						this.dataListSelections = [];
 					} else {
 						this.dataList = [];
 						this.totalPage = 0;
+						this.dataListSelections = [];
 					}
 					this.dataListLoading = false;
 				});
@@ -1339,4 +1418,545 @@
 	.chartDialog /deep/ .el-dialog {
 		background: #fff;
 	}
+	.recommend-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+	.recommend-item {
+		border: 1px solid #ebeef5;
+		border-radius: 6px;
+		padding: 12px;
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		background: #fff;
+	}
+	.recommend-rank {
+		color: #409eff;
+		font-weight: 600;
+		width: 58px;
+		flex: 0 0 58px;
+	}
+	.recommend-img {
+		width: 76px;
+		height: 76px;
+		object-fit: cover;
+		border-radius: 4px;
+		background: #f5f7fa;
+	}
+	.recommend-info {
+		flex: 1;
+		min-width: 0;
+	}
+	.recommend-title {
+		color: #303133;
+		font-size: 16px;
+		font-weight: 600;
+		margin-bottom: 6px;
+	}
+	.recommend-meta {
+		color: #606266;
+		font-size: 13px;
+		display: flex;
+		gap: 14px;
+		flex-wrap: wrap;
+		margin-bottom: 6px;
+	}
+	.recommend-reason {
+		color: #606266;
+		font-size: 14px;
+		line-height: 1.5;
+	}
+	.recommend-empty {
+		color: #909399;
+		text-align: center;
+		padding: 40px 0;
+	}
+
+/* admin-list-polish */
+.main-content {
+	padding: 24px !important;
+	background: #f5f7fb !important;
+	min-height: calc(100vh - 48px);
+	box-sizing: border-box;
+}
+
+.center-form-pv {
+	margin: 0 0 16px !important;
+}
+
+.center-form-pv > .el-row:first-child {
+	padding: 18px 20px 4px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 8px 22px rgba(32, 45, 64, .06) !important;
+	display: flex !important;
+	align-items: flex-end;
+	gap: 12px 16px;
+}
+
+.center-form-pv > .el-row:first-child > div {
+	margin: 0 0 14px !important;
+	display: flex !important;
+	align-items: center;
+}
+
+.center-form-pv .item-label {
+	height: 36px !important;
+	line-height: 36px !important;
+	margin: 0 8px 0 0 !important;
+	color: #44505c !important;
+	font-size: 14px !important;
+	font-weight: 600 !important;
+}
+
+.center-form-pv /deep/ .el-input,
+.center-form-pv /deep/ .el-select {
+	width: 190px;
+}
+
+.center-form-pv /deep/ .el-input__inner {
+	height: 36px;
+	line-height: 36px;
+	border-color: #dfe7ef;
+	border-radius: 6px;
+	color: #334155;
+}
+
+.center-form-pv /deep/ .el-input__inner:focus {
+	border-color: #6aac5a;
+}
+
+.center-form-pv .search,
+.center-form-pv .add,
+.center-form-pv .btn18,
+.center-form-pv .del {
+	height: 36px !important;
+	line-height: 36px !important;
+	padding: 0 15px !important;
+	margin: 0 8px 12px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 14px !important;
+	font-weight: 600;
+	box-shadow: none !important;
+}
+
+.center-form-pv .search,
+.center-form-pv .add {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+
+.center-form-pv .btn18 {
+	background: #eef7ee !important;
+	color: #35663b !important;
+	border: 1px solid #cfe6cf !important;
+}
+
+.center-form-pv .del {
+	background: #fff1f1 !important;
+	color: #c94b4b !important;
+	border: 1px solid #f0caca !important;
+}
+
+.center-form-pv .actions {
+	margin: 12px 0 16px !important;
+	width: 100% !important;
+	gap: 8px;
+}
+
+.center-form-pv .actions .icon,
+.center-form-pv .actions .iconfont,
+.center-form-pv .search .icon,
+.center-form-pv .search .iconfont {
+	padding: 0 !important;
+	margin: 0 4px 0 0 !important;
+	background: transparent !important;
+	color: inherit !important;
+	font-size: 14px !important;
+	height: auto !important;
+}
+
+.center-form-pv + div {
+	padding: 16px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 10px 28px rgba(32, 45, 64, .07) !important;
+	overflow-x: auto;
+}
+
+.tables {
+	min-width: 1180px;
+	border: 0 !important;
+	border-radius: 8px !important;
+	overflow: hidden;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr,
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	background: #f6faf7 !important;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	padding: 10px 0 !important;
+	border-color: #e7edf0 !important;
+	color: #22302a !important;
+	font-weight: 700 !important;
+}
+
+.tables /deep/ .el-table__header-wrapper thead tr th .cell,
+.tables /deep/ .el-table__body-wrapper tbody tr td .cell {
+	padding: 0 12px !important;
+	line-height: 22px !important;
+}
+
+.tables /deep/ .el-table__body-wrapper tbody tr td {
+	padding: 10px 0 !important;
+	border-color: #eef2f3 !important;
+	color: #3d4b43 !important;
+	background: #fff !important;
+}
+
+.tables /deep/ .el-table__body-wrapper tbody tr:hover td,
+.tables /deep/ .el-table__body-wrapper tbody tr.current-row td,
+.tables /deep/ .el-table__body-wrapper tbody tr.hover-row td {
+	background: #f7fbf6 !important;
+}
+
+.tables /deep/ img {
+	width: 64px !important;
+	height: 64px !important;
+	border-radius: 6px;
+	object-fit: cover;
+	display: block;
+	background: #f0f4f1;
+	box-shadow: inset 0 0 0 1px #e5ebe6;
+	cursor: pointer;
+}
+
+.tables /deep/ .el-tag {
+	border-radius: 14px;
+	padding: 0 12px;
+}
+
+.tables /deep/ .el-button {
+	height: 32px !important;
+	line-height: 32px !important;
+	padding: 0 12px !important;
+	margin: 0 6px 4px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 13px !important;
+	box-shadow: none !important;
+}
+
+.tables /deep/ .view {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .edit,
+.tables /deep/ .btn8 {
+	background: #278f7f !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .del {
+	background: #d9534f !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .btn18,
+.tables /deep/ .btn3,
+.tables /deep/ .btn4,
+.tables /deep/ .btn5 {
+	background: #e89232 !important;
+	color: #fff !important;
+}
+
+.tables /deep/ .el-button--text {
+	color: #2474d4 !important;
+	background: transparent !important;
+	padding: 0 !important;
+}
+
+.el-pagination {
+	padding: 14px 0 0 !important;
+	margin: 16px 0 0 !important;
+	justify-content: flex-end !important;
+}
+
+.el-pagination /deep/ .btn-prev,
+.el-pagination /deep/ .btn-next,
+.el-pagination /deep/ .el-pager li {
+	border-radius: 6px !important;
+}
+
+@media (max-width: 960px) {
+	.main-content {
+		padding: 14px !important;
+	}
+	.center-form-pv > .el-row:first-child > div,
+	.center-form-pv /deep/ .el-input,
+	.center-form-pv /deep/ .el-select {
+		width: 100%;
+	}
+}
+
+/* material-card-view */
+.material-card-panel {
+	padding: 18px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 10px 28px rgba(32, 45, 64, .07) !important;
+}
+
+.material-card-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.toolbar-summary {
+	color: #334155;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.toolbar-sort {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #64748b;
+	font-size: 13px;
+}
+
+.toolbar-sort /deep/ .el-select {
+	width: 138px;
+}
+
+.sort-order-btn {
+	border-radius: 6px !important;
+	border-color: #d7e5d8 !important;
+	color: #3c7a40 !important;
+	background: #f4fbf3 !important;
+}
+
+.material-card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	gap: 18px;
+}
+
+.material-card {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid #e5ece8;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 8px 20px rgba(24, 39, 75, .06);
+	transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.material-card:hover,
+.material-card.selected {
+	transform: translateY(-2px);
+	border-color: #9bcf9c;
+	box-shadow: 0 14px 28px rgba(24, 39, 75, .12);
+}
+
+.material-card.warning {
+	border-color: #f3c56b;
+}
+
+.material-card-check {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	z-index: 3;
+	padding: 4px 6px;
+	border-radius: 6px;
+	background: rgba(255, 255, 255, .9);
+	box-shadow: 0 4px 12px rgba(15, 23, 42, .12);
+}
+
+.material-card-cover {
+	position: relative;
+	overflow: hidden;
+	aspect-ratio: 16 / 9;
+	background: #eef4ef;
+	cursor: pointer;
+}
+
+.material-card-cover img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform .25s ease;
+}
+
+.material-card:hover .material-card-cover img {
+	transform: scale(1.04);
+}
+
+.material-card-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	color: #8b9a90;
+	font-size: 14px;
+}
+
+.material-card-actions {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-content: center;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 18px;
+	background: linear-gradient(180deg, rgba(15, 23, 42, .1), rgba(15, 23, 42, .62));
+	opacity: 0;
+	transition: opacity .18s ease;
+}
+
+.material-card:hover .material-card-actions,
+.material-card:focus-within .material-card-actions {
+	opacity: 1;
+}
+
+.material-card-actions /deep/ .el-button {
+	height: 30px !important;
+	line-height: 30px !important;
+	padding: 0 10px !important;
+	margin: 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	color: #fff !important;
+	font-size: 12px !important;
+	font-weight: 700;
+	box-shadow: 0 6px 14px rgba(15, 23, 42, .18) !important;
+}
+
+.material-card-actions /deep/ .view {
+	background: #4f9f45 !important;
+}
+
+.material-card-actions /deep/ .btn8,
+.material-card-actions /deep/ .edit {
+	background: #278f7f !important;
+}
+
+.material-card-actions /deep/ .del {
+	background: #d9534f !important;
+}
+
+.material-card-body {
+	padding: 14px 14px 16px;
+}
+
+.material-card-title {
+	overflow: hidden;
+	margin-bottom: 10px;
+	color: #172033;
+	font-size: 16px;
+	font-weight: 800;
+	line-height: 22px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.material-card-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.material-card-tags span {
+	max-width: 100%;
+	padding: 4px 9px;
+	border-radius: 999px;
+	background: #f0f7ef;
+	color: #427246;
+	font-size: 12px;
+	line-height: 18px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.material-card-metrics {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.material-card-metrics div {
+	padding: 9px 10px;
+	border-radius: 8px;
+	background: #f8faf8;
+}
+
+.material-card-metrics label {
+	display: block;
+	margin-bottom: 3px;
+	color: #718071;
+	font-size: 12px;
+}
+
+.material-card-metrics strong {
+	display: block;
+	color: #243124;
+	font-size: 15px;
+	line-height: 20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.material-card-code {
+	color: #64748b;
+	font-size: 13px;
+	line-height: 20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@media (hover: none), (max-width: 960px) {
+	.material-card-actions {
+		position: static;
+		opacity: 1;
+		background: #f7fbf6;
+		padding: 10px 12px;
+		justify-content: flex-start;
+	}
+	.material-card-actions /deep/ .el-button {
+		box-shadow: none !important;
+	}
+}
+
+@media (max-width: 640px) {
+	.material-card-toolbar {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+	.material-card-grid {
+		grid-template-columns: 1fr;
+	}
+}
 </style>

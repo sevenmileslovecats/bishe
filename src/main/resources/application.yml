@@ -50,3 +50,9 @@ mybatis-plus:
     call-setters-on-nulls: true
     #springboot 项目mybatis plus 设置 jdbcTypeForNull (oracle数据库需配置JdbcType.NULL, 默认是Other)
     jdbc-type-for-null: 'null'
+
+deepseek:
+  api-key: ${DEEPSEEK_API_KEY:}
+  base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+  model: ${DEEPSEEK_MODEL:deepseek-v4-flash}
+  timeout-ms: ${DEEPSEEK_TIMEOUT_MS:20000}

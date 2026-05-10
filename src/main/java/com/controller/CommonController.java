@@ -37,7 +37,8 @@ import com.service.WuzixinxiService;
 import com.utils.*;
 
 /**
- * 通用接口
+ * 通用业务 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 public class CommonController{
@@ -48,19 +49,18 @@ public class CommonController{
 	private WuzixinxiService wuzixinxiService;
 
     private static AipFace client = null;
-    
+
     @Autowired
     private ConfigService configService;
 
 
-	/**
-	 * 获取table表中的column列表(联动接口)
-	 * @param table
-	 * @param column
-	 * @return
-	 */
+    /**
+     * 功能：查询指定表字段的下拉选项。
+     * 使用端：前后台新增/编辑表单的下拉框。
+     * 前端触发：表单页通过 $http.get('option/{tableName}/{columnName}') 触发。
+     */
 	@IgnoreAuth
-	@RequestMapping("/option/{tableName}/{columnName}")
+    @RequestMapping("/option/{tableName}/{columnName}")
 	public R getOption(@PathVariable("tableName") String tableName, @PathVariable("columnName") String columnName,@RequestParam(required = false) String conditionColumn,@RequestParam(required = false) String conditionValue,String level,String parent, HttpServletRequest request) throws IOException {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("table", tableName);
@@ -81,15 +81,14 @@ public class CommonController{
 		List<String> data = commonService.getOption(params);
 		return R.ok().put("data", data);
 	}
-	
-	/**
-	 * 根据table中的column获取单条记录
-	 * @param table
-	 * @param column
-	 * @return
-	 */
-	@IgnoreAuth
-	@RequestMapping("/follow/{tableName}/{columnName}")
+
+    /**
+     * 功能：根据下拉选项联动查询关联字段。
+     * 使用端：前后台表单联动字段。
+     * 前端触发：表单页选择下拉项后触发。
+     */
+    @IgnoreAuth
+    @RequestMapping("/follow/{tableName}/{columnName}")
 	public R getFollowByOption(@PathVariable("tableName") String tableName, @PathVariable("columnName") String columnName, @RequestParam String columnValue) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("table", tableName);
@@ -105,36 +104,32 @@ public class CommonController{
         }
         return R.ok().put("data", o);
 	}
-	
-	/**
-	 * 修改table表的sfsh状态
-	 * @param table
-	 * @param map
-	 * @return
-	 */
-	@RequestMapping("/sh/{tableName}")
+
+    /**
+     * 功能：通用审核接口。
+     * 使用端：管理端带审核功能的列表页。
+     * 前端触发：审核按钮通过 $http.post('sh/{tableName}') 触发。
+     */
+    @RequestMapping("/sh/{tableName}")
 	public R sh(@PathVariable("tableName") String tableName, @RequestBody Map<String, Object> map) {
 		map.put("table", tableName);
 		commonService.sh(map);
 		return R.ok();
 	}
-	
-	/**
-	 * 获取需要提醒的记录数
-	 * @param tableName
-	 * @param columnName
-	 * @param type 1:数字 2:日期
-	 * @param map
-	 * @return
-	 */
-	@IgnoreAuth
-	@RequestMapping("/remind/{tableName}/{columnName}/{type}")
-	public R remindCount(@PathVariable("tableName") String tableName, @PathVariable("columnName") String columnName, 
+
+    /**
+     * 功能：统计通用业务字段提醒数量。
+     * 使用端：管理端/前台首页提醒和待办入口。
+     * 前端触发：页面加载提醒数据时触发。
+     */
+    @IgnoreAuth
+    @RequestMapping("/remind/{tableName}/{columnName}/{type}")
+	public R remindCount(@PathVariable("tableName") String tableName, @PathVariable("columnName") String columnName,
 						 @PathVariable("type") String type,@RequestParam Map<String, Object> map) {
 		map.put("table", tableName);
 		map.put("column", columnName);
 		map.put("type", type);
-		
+
 		if(type.equals("2")) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			Calendar c = Calendar.getInstance();
@@ -142,7 +137,7 @@ public class CommonController{
 			Date remindEndDate = null;
 			if(map.get("remindstart")!=null) {
 				Integer remindStart = Integer.parseInt(map.get("remindstart").toString());
-				c.setTime(new Date()); 
+				c.setTime(new Date());
 				c.add(Calendar.DAY_OF_MONTH,remindStart);
 				remindStartDate = c.getTime();
 				map.put("remindstart", sdf.format(remindStartDate));
@@ -155,16 +150,18 @@ public class CommonController{
 				map.put("remindend", sdf.format(remindEndDate));
 			}
 		}
-		
+
 		int count = commonService.remindCount(map);
 		return R.ok().put("count", count);
 	}
-	
-	/**
-	 * 单列求和
-	 */
-	@IgnoreAuth
-	@RequestMapping("/cal/{tableName}/{columnName}")
+
+    /**
+     * 功能：通用字段求和统计。
+     * 使用端：首页统计或模块统计区域。
+     * 前端触发：统计组件通过 $http.get('cal/{tableName}/{columnName}') 触发。
+     */
+    @IgnoreAuth
+    @RequestMapping("/cal/{tableName}/{columnName}")
 	public R cal(@PathVariable("tableName") String tableName, @PathVariable("columnName") String columnName) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("table", tableName);
@@ -172,12 +169,14 @@ public class CommonController{
 		Map<String, Object> result = commonService.selectCal(params);
 		return R.ok().put("data", result);
 	}
-	
-	/**
-	 * 分组统计
-	 */
-	@IgnoreAuth
-	@RequestMapping("/group/{tableName}/{columnName}")
+
+    /**
+     * 功能：按字段分组统计通用业务数据。
+     * 使用端：管理端首页统计、前台统计图表。
+     * 前端触发：图表组件通过 group 接口触发。
+     */
+    @IgnoreAuth
+    @RequestMapping("/group/{tableName}/{columnName}")
 	public R group(@PathVariable("tableName") String tableName, @PathVariable("columnName") String columnName) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("table", tableName);
@@ -194,13 +193,13 @@ public class CommonController{
 		return R.ok().put("data", result);
 	}
 
-	/**
-     * 词云数据
-     * @param tableName
-     * @param columnName
+    /**
+     * 功能：生成通用词云统计数据。
+     * 使用端：统计图表页面。
+     * 前端触发：词云组件加载时触发。
      */
-	@IgnoreAuth
-	@RequestMapping("/wordCloud/{tableName}/{columnName}")
+    @IgnoreAuth
+    @RequestMapping("/wordCloud/{tableName}/{columnName}")
 	public R wordCloud(@PathVariable("tableName") String tableName, @PathVariable("columnName") String columnName) {
 		if (tableName == null || tableName.isEmpty() || columnName == null || columnName.isEmpty()) {
 			return R.error("Table name and column name cannot be empty");
@@ -239,13 +238,12 @@ public class CommonController{
 		return R.ok().put("data", result);
 	}
 
-	/**
-     * 更新列数据
-     *
-     * @param tableName 表名
-     * @param type      1 字符串，直接替换。 2 数字运算，+ - * /。
+    /**
+     * 功能：通用库存/数量字段增减更新。
+     * 使用端：业务表单提交后的联动更新。
+     * 前端触发：保存、接收、分拨等操作后触发。
      */
-	@RequestMapping("/updateColumn/{tableName}/{type}")
+    @RequestMapping("/updateColumn/{tableName}/{type}")
 	public R updateColumn(@PathVariable("tableName") String tableName, @PathVariable("type") int type, HttpServletRequest request) throws IOException {
 		Map<String, Object> params = new HashMap<>();
 		params.put("tableName", tableName);
@@ -298,12 +296,12 @@ public class CommonController{
 		return R.error("库存不足");
 	}
 
-	/**
-     * 删除列数据
-     *
-     * @param tableName 表名
+    /**
+     * 功能：通用库存/数量字段回滚更新。
+     * 使用端：业务删除或撤销后的联动更新。
+     * 前端触发：删除相关记录后触发。
      */
-	@RequestMapping("/deleteColumn/{tableName}")
+    @RequestMapping("/deleteColumn/{tableName}")
 	public R deleteColumn(@PathVariable("tableName") String tableName, HttpServletRequest request) throws IOException {
 		Map<String, Object> params = new HashMap<>();
 		params.put("tableName", tableName);
@@ -314,10 +312,12 @@ public class CommonController{
 		return R.error("删除失败");
 	}
 
-	/**
-     * 评论列表
+    /**
+     * 功能：查询当前用户的评论收藏聚合列表。
+     * 使用端：前台我的评论页面。
+     * 前端触发：front/src/pages/storeup/list.vue 通过 $http.get('comment/list') 触发。
      */
-	@RequestMapping("/comment/list")
+    @RequestMapping("/comment/list")
 	public R comment(HttpServletRequest request) throws Exception {
 		List result = new ArrayList<>();
 		List<String> tableNames = new ArrayList<>();
@@ -335,12 +335,14 @@ public class CommonController{
 		}
 		return R.ok().put("data", result);
 	}
-	
-	/**
-	 * （按值统计）
-	 */
-	@IgnoreAuth
-	@RequestMapping("/value/{tableName}/{xColumnName}/{yColumnName}")
+
+    /**
+     * 功能：统计通用业务图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
+     */
+    @IgnoreAuth
+    @RequestMapping("/value/{tableName}/{xColumnName}/{yColumnName}")
 	public R value(@PathVariable("tableName") String tableName, @PathVariable("yColumnName") String yColumnName, @PathVariable("xColumnName") String xColumnName) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("table", tableName);
@@ -358,11 +360,13 @@ public class CommonController{
 		return R.ok().put("data", result);
 	}
 
-	/**
- 	 * （按值统计）时间统计类型
-	 */
-	@IgnoreAuth
-	@RequestMapping("/value/{tableName}/{xColumnName}/{yColumnName}/{timeStatType}")
+    /**
+     * 功能：统计通用业务图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
+     */
+    @IgnoreAuth
+    @RequestMapping("/value/{tableName}/{xColumnName}/{yColumnName}/{timeStatType}")
 	public R valueDay(@PathVariable("tableName") String tableName, @PathVariable("yColumnName") String yColumnName, @PathVariable("xColumnName") String xColumnName, @PathVariable("timeStatType") String timeStatType) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("table", tableName);
@@ -380,15 +384,20 @@ public class CommonController{
 		}
 		return R.ok().put("data", result);
 	}
-	
+
 
 
 
 	/*
 	 * 百度百科
 	 */
+    /**
+     * 功能：按名称查询百科信息。
+     * 使用端：前台详情页扩展信息区域。
+     * 前端触发：前端通过 $http.get('baike/{name}') 触发。
+     */
 	@RequestMapping("/baike/{name}")
-	@IgnoreAuth
+    @IgnoreAuth
 	public R baike(@PathVariable("name") String name) {
 		String url = "https://baike.baidu.com/api/openapi/BaikeLemmaCardApi?scope=103&format=json&appid=379020&bk_key=%s&bk_length=800";
 		String response = HttpClientUtils.doGet(String.format(url, name));

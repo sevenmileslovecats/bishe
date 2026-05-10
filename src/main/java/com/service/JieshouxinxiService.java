@@ -12,27 +12,42 @@ import com.entity.view.JieshouxinxiView;
 
 
 /**
- * 接收信息
- *
- * @author 
- * @email 
- * @date 2026-04-27 08:55:01
+ * 接收信息 服务层。
+ * 说明：承接 Controller 业务，封装分页查询、VO/View 查询和统计查询等服务能力。
  */
 public interface JieshouxinxiService extends IService<JieshouxinxiEntity> {
 
+    /**
+     * 分页查询接收信息数据，供 Controller 列表接口调用。
+     */
     PageUtils queryPage(Map<String, Object> params);
-    
-   	List<JieshouxinxiVO> selectListVO(Wrapper<JieshouxinxiEntity> wrapper);
-   	
-   	JieshouxinxiVO selectVO(@Param("ew") Wrapper<JieshouxinxiEntity> wrapper);
-   	
-   	List<JieshouxinxiView> selectListView(Wrapper<JieshouxinxiEntity> wrapper);
-   	
-   	JieshouxinxiView selectView(@Param("ew") Wrapper<JieshouxinxiEntity> wrapper);
-   	
-   	PageUtils queryPage(Map<String, Object> params,Wrapper<JieshouxinxiEntity> wrapper);
 
-   	
+    /**
+     * 查询接收信息VO 列表，给需要精简字段的业务场景使用。
+     */
+    List<JieshouxinxiVO> selectListVO(Wrapper<JieshouxinxiEntity> wrapper);
+
+    /**
+     * 查询单条接收信息VO 数据。
+     */
+    JieshouxinxiVO selectVO(@Param("ew") Wrapper<JieshouxinxiEntity> wrapper);
+
+    /**
+     * 查询接收信息视图列表，包含页面展示需要的扩展字段。
+     */
+    List<JieshouxinxiView> selectListView(Wrapper<JieshouxinxiEntity> wrapper);
+
+    /**
+     * 查询单条接收信息视图数据。
+     */
+    JieshouxinxiView selectView(@Param("ew") Wrapper<JieshouxinxiEntity> wrapper);
+
+    /**
+     * 分页查询接收信息数据，供 Controller 列表接口调用。
+     */
+    PageUtils queryPage(Map<String, Object> params,Wrapper<JieshouxinxiEntity> wrapper);
+
+
 
 }
 

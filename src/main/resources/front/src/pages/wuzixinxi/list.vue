@@ -31,6 +31,10 @@
 						<span class="icon iconfont " ></span>
 						库存数量
 					</el-button>
+					<el-button class="list-recommend-btn" v-if="isJieshoujigou" type="primary" :loading="recommendLoading" @click="smartRecommend">
+						<span class="icon iconfont icon-favor"></span>
+						智能推荐物资
+					</el-button>
 
 				</div>
 			</el-form>
@@ -45,15 +49,33 @@
 			</div>
 			<div class="list">
 				<div class="list5">
-					<div v-for="(item,index) in dataList" :key="index" class="list-item" @click.stop="toDetail(item)" >
-						<div class="imgbox">
-							<img @click.stop="imgPreView(item.wuzitupian)" v-if="item.wuzitupian && item.wuzitupian.substr(0,4)=='http'&&item.wuzitupian.split(',w').length>1" :src="item.wuzitupian" class="image" />
-							<img @click.stop="imgPreView(item.wuzitupian.split(',')[0])" v-else-if="item.wuzitupian && item.wuzitupian.substr(0,4)=='http'" :src="item.wuzitupian.split(',')[0]" class="image" />
-							<img @click.stop="imgPreView(baseUrl + (item.wuzitupian?item.wuzitupian.split(',')[0]:''))" v-else :src="baseUrl + (item.wuzitupian?item.wuzitupian.split(',')[0]:'')" class="image" />
+					<div v-for="(item,index) in dataList" :key="index" class="list-item material-card" @click.stop="toDetail(item)" >
+						<div class="imgbox material-card-cover">
+							<img v-if="getRecommendImage(item)" @click.stop="imgPreView(getRecommendImage(item))" :src="getRecommendImage(item)" class="image" @error="$event.target.style.display='none'" />
+							<div v-else class="material-card-empty">无图片</div>
+							<div class="material-card-actions" @click.stop>
+								<el-button class="card-detail-btn" size="mini" @click="toDetail(item)">详情</el-button>
+								<el-button class="card-apply-btn" v-if="btnAuth('wuzixinxi','物资申领')" size="mini" @click="goRecommendApply(item)">物资申领</el-button>
+							</div>
 						</div>
-						<div class="infoBox">
-							<div class="name">{{item.wuzimingcheng}}</div>
-							<div class="bottomInfo">
+						<div class="infoBox material-card-body">
+							<div class="name material-card-title" :title="item.wuzimingcheng">{{item.wuzimingcheng || '未命名物资'}}</div>
+							<div class="material-card-tags">
+								<span>{{item.wuzizhonglei || '未分类'}}</span>
+								<span>{{item.wuziguige || '无规格'}}</span>
+							</div>
+							<div class="material-card-metrics">
+								<div>
+									<label>数量</label>
+									<strong>{{item.wuzishuliang || 0}}</strong>
+								</div>
+								<div>
+									<label>保质期</label>
+									<strong>{{item.baozhiqi || '无'}}</strong>
+								</div>
+							</div>
+							<div class="material-card-code">捐赠编号：{{item.juanzengbianhao || '无'}}</div>
+							<div class="bottomInfo" v-if="false">
 								<div class="time_item">
 									<span class="icon iconfont icon-shijian21"></span>
 									<span class="label">发布时间：</span>
@@ -93,6 +115,43 @@
 			<div id="wuzishuliangChart1" style="width:100%;height:600px;"></div>
 			<span slot="footer" class="dialog-footer">
 				<el-button @click="chartVisiable1 = false">返回</el-button>
+			</span>
+		</el-dialog>
+		<el-dialog
+			title="智能推荐物资"
+			:visible.sync="recommendVisible"
+			width="900px"
+			class="recommend-dialog">
+			<el-alert
+				v-if="recommendSourceMessage"
+				:title="recommendSourceMessage"
+				:type="recommendSource == 'deepseek' ? 'success' : 'warning'"
+				:closable="false"
+				show-icon
+				style="margin-bottom: 12px;">
+			</el-alert>
+			<div v-if="recommendList.length" class="recommend-list">
+				<div class="recommend-item" v-for="(item,index) in recommendList" :key="item.id">
+					<div class="recommend-rank">TOP {{index + 1}}</div>
+					<img class="recommend-img" :src="getRecommendImage(item)" />
+					<div class="recommend-info">
+						<div class="recommend-title">{{item.wuzimingcheng}}</div>
+						<div class="recommend-meta">
+							<span>{{item.wuzizhonglei}}</span>
+							<span>库存：{{item.wuzishuliang}}</span>
+							<span>评分：{{item.score}}</span>
+						</div>
+						<div class="recommend-reason">{{item.reason}}</div>
+					</div>
+					<div class="recommend-actions">
+						<el-button size="mini" @click="viewRecommendDetail(item)">查看</el-button>
+						<el-button size="mini" type="warning" @click="goRecommendApply(item)">去申领</el-button>
+					</div>
+				</div>
+			</div>
+			<div v-else class="recommend-empty">暂无可推荐物资</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="recommendVisible = false">关闭</el-button>
 			</span>
 		</el-dialog>
 	</div>
@@ -155,6 +214,11 @@
 				gauge: {"tooltip":{"backgroundColor":"#fff","textStyle":{"color":"#333"}},"backgroundColor":"transparent","color":["#61c8b9","#00AD45","#72c794","#507AFC","#73c0de","#3ba272","#fc8452","#9a60b4","#ea7ccc"],"title":{"show":true,"textStyle":{"fontSize":14,"lineHeight":24,"color":"#333","fontWeight":600},"top":"top","left":"left"},"series":{"pointer":{"offsetCenter":[0,"10%"],"icon":"path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z","width":8,"length":"80%"},"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"opacity":0.5,"shadowBlur":1,"shadowColor":"#fff"},"roundCap":true},"anchor":{"show":true,"itemStyle":{"color":"inherit"},"size":18,"showAbove":true},"emphasis":{"disabled":false},"progress":{"show":true,"roundCap":true,"overlap":true},"splitNumber":25,"detail":{"formatter":"{value}","backgroundColor":"inherit","color":"#fff","borderRadius":3,"width":20,"fontSize":12,"height":10},"title":{"color":"#333","fontSize":14},"animation":true}},
 				radar: {"backgroundColor":"transparent","radar":{"shape":"circle"},"color":["#5470c6","#91cc75","#fac858","#ee6666","#73c0de","#3ba272","#fc8452","#9a60b4","#ea7ccc"],"legend":{"padding":5,"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#ccc","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":14,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":"auto","top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"auto","itemWidth":25,"textStyle":{"textBorderWidth":0,"color":"#fff","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"series":{},"tooltip":{"backgroundColor":"#123","textStyle":{"color":"#fff"}},"title":{"top":"bottom","left":"left"}},
 				chartVisiable1: false,
+				recommendVisible: false,
+				recommendLoading: false,
+				recommendList: [],
+				recommendSource: '',
+				recommendSourceMessage: '',
 			}
 		},
 		async created() {
@@ -237,6 +301,11 @@
 			},
 			username() {
 				return localStorage.getItem('username')
+			},
+			isJieshoujigou() {
+				return localStorage.getItem('frontSessionTable') == 'jieshoujigou'
+					|| localStorage.getItem('UserTableName') == 'jieshoujigou'
+					|| localStorage.getItem('frontRole') == '接收机构'
 			}
 		},
 		//方法集合
@@ -278,7 +347,8 @@
 				let user = JSON.parse(localStorage.getItem('sessionForm'))
 				if (this.sortType) searchWhere.sort = this.sortType
 				if (this.sortOrder) searchWhere.order = this.sortOrder
-				this.$http.get(`wuzixinxi/${this.centerType?'page':'list'}`, {params: Object.assign(params, searchWhere)}).then(async res => {
+				let listUrl = (this.centerType || this.isJieshoujigou) ? 'page/jg' : 'list'
+				this.$http.get(`wuzixinxi/${listUrl}`, {params: Object.assign(params, searchWhere)}).then(async res => {
 					if (res.data.code == 0) {
 						this.dataList = res.data.data.list;
 						this.total = Number(res.data.data.total);
@@ -289,6 +359,62 @@
 						}
 					}
 				});
+			},
+			smartRecommend() {
+				if(!localStorage.getItem('frontToken')) {
+					this.$message({
+						type: 'error',
+						message: '请先登录后再使用智能推荐',
+						duration: 1500
+					});
+					return;
+				}
+				this.recommendLoading = true;
+				this.$http.get('wuzixinxi/intelligentRecommend').then(({data}) => {
+					this.recommendLoading = false;
+					if(data && data.code == 0) {
+						this.recommendList = data.data || [];
+						this.recommendSource = data.source || 'rule';
+						this.recommendSourceMessage = data.sourceMessage || '';
+						this.recommendVisible = true;
+					} else {
+						this.$message({
+							type: 'error',
+							message: data && data.msg ? data.msg : '智能推荐失败',
+							duration: 1500
+						});
+					}
+				}).catch(() => {
+					this.recommendLoading = false;
+					this.$message({
+						type: 'error',
+						message: '智能推荐失败，请稍后重试',
+						duration: 1500
+					});
+				});
+			},
+			getRecommendImage(item) {
+				if(!item || !item.wuzitupian) {
+					return '';
+				}
+				let img = item.wuzitupian.split(',')[0];
+				if(img.substr(0,4) == 'http') {
+					return img;
+				}
+				return this.baseUrl + img;
+			},
+			viewRecommendDetail(item) {
+				this.recommendVisible = false;
+				this.toDetail(item);
+			},
+			goRecommendApply(item) {
+				localStorage.setItem('crossTable', 'wuzixinxi');
+				localStorage.setItem('crossObj', JSON.stringify(item));
+				localStorage.setItem('statusColumnName', '');
+				localStorage.setItem('statusColumnValue', '');
+				localStorage.setItem('tips', '');
+				this.recommendVisible = false;
+				this.$router.push({path: '/index/wuzishenlingAdd', query: {type: 'cross', centerType: this.centerType ? 1 : 0}});
 			},
 			curChange(page) {
 				this.getList(page);
@@ -854,6 +980,293 @@
 					}
 				}
 			}
+		}
+	}
+	.list-recommend-btn {
+		cursor: pointer;
+		border: 0;
+		border-radius: 4px;
+		padding: 0 12px;
+		margin: 0 10px 0 0;
+		color: #fff;
+		background: #409eff;
+		font-size: 16px;
+		line-height: 42px;
+		height: 42px;
+	}
+	/deep/ .recommend-dialog {
+		.el-dialog__body {
+			padding: 18px 24px;
+		}
+		.recommend-list {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+		.recommend-item {
+			border: 1px solid #ebeef5;
+			border-radius: 6px;
+			padding: 12px;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			background: #fff;
+		}
+		.recommend-rank {
+			color: #409eff;
+			font-weight: 600;
+			width: 58px;
+			flex: 0 0 58px;
+		}
+		.recommend-img {
+			width: 76px;
+			height: 76px;
+			object-fit: cover;
+			border-radius: 4px;
+			background: #f5f7fa;
+		}
+		.recommend-info {
+			flex: 1;
+			min-width: 0;
+		}
+		.recommend-title {
+			color: #303133;
+			font-size: 16px;
+			font-weight: 600;
+			margin-bottom: 6px;
+		}
+		.recommend-meta {
+			color: #606266;
+			font-size: 13px;
+			display: flex;
+			gap: 14px;
+			flex-wrap: wrap;
+			margin-bottom: 6px;
+		}
+		.recommend-reason {
+			color: #606266;
+			font-size: 14px;
+			line-height: 1.5;
+		}
+		.recommend-actions {
+			display: flex;
+			gap: 8px;
+			flex: 0 0 auto;
+		}
+		.recommend-empty {
+			color: #909399;
+			text-align: center;
+			padding: 40px 0;
+		}
+	}
+
+	/* material-card-view */
+	.list-preview .list {
+		padding: 0 !important;
+		margin-top: 18px;
+	}
+
+	.list-preview .list .list5 {
+		display: grid !important;
+		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+		gap: 18px !important;
+		width: 100% !important;
+	}
+
+	.list-preview .list .list5 .material-card {
+		position: relative !important;
+		overflow: hidden !important;
+		width: 100% !important;
+		min-height: 0 !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border: 1px solid #e5ece8 !important;
+		border-radius: 8px !important;
+		background: #fff !important;
+		box-shadow: 0 8px 20px rgba(24, 39, 75, .06) !important;
+		transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+	}
+
+	.list-preview .list .list5 .material-card:hover {
+		transform: translateY(-2px);
+		border-color: #9bcf9c !important;
+		box-shadow: 0 14px 28px rgba(24, 39, 75, .12) !important;
+	}
+
+	.list-preview .list .list5 .material-card-cover {
+		position: relative !important;
+		overflow: hidden !important;
+		width: 100% !important;
+		aspect-ratio: 16 / 9;
+		background: #eef4ef !important;
+		cursor: pointer;
+	}
+
+	.list-preview .list .list5 .material-card-cover .image {
+		display: block !important;
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: cover !important;
+		opacity: 1 !important;
+		transition: transform .25s ease !important;
+	}
+
+	.list-preview .list .list5 .material-card:hover .material-card-cover .image {
+		transform: scale(1.04);
+	}
+
+	.material-card-empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		color: #8b9a90;
+		font-size: 14px;
+	}
+
+	.material-card-actions {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-content: center;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 8px;
+		padding: 18px;
+		background: linear-gradient(180deg, rgba(15, 23, 42, .1), rgba(15, 23, 42, .62));
+		opacity: 0;
+		transition: opacity .18s ease;
+	}
+
+	.material-card:hover .material-card-actions,
+	.material-card:focus-within .material-card-actions {
+		opacity: 1;
+	}
+
+	.material-card-actions /deep/ .el-button {
+		height: 30px !important;
+		line-height: 30px !important;
+		padding: 0 10px !important;
+		margin: 0 !important;
+		border: 0 !important;
+		border-radius: 6px !important;
+		color: #fff !important;
+		font-size: 12px !important;
+		font-weight: 700;
+		box-shadow: 0 6px 14px rgba(15, 23, 42, .18) !important;
+	}
+
+	.card-detail-btn {
+		background: #4f9f45 !important;
+	}
+
+	.card-apply-btn {
+		background: #278f7f !important;
+	}
+
+	.list-preview .list .list5 .material-card-body {
+		position: static !important;
+		left: auto !important;
+		bottom: auto !important;
+		width: auto !important;
+		padding: 14px 14px 16px !important;
+		background: #fff !important;
+		text-align: left !important;
+	}
+
+	.list-preview .list .list5 .material-card-title {
+		overflow: hidden !important;
+		margin-bottom: 10px !important;
+		color: #172033 !important;
+		font-size: 16px !important;
+		font-weight: 800 !important;
+		line-height: 22px !important;
+		text-align: left !important;
+		text-overflow: ellipsis !important;
+		white-space: nowrap !important;
+	}
+
+	.material-card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+
+	.material-card-tags span {
+		max-width: 100%;
+		padding: 4px 9px;
+		border-radius: 999px;
+		background: #f0f7ef;
+		color: #427246;
+		font-size: 12px;
+		line-height: 18px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.material-card-metrics {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+
+	.material-card-metrics div {
+		padding: 9px 10px;
+		border-radius: 8px;
+		background: #f8faf8;
+	}
+
+	.material-card-metrics label {
+		display: block;
+		margin-bottom: 3px;
+		color: #718071;
+		font-size: 12px;
+	}
+
+	.material-card-metrics strong {
+		display: block;
+		color: #243124;
+		font-size: 15px;
+		line-height: 20px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.material-card-code {
+		color: #64748b;
+		font-size: 13px;
+		line-height: 20px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.material-card .bottomInfo {
+		display: none !important;
+	}
+
+	@media (hover: none), (max-width: 960px) {
+		.material-card-actions {
+			position: static;
+			opacity: 1;
+			background: #f7fbf6;
+			padding: 10px 12px;
+			justify-content: flex-start;
+		}
+		.material-card-actions /deep/ .el-button {
+			box-shadow: none !important;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.list-preview .list .list5 {
+			grid-template-columns: 1fr !important;
 		}
 	}
 </style>

@@ -56,129 +56,49 @@
 				</div>
 			</div>
 			<div class="list">
-				<el-table class="tables" :stripe='false'
-					:style='{"width":"100%","padding":"0","borderColor":"#eee","borderStyle":"solid","borderWidth":"1px 0 0 1px","background":"#fff"}' 
-					:border='true' 
-					:data="dataList">
-					<el-table-column :resizable='true' :sortable='false'
-						prop="juanzengbianhao"
-						label="捐赠编号">
-						<template slot-scope="scope">
-							{{scope.row.juanzengbianhao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzimingcheng"
-						label="物资名称">
-						<template slot-scope="scope">
-							{{scope.row.wuzimingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzizhonglei"
-						label="物资种类">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhonglei}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzishuoming"
-						label="物资说明">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuoming}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' prop="wuzitupian" width="200" label="物资图片">
-						<template slot-scope="scope">
-							<div v-if="scope.row.wuzitupian">
-								<img v-if="scope.row.wuzitupian.substring(0,4)=='http'&&scope.row.wuzitupian.split(',w').length>1" :src="scope.row.wuzitupian" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.wuzitupian)">
-								<img v-else-if="scope.row.wuzitupian.substring(0,4)=='http'" :src="scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.wuzitupian.split(',')[0])">
-								<img v-else :src="baseUrl+scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(baseUrl+scope.row.wuzitupian.split(',')[0])">
+				<div class="donation-card-grid">
+					<div v-for="item in dataList" :key="item.id" class="donation-card" @click.stop="toDetail(item)">
+						<div class="donation-card-cover" @click.stop="getDonationImage(item) && imgPreView(getDonationImage(item))">
+							<img v-if="getDonationImage(item)" :src="getDonationImage(item)" @error="$event.target.style.display='none'">
+							<div v-else class="donation-card-empty">无图片</div>
+							<div class="donation-card-actions" @click.stop>
+								<el-button class="table-view" size="mini" @click.native="toDetail(item)">查看</el-button>
+								<el-button class="table-trace" size="mini" @click.native="traceClick(item)">追溯查询</el-button>
+								<el-button class="table-btn5" size="mini" @click.native="chapterClick(item)" v-if="btnAuth('juanzengwuzi','章节管理')">章节管理</el-button>
 							</div>
-							<div v-else>无图片</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="xinjiuchengdu"
-						label="新旧程度">
-						<template slot-scope="scope">
-							{{scope.row.xinjiuchengdu}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzishuliang"
-						label="物资数量">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzizhongliang"
-						label="物资重量">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhongliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="youxiaoqi"
-						label="有效期">
-						<template slot-scope="scope">
-							{{scope.row.youxiaoqi}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="juanzengshijian"
-						label="捐赠时间">
-						<template slot-scope="scope">
-							{{scope.row.juanzengshijian}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="yanshouzhuangtai"
-						label="验收状态">
-						<template slot-scope="scope">
-							{{scope.row.yanshouzhuangtai}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="zhanghao"
-						label="账号">
-						<template slot-scope="scope">
-							{{scope.row.zhanghao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="xingming"
-						label="姓名">
-						<template slot-scope="scope">
-							{{scope.row.xingming}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false' prop="shhf" label="审核回复" show-overflow-tooltip>
-						<template slot-scope="scope">
-							<div style="white-space: nowrap;">{{scope.row.shhf}}</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false' prop="sfsh" label="审核状态">
-						<template slot-scope="scope">
-							<el-tag v-if="scope.row.sfsh=='否'" type="danger">未通过</el-tag>
-							<el-tag v-if="scope.row.sfsh=='待审核'" type="warning">待审核</el-tag>
-							<el-tag v-if="scope.row.sfsh=='是'" type="success">通过</el-tag>
-						</template>
-					</el-table-column>
-					<el-table-column width="300" label="操作">
-						<template slot-scope="scope">
-							<el-button class="table-view" type="success" @click.native="toDetail(scope.row)">
-								<span class="icon iconfont icon-fangdajing02"></span>
-								查看
-							</el-button>
-							<el-button class="table-btn5" type="success" @click.native="chapterClick(scope.row)" v-if="btnAuth('juanzengwuzi','章节管理')">
-								<span class="icon iconfont icon-zhangjie7"></span>
-								章节管理
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
+						</div>
+						<div class="donation-card-body">
+							<div class="donation-card-title" :title="item.wuzimingcheng">{{ item.wuzimingcheng || '未命名物资' }}</div>
+							<div class="donation-card-tags">
+								<span>{{ item.wuzizhonglei || '未分类' }}</span>
+								<span>{{ item.xinjiuchengdu || '无新旧程度' }}</span>
+							</div>
+							<div class="donation-card-desc" :title="item.wuzishuoming">{{ item.wuzishuoming || '无物资说明' }}</div>
+							<div class="donation-card-metrics">
+								<div>
+									<label>数量</label>
+									<strong>{{ item.wuzishuliang || 0 }}</strong>
+								</div>
+								<div>
+									<label>重量</label>
+									<strong>{{ item.wuzizhongliang || '无' }}</strong>
+								</div>
+								<div>
+									<label>有效期</label>
+									<strong>{{ item.youxiaoqi || '无' }}</strong>
+								</div>
+								<div>
+									<label>验收</label>
+									<strong>{{ item.yanshouzhuangtai || '无' }}</strong>
+								</div>
+							</div>
+							<div class="donation-card-footer">
+								<span>捐赠编号：{{ item.juanzengbianhao || '无' }}</span>
+								<span>{{ item.juanzengshijian || '' }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 	
@@ -202,6 +122,131 @@
 		</div>
 		<el-dialog title="预览图" :visible.sync="previewVisible" width="50%">
 			<img :src="previewImg" alt="" style="width: 100%;">
+		</el-dialog>
+		<el-dialog title="追溯查询" :visible.sync="traceVisible" width="86%" class="trace-dialog">
+			<div v-loading="traceLoading">
+				<div v-if="traceData" class="trace-content">
+					<div class="trace-summary-band">
+						<div class="trace-summary-title">
+							<span>{{ field(traceData.juanzengwuzi, 'wuzimingcheng') }}</span>
+							<el-tag :type="tagType(traceData.juanzengwuzi && traceData.juanzengwuzi.yanshouzhuangtai)" size="small">
+								{{ field(traceData.juanzengwuzi, 'yanshouzhuangtai') }}
+							</el-tag>
+						</div>
+						<div class="trace-summary-grid">
+							<div>
+							<span>捐赠编号</span>
+							<strong>{{ field(traceData.juanzengwuzi, 'juanzengbianhao') }}</strong>
+						</div>
+						<div>
+							<span>物资名称</span>
+							<strong>{{ field(traceData.juanzengwuzi, 'wuzimingcheng') }}</strong>
+						</div>
+						<div>
+							<span>物资数量</span>
+							<strong>{{ field(traceData.juanzengwuzi, 'wuzishuliang') }}</strong>
+						</div>
+						<div>
+							<span>验收状态</span>
+							<strong>{{ field(traceData.juanzengwuzi, 'yanshouzhuangtai') }}</strong>
+						</div>
+					</div>
+					</div>
+					<div class="trace-section">
+						<div class="trace-section-head">
+							<h3>主流程</h3>
+							<span>捐赠记录到验收记录</span>
+						</div>
+						<div class="trace-flow-row">
+							<div
+								v-for="(node,index) in traceMainNodes()"
+								:key="node.key"
+								class="trace-node"
+								:class="['state-' + node.state, { 'has-next': index < traceMainNodes().length - 1 }]"
+							>
+								<div class="trace-node-top">
+									<span class="trace-node-index">{{ index + 1 }}</span>
+									<el-tag :type="node.tagType" size="mini">{{ node.status }}</el-tag>
+								</div>
+								<h4>{{ node.title }}</h4>
+								<div class="trace-node-fields">
+									<p v-for="item in node.fields" :key="item.label">
+										<span>{{ item.label }}</span>
+										<strong>{{ item.value }}</strong>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="trace-section">
+						<div class="trace-section-head">
+							<h3>申领分支</h3>
+							<span>每条申领记录生成一条生命流程分支</span>
+						</div>
+						<div v-if="!traceBranchNodes().length" class="trace-empty">暂无申领分支</div>
+						<div v-else class="trace-branch-list">
+						<div class="trace-branch" v-for="(branch,index) in traceBranchNodes()" :key="branch.key">
+							<div class="trace-branch-head">
+								<div>
+									<span class="trace-branch-number">分支 {{ index + 1 }}</span>
+									<strong>{{ branch.title }}</strong>
+								</div>
+								<div class="trace-branch-meta">
+									<el-tag :type="tagType(branch.claim.sfsh)" size="small">{{ field(branch.claim, 'sfsh') }}</el-tag>
+									<span>{{ field(branch.claim, 'jigoumingcheng') }}</span>
+									<span>{{ field(branch.claim, 'quyu') }}</span>
+								</div>
+							</div>
+							<div class="trace-branch-flow">
+								<div
+									v-for="(node,nodeIndex) in branch.beforeFeedback"
+									:key="node.key"
+									class="trace-node compact"
+									:class="['state-' + node.state, { 'has-next': nodeIndex < branch.beforeFeedback.length - 1 }]"
+								>
+									<div class="trace-node-top">
+										<span class="trace-node-index">{{ nodeIndex + 1 }}</span>
+										<el-tag :type="node.tagType" size="mini">{{ node.status }}</el-tag>
+									</div>
+									<h4>{{ node.title }}</h4>
+									<div class="trace-node-fields">
+										<p v-for="item in node.fields" :key="item.label">
+											<span>{{ item.label }}</span>
+											<strong>{{ item.value }}</strong>
+										</p>
+									</div>
+								</div>
+								<div class="trace-feedback-split">
+									<div class="trace-split-line"></div>
+									<div
+										v-for="node in branch.feedback"
+										:key="node.key"
+										class="trace-node compact"
+										:class="'state-' + node.state"
+									>
+										<div class="trace-node-top">
+											<span class="trace-node-index">{{ node.short }}</span>
+											<el-tag :type="node.tagType" size="mini">{{ node.status }}</el-tag>
+										</div>
+										<h4>{{ node.title }}</h4>
+										<div class="trace-node-fields">
+											<p v-for="item in node.fields" :key="item.label">
+												<span>{{ item.label }}</span>
+												<strong>{{ item.value }}</strong>
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						</div>
+					</div>
+				</div>
+				<div v-else class="trace-empty">请选择一批捐赠物资进行追溯查询</div>
+			</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="traceVisible = false">关闭</el-button>
+			</span>
 		</el-dialog>
 		<el-dialog
 			:visible.sync="chartVisiable1"
@@ -268,6 +313,9 @@
 				centerType:false,
 				previewImg: '',
 				previewVisible: false,
+				traceVisible: false,
+				traceLoading: false,
+				traceData: null,
 				sortType: 'juanzengshijian',
 				sortOrder: 'desc',
 				line: {"backgroundColor":"transparent","yAxis":{"axisLabel":{"borderType":"solid","rotate":0,"padding":0,"shadowOffsetX":0,"margin":15,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"width":"","fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(250,250,250,0.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"xAxis":{"axisLabel":{"borderType":"solid","rotate":0,"padding":0,"shadowOffsetX":0,"margin":4,"backgroundColor":"transparent","borderColor":"#000","shadowOffsetY":0,"color":"#333","shadowBlur":0,"show":true,"inside":false,"ellipsis":"...","overflow":"none","borderRadius":0,"borderWidth":0,"width":"","fontSize":12,"lineHeight":24,"shadowColor":"transparent","fontWeight":"normal","height":""},"axisTick":{"show":true,"length":5,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"inside":false},"splitLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":false},"axisLine":{"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"cap":"butt","color":"#333","shadowBlur":0,"width":1,"type":"solid","opacity":1,"shadowColor":"rgba(0,0,0,.5)"},"show":true},"splitArea":{"show":false,"areaStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"rgba(255,255,255,.3)","opacity":1,"shadowBlur":10,"shadowColor":"rgba(0,0,0,.5)"}}},"color":["#5470c6","#91cc75","#fac858","#ee6666","#73c0de","#3ba272","#fc8452","#9a60b4","#ea7ccc"],"legend":{"padding":[5,10,5,5],"itemGap":10,"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#ccc","shadowOffsetY":0,"orient":"horizontal","shadowBlur":0,"bottom":"auto","itemHeight":14,"show":true,"icon":"roundRect","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"inherit","shadowOffsetY":0,"color":"inherit","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"transparent"},"right":"auto","top":"auto","borderRadius":0,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"inherit","shadowBlur":0,"width":"auto","type":"inherit","opacity":1,"shadowColor":"transparent"},"left":"right","borderWidth":0,"width":"auto","itemWidth":25,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","ellipsis":"...","overflow":"none","fontSize":12,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"transparent","textShadowBlur":0},"shadowColor":"rgba(0,0,0,.3)","height":"auto"},"series":{"emphasis":{"lineStyle":{"color":"#000"}},"symbol":"emptyCircle","itemStyle":{"borderType":"solid","shadowOffsetX":0,"borderColor":"#333","shadowOffsetY":0,"color":"#e61f4d","shadowBlur":0,"borderWidth":0,"opacity":1,"shadowColor":"#000"},"showSymbol":true,"lineStyle":{"shadowOffsetX":0,"shadowOffsetY":0,"color":"#e61f4d","shadowBlur":0,"width":2,"type":"solid","opacity":1,"shadowColor":"#000"},"symbolSize":6},"title":{"borderType":"solid","padding":[5,5,5,10],"shadowOffsetX":0,"backgroundColor":"transparent","borderColor":"#ccc","shadowOffsetY":0,"shadowBlur":0,"bottom":"auto","show":true,"right":"auto","top":"auto","borderRadius":0,"left":"left","borderWidth":0,"textStyle":{"textBorderWidth":0,"color":"#333","textShadowColor":"transparent","fontSize":14,"lineHeight":24,"textShadowOffsetX":0,"textShadowOffsetY":0,"textBorderType":"solid","fontWeight":500,"textBorderColor":"#ccc","textShadowBlur":0},"shadowColor":"transparent"}},
@@ -401,6 +449,223 @@
 			imgPreView(url){
 				this.previewImg = url
 				this.previewVisible = true
+			},
+			getDonationImage(item) {
+				if (!item || !item.wuzitupian) {
+					return ''
+				}
+				let img = item.wuzitupian
+				if (img.indexOf(',') !== -1 && !(img.substring(0,4) == 'http' && img.split(',w').length > 1)) {
+					img = img.split(',')[0]
+				}
+				if (img.substring(0,4) == 'http') {
+					return img
+				}
+				return this.baseUrl + img
+			},
+			traceClick(row) {
+				if (!row || !row.juanzengbianhao) {
+					this.$message.error('该批物资缺少捐赠编号，无法追溯查询')
+					return
+				}
+				this.traceVisible = true
+				this.traceLoading = true
+				this.traceData = null
+				this.$http.get('zhuishuchaxun/trace', {
+					params: {
+						juanzengbianhao: row.juanzengbianhao
+					}
+				}).then(res => {
+					if (res.data && res.data.code === 0) {
+						this.traceData = res.data.data
+					} else {
+						this.$message.error(res.data && res.data.msg ? res.data.msg : '追溯查询失败')
+					}
+				}, () => {
+					this.$message.error('追溯查询失败')
+				}).then(() => {
+					this.traceLoading = false
+				})
+			},
+			asList(value) {
+				return Array.isArray(value) ? value : []
+			},
+			field(row, key) {
+				if (!row || row[key] === undefined || row[key] === null || row[key] === '') {
+					return '无'
+				}
+				return row[key]
+			},
+			latestField(list, key) {
+				const rows = this.asList(list)
+				return rows.length ? this.field(rows[rows.length - 1], key) : '无'
+			},
+			resolveStatus(row, fallback) {
+				const keys = ['sfsh', 'yanshouzhuangtai', 'yanshoujieguo', 'chukuzhuangtai', 'wuliuzhuangtai']
+				for (let i = 0; i < keys.length; i++) {
+					if (row && row[keys[i]]) {
+						return row[keys[i]]
+					}
+				}
+				return fallback
+			},
+			resolveState(row, keys) {
+				if (!row) {
+					return 'missing'
+				}
+				let text = ''
+				keys.forEach(key => {
+					if (row[key]) {
+						text += row[key] + ','
+					}
+				})
+				if (!text) {
+					return 'done'
+				}
+				if (/异议|异常|失败|驳回|拒绝|不通过|否/.test(text)) {
+					return 'danger'
+				}
+				if (/待|未|暂无/.test(text)) {
+					return 'pending'
+				}
+				return 'done'
+			},
+			resolveObjectionState(row) {
+				if (!row) {
+					return 'missing'
+				}
+				return row.sfsh === '否' ? 'pending' : 'danger'
+			},
+			tagType(status) {
+				const text = status || ''
+				if (/异议|异常|失败|驳回|拒绝|不通过|否/.test(text)) {
+					return 'danger'
+				}
+				if (/待|未|暂无/.test(text)) {
+					return 'warning'
+				}
+				return 'success'
+			},
+			traceMainNodes() {
+				if (!this.traceData) {
+					return []
+				}
+				const donation = this.traceData.juanzengwuzi || {}
+				const acceptList = this.asList(this.traceData.yanshoujiluList)
+				const latestAccept = acceptList[acceptList.length - 1] || {}
+				return [
+					{
+						key: 'donation',
+						title: '捐赠记录',
+						status: this.resolveStatus(donation, '捐赠已记录'),
+						state: this.resolveState(donation, ['sfsh', 'yanshouzhuangtai']),
+						tagType: this.tagType(this.resolveStatus(donation, '捐赠已记录')),
+						fields: [
+							{ label: '捐赠人', value: this.field(donation, 'xingming') },
+							{ label: '数量', value: this.field(donation, 'wuzishuliang') },
+							{ label: '审核', value: this.field(donation, 'sfsh') }
+						]
+					},
+					{
+						key: 'acceptance',
+						title: '验收记录',
+						status: acceptList.length ? this.resolveStatus(latestAccept, '已验收') : '暂无记录',
+						state: acceptList.length ? this.resolveState(latestAccept, ['yanshoujieguo']) : 'missing',
+						tagType: acceptList.length ? this.tagType(this.resolveStatus(latestAccept, '已验收')) : 'info',
+						fields: [
+							{ label: '验收时间', value: this.field(latestAccept, 'yanshoushijian') },
+							{ label: '验收人', value: this.field(latestAccept, 'yanshouren') },
+							{ label: '验收结果', value: this.field(latestAccept, 'yanshoujieguo') }
+						]
+					}
+				]
+			},
+			traceBranchNodes() {
+				if (!this.traceData) {
+					return []
+				}
+				return this.asList(this.traceData.fenZhiList).map((item, index) => {
+					const claim = item.wuzishenling || {}
+					const outList = this.asList(item.chukufenboList)
+					const receiveList = this.asList(item.jieshouxinxiList)
+					const useList = this.asList(item.shiyongfankuiList)
+					const objectionList = this.asList(item.yiyifankuiList)
+					const latestOut = outList[outList.length - 1] || {}
+					const latestReceive = receiveList[receiveList.length - 1] || {}
+					const latestUse = useList[useList.length - 1] || {}
+					const latestObjection = objectionList[objectionList.length - 1] || {}
+					return {
+						key: 'branch-' + index,
+						title: this.field(claim, 'shenlingbianhao'),
+						claim,
+						beforeFeedback: [
+							{
+								key: 'claim-' + index,
+								title: '物资申领',
+								status: this.resolveStatus(claim, '已申领'),
+								state: this.resolveState(claim, ['sfsh', 'chukuzhuangtai']),
+								tagType: this.tagType(this.resolveStatus(claim, '已申领')),
+								fields: [
+									{ label: '申领数量', value: this.field(claim, 'shenlingshuliang') },
+									{ label: '申领时间', value: this.field(claim, 'shenlingshijian') },
+									{ label: '出库状态', value: this.field(claim, 'chukuzhuangtai') }
+								]
+							},
+							{
+								key: 'out-' + index,
+								title: '出库记录',
+								status: outList.length ? this.resolveStatus(latestOut, '已出库') : '暂无记录',
+								state: outList.length ? this.resolveState(latestOut, ['wuliuzhuangtai']) : 'missing',
+								tagType: outList.length ? this.tagType(this.resolveStatus(latestOut, '已出库')) : 'info',
+								fields: [
+									{ label: '出库时间', value: this.field(latestOut, 'chukushijian') },
+									{ label: '出库数量', value: this.field(latestOut, 'wuzishuliang') },
+									{ label: '物流状态', value: this.field(latestOut, 'wuliuzhuangtai') }
+								]
+							},
+							{
+								key: 'receive-' + index,
+								title: '接收记录',
+								status: receiveList.length ? '已接收' : '暂无记录',
+								state: receiveList.length ? 'done' : 'missing',
+								tagType: receiveList.length ? 'success' : 'info',
+								fields: [
+									{ label: '签收时间', value: this.field(latestReceive, 'qianshoushijian') },
+									{ label: '签收数量', value: this.field(latestReceive, 'wuzishuliang') },
+									{ label: '出库单', value: this.field(latestReceive, 'chukudan') }
+								]
+							}
+						],
+						feedback: [
+							{
+								key: 'use-' + index,
+								title: '使用反馈',
+								short: '用',
+								status: useList.length ? '已反馈' : '暂无反馈',
+								state: useList.length ? 'done' : 'missing',
+								tagType: useList.length ? 'success' : 'info',
+								fields: [
+									{ label: '反馈数', value: useList.length },
+									{ label: '使用人数', value: this.field(latestUse, 'shiyongrenshu') },
+									{ label: '反馈时间', value: this.field(latestUse, 'fankuishijian') }
+								]
+							},
+							{
+								key: 'objection-' + index,
+								title: '异议反馈',
+								short: '异',
+								status: objectionList.length ? this.resolveStatus(latestObjection, '存在异议') : '暂无异议',
+								state: objectionList.length ? this.resolveObjectionState(latestObjection) : 'missing',
+								tagType: objectionList.length ? (this.resolveObjectionState(latestObjection) === 'pending' ? 'warning' : 'danger') : 'info',
+								fields: [
+									{ label: '异议数', value: objectionList.length },
+									{ label: '审核状态', value: this.field(latestObjection, 'sfsh') },
+									{ label: '提交时间', value: this.field(latestObjection, 'tijiaoshijian') }
+								]
+							}
+						]
+					}
+				})
 			},
 			toDetail(item) {
 				let params = {
@@ -1003,6 +1268,28 @@
 			.el-table /deep/ .table-view:hover {
 				opacity: 0.8;
 			}
+			.el-table /deep/ .table-trace {
+				border: 0;
+				cursor: pointer;
+				border-radius: 4px;
+				padding: 0 10px;
+				margin: 0 5px 2px 0;
+				outline: none;
+				color: #fff;
+				background: #4fc3b1;
+				width: auto;
+				font-size: 14px;
+				height: 32px;
+				.iconfont {
+					margin: 0 0px;
+					color: #fff;
+					font-size: 14px;
+					height: 40px;
+				}
+			}
+			.el-table /deep/ .table-trace:hover {
+				opacity: 0.8;
+			}
 			.el-table /deep/ .table-edit {
 				border: 0;
 				cursor: pointer;
@@ -1069,6 +1356,695 @@
 			.el-table /deep/ .table-btn5:hover {
 				opacity: 0.8;
 			}
+		}
+	}
+.breadcrumb-preview {
+	max-width: 1760px;
+	margin: 0 auto;
+	padding: 18px 24px 0;
+	box-sizing: border-box;
+}
+
+.back_box {
+	max-width: 1760px;
+	margin: 12px auto 0;
+	padding: 0 24px;
+	text-align: right;
+	box-sizing: border-box;
+	.backBtn {
+		border: 0;
+		border-radius: 6px;
+		color: #fff;
+		background: #5ba84d;
+		height: 34px;
+		padding: 0 16px;
+	}
+}
+
+.list-preview {
+	max-width: 1760px;
+	width: 100% !important;
+	margin: 0 auto !important;
+	padding: 20px 24px 44px !important;
+	box-sizing: border-box;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	background: #f7faf8;
+	.list-form-pv {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 18px 18px 8px !important;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 24px rgba(34, 62, 43, .06);
+		display: flex;
+		align-items: flex-end;
+		justify-content: flex-start !important;
+		flex-wrap: wrap;
+		gap: 12px 16px;
+		order: 1;
+		.list-item {
+			margin: 0 0 10px !important;
+			.lable {
+				margin: 0 0 6px !important;
+				color: #4d5d53;
+				font-size: 13px !important;
+				line-height: 18px !important;
+				font-weight: 600;
+			}
+			.el-input {
+				width: 190px !important;
+			}
+			/deep/ .el-input__inner {
+				height: 36px;
+				line-height: 36px;
+				border-color: #dfe9df;
+				border-radius: 6px;
+			}
+		}
+		.list-btn-box {
+			margin: 0 0 10px !important;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			align-items: center;
+		}
+		.el-button {
+			height: 36px;
+			padding: 0 16px;
+			border: 0;
+			border-radius: 6px;
+			font-size: 14px;
+		}
+		.list-search-btn {
+			background: #4f9f45;
+		}
+		.list-add-btn {
+			background: #278f7f;
+		}
+		.list-static-btn {
+			color: #35633b;
+			background: #edf7ed;
+			border: 1px solid #cfe6cf;
+		}
+	}
+	.select2 {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 12px 16px !important;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 24px rgba(34, 62, 43, .05);
+		order: 2;
+		.select2-list {
+			margin: 0 0 10px !important;
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+			.label {
+				min-width: 86px;
+				color: #56645b;
+				font-weight: 600;
+				line-height: 32px;
+			}
+			.item-body {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				.item {
+					margin: 0 !important;
+					padding: 0 14px !important;
+					border-radius: 16px !important;
+					color: #52645a !important;
+					background: #f4f7f4 !important;
+					font-size: 14px !important;
+					line-height: 30px !important;
+				}
+				.item:hover,
+				.item.active {
+					color: #fff !important;
+					background: #5ba84d !important;
+				}
+			}
+		}
+		.select2-list:last-child {
+			margin-bottom: 0 !important;
+		}
+	}
+	.list {
+		width: 100% !important;
+		margin: 0 !important;
+		flex: none !important;
+		order: 4;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 12px 30px rgba(34, 62, 43, .08);
+		overflow-x: auto;
+		.el-table {
+			border: 0 !important;
+			min-width: 1500px;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr,
+		.el-table /deep/ .el-table__header-wrapper thead tr th {
+			background: #f3f8f4 !important;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr th {
+			padding: 10px 0 !important;
+			border-color: #e6eee7 !important;
+			color: #26342b;
+			font-weight: 700;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr th .cell,
+		.el-table /deep/ .el-table__body-wrapper tbody tr td .cell {
+			padding: 0 12px !important;
+			line-height: 22px !important;
+		}
+		.el-table /deep/ .el-table__body-wrapper tbody tr td {
+			padding: 10px 0 !important;
+			border-color: #eef2ef !important;
+			color: #3e4d45 !important;
+			background: #fff !important;
+		}
+		.el-table /deep/ .el-table__body-wrapper tbody tr:hover td {
+			background: #f7fbf6 !important;
+		}
+		.el-table /deep/ img {
+			width: 64px !important;
+			height: 64px !important;
+			border-radius: 6px;
+			object-fit: cover;
+			display: block;
+			background: #f0f4f1;
+			box-shadow: inset 0 0 0 1px #e5ebe6;
+			cursor: pointer;
+		}
+		.el-table /deep/ .el-button {
+			height: 32px;
+			padding: 0 12px;
+			border: 0;
+			border-radius: 6px;
+			font-size: 13px;
+		}
+		.el-table /deep/ .table-view {
+			background: #4f9f45 !important;
+		}
+		.el-table /deep/ .table-trace {
+			background: #2aa69a !important;
+		}
+		.el-table /deep/ .table-btn1,
+		.el-table /deep/ .table-btn5 {
+			background: #e89232 !important;
+		}
+		.el-table /deep/ .el-tag {
+			border-radius: 14px;
+			padding: 0 12px;
+		}
+	}
+	.pagination {
+		width: 100%;
+		margin: 8px 0 0 !important;
+		padding: 14px 0 0;
+		text-align: center;
+		order: 5;
+	}
+}
+
+@media (max-width: 900px) {
+	.breadcrumb-preview,
+	.back_box,
+	.list-preview {
+		padding-left: 12px !important;
+		padding-right: 12px !important;
+	}
+	.list-preview .list-form-pv .list-item,
+	.list-preview .list-form-pv .list-item .el-input {
+		width: 100% !important;
+	}
+	.list-preview .list-form-pv .list-btn-box {
+		width: 100%;
+	}
+}
+
+	.trace-dialog /deep/ .el-dialog__body {
+		padding: 12px 18px 18px;
+	}
+	.trace-content {
+		color: #27364a;
+	}
+	.trace-summary-band {
+		padding: 18px 20px;
+		margin-bottom: 18px;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		background: #fbfcff;
+	}
+	.trace-summary-title {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-bottom: 16px;
+		color: #27364a;
+		font-size: 20px;
+		font-weight: 700;
+	}
+	.trace-summary-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(130px, 1fr));
+		gap: 12px;
+	}
+	.trace-summary-grid div {
+		padding: 12px;
+		border-radius: 6px;
+		background: #fff;
+	}
+	.trace-summary-grid span,
+	.trace-node-fields span,
+	.trace-section-head span,
+	.trace-branch-meta {
+		color: #7a8391;
+		font-size: 13px;
+	}
+	.trace-summary-grid strong,
+	.trace-node-fields strong {
+		display: block;
+		margin-top: 6px;
+		color: #2f3a4a;
+		font-size: 15px;
+		font-weight: 600;
+		word-break: break-all;
+	}
+	.trace-section {
+		margin-top: 18px;
+	}
+	.trace-section-head {
+		display: flex;
+		align-items: baseline;
+		gap: 12px;
+		margin-bottom: 14px;
+	}
+	.trace-section-head h3 {
+		margin: 0;
+		color: #27364a;
+		font-size: 18px;
+	}
+	.trace-flow-row,
+	.trace-branch-flow {
+		display: flex;
+		align-items: stretch;
+		gap: 28px;
+		overflow-x: auto;
+		padding: 6px 4px 16px;
+	}
+	.trace-node {
+		position: relative;
+		flex: 0 0 260px;
+		min-height: 160px;
+		padding: 16px;
+		border: 1px solid #d7dee8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 22px rgba(39,54,74,.06);
+		box-sizing: border-box;
+	}
+	.trace-node.compact {
+		flex-basis: 230px;
+		min-height: 170px;
+	}
+	.trace-node.has-next:after {
+		content: "";
+		position: absolute;
+		top: 50%;
+		right: -28px;
+		width: 28px;
+		height: 2px;
+		background: #cbd5e1;
+	}
+	.trace-node.has-next:before {
+		content: "";
+		position: absolute;
+		top: calc(50% - 5px);
+		right: -30px;
+		border: 6px solid transparent;
+		border-left-color: #cbd5e1;
+	}
+	.trace-node-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+	}
+	.trace-node-index {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		border-radius: 50%;
+		background: #edf2f7;
+		color: #4a5568;
+		font-weight: 700;
+	}
+	.trace-node h4 {
+		margin: 14px 0 12px;
+		color: #27364a;
+		font-size: 17px;
+	}
+	.trace-node-fields {
+		display: grid;
+		gap: 8px;
+	}
+	.trace-node-fields p {
+		margin: 0;
+	}
+	.trace-node.state-done {
+		border-color: #67c23a;
+		background: #fbfff8;
+	}
+	.trace-node.state-done .trace-node-index {
+		background: #e6f7df;
+		color: #2f8f1f;
+	}
+	.trace-node.state-pending {
+		border-color: #e6a23c;
+		background: #fffaf0;
+	}
+	.trace-node.state-pending .trace-node-index {
+		background: #fdf0d4;
+		color: #b56a00;
+	}
+	.trace-node.state-danger {
+		border-color: #f56c6c;
+		background: #fff7f7;
+	}
+	.trace-node.state-danger .trace-node-index {
+		background: #fde2e2;
+		color: #c73939;
+	}
+	.trace-node.state-missing {
+		border-color: #cbd5e1;
+		background: #f8fafc;
+	}
+	.trace-node.state-missing .trace-node-index {
+		background: #e2e8f0;
+		color: #64748b;
+	}
+	.trace-empty {
+		padding: 42px 20px;
+		color: #909399;
+		text-align: center;
+		background: #fff;
+		border-radius: 8px;
+	}
+	.trace-branch-list {
+		display: grid;
+		gap: 18px;
+	}
+	.trace-branch {
+		padding: 18px;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		background: #fff;
+	}
+	.trace-branch-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 16px;
+	}
+	.trace-branch-head strong {
+		color: #27364a;
+		font-size: 17px;
+	}
+	.trace-branch-number {
+		display: inline-block;
+		margin-right: 10px;
+		padding: 4px 8px;
+		border-radius: 4px;
+		background: #eaf4ff;
+		color: #3179c3;
+		font-weight: 600;
+	}
+	.trace-branch-meta {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+	}
+	.trace-feedback-split {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(2, 230px);
+		gap: 14px;
+		padding-left: 8px;
+	}
+	.trace-split-line {
+		position: absolute;
+		top: 50%;
+		left: -28px;
+		width: 28px;
+		height: 2px;
+		background: #cbd5e1;
+	}
+	@media (max-width: 900px) {
+		.trace-summary-grid {
+			grid-template-columns: repeat(2, minmax(130px, 1fr));
+		}
+		.trace-branch-head {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+		.trace-branch-meta {
+			justify-content: flex-start;
+		}
+	}
+	@media (max-width: 560px) {
+		.trace-summary-grid {
+			grid-template-columns: 1fr;
+		}
+		.trace-feedback-split {
+			grid-template-columns: 230px;
+		}
+	}
+
+	/* material-donation-card-view */
+	.list-preview .list {
+		padding: 0 !important;
+		margin-top: 18px;
+		background: transparent !important;
+		border: 0 !important;
+	}
+
+	.donation-card-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 18px;
+	}
+
+	.donation-card {
+		overflow: hidden;
+		border: 1px solid #e5ece8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 20px rgba(24, 39, 75, .06);
+		cursor: pointer;
+		transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+	}
+
+	.donation-card:hover {
+		transform: translateY(-2px);
+		border-color: #9bcf9c;
+		box-shadow: 0 14px 28px rgba(24, 39, 75, .12);
+	}
+
+	.donation-card-cover {
+		position: relative;
+		overflow: hidden;
+		aspect-ratio: 16 / 9;
+		background: #eef4ef;
+	}
+
+	.donation-card-cover img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform .25s ease;
+	}
+
+	.donation-card:hover .donation-card-cover img {
+		transform: scale(1.04);
+	}
+
+	.donation-card-empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		color: #8b9a90;
+		font-size: 14px;
+	}
+
+	.donation-card-actions {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-content: center;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 8px;
+		padding: 18px;
+		background: linear-gradient(180deg, rgba(15, 23, 42, .1), rgba(15, 23, 42, .62));
+		opacity: 0;
+		transition: opacity .18s ease;
+	}
+
+	.donation-card:hover .donation-card-actions,
+	.donation-card:focus-within .donation-card-actions {
+		opacity: 1;
+	}
+
+	.donation-card-actions /deep/ .el-button {
+		height: 30px !important;
+		line-height: 30px !important;
+		padding: 0 10px !important;
+		margin: 0 !important;
+		border: 0 !important;
+		border-radius: 6px !important;
+		color: #fff !important;
+		font-size: 12px !important;
+		font-weight: 700;
+		box-shadow: 0 6px 14px rgba(15, 23, 42, .18) !important;
+	}
+
+	.donation-card-actions .table-view {
+		background: #4f9f45 !important;
+	}
+
+	.donation-card-actions .table-trace {
+		background: #278f7f !important;
+	}
+
+	.donation-card-actions .table-btn5 {
+		background: #e89232 !important;
+	}
+
+	.donation-card-body {
+		padding: 14px 14px 16px;
+	}
+
+	.donation-card-title {
+		overflow: hidden;
+		margin-bottom: 10px;
+		color: #172033;
+		font-size: 16px;
+		font-weight: 800;
+		line-height: 22px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.donation-card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
+
+	.donation-card-tags span {
+		max-width: 100%;
+		padding: 4px 9px;
+		border-radius: 999px;
+		background: #f0f7ef;
+		color: #427246;
+		font-size: 12px;
+		line-height: 18px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.donation-card-desc {
+		display: -webkit-box;
+		overflow: hidden;
+		min-height: 40px;
+		margin-bottom: 12px;
+		color: #64748b;
+		font-size: 13px;
+		line-height: 20px;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+
+	.donation-card-metrics {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+
+	.donation-card-metrics div {
+		padding: 9px 10px;
+		border-radius: 8px;
+		background: #f8faf8;
+	}
+
+	.donation-card-metrics label {
+		display: block;
+		margin-bottom: 3px;
+		color: #718071;
+		font-size: 12px;
+	}
+
+	.donation-card-metrics strong {
+		display: block;
+		overflow: hidden;
+		color: #243124;
+		font-size: 15px;
+		line-height: 20px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.donation-card-footer {
+		display: flex;
+		justify-content: space-between;
+		gap: 10px;
+		color: #64748b;
+		font-size: 12px;
+		line-height: 20px;
+	}
+
+	.donation-card-footer span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	@media (hover: none), (max-width: 960px) {
+		.donation-card-actions {
+			position: static;
+			opacity: 1;
+			background: #f7fbf6;
+			padding: 10px 12px;
+			justify-content: flex-start;
+		}
+		.donation-card-actions /deep/ .el-button {
+			box-shadow: none !important;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.donation-card-grid {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

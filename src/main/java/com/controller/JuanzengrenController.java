@@ -40,11 +40,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 捐赠人
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:00
+ * 捐赠人 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/juanzengren")
@@ -61,12 +58,17 @@ public class JuanzengrenController {
 	@Autowired
 	private TokenService tokenService;
 
-	/**
-	 * 登录
-	 */
+    /**
+     * 功能：捐赠人登录认证，生成并返回访问 Token。
+     * 使用端：管理端/前台登录页。
+     * 前端触发：登录页提交账号密码时通过 $http.get('juanzengren/login') 触发。
+     */
 	@IgnoreAuth
-	@RequestMapping(value = "/login")
+    @RequestMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
+		if(!VerifyCodeUtils.validateCaptcha(request, captcha)) {
+			return R.error("\u9a8c\u8bc1\u7801\u9519\u8bef");
+		}
 		// 根据登录查询用户信息
         JuanzengrenEntity u = juanzengrenService.selectOne(new EntityWrapper<JuanzengrenEntity>().eq("zhanghao", username));
         // 判断用户锁定状态
@@ -86,10 +88,12 @@ public class JuanzengrenController {
 
 
 
-	/**
-     * 注册
+    /**
+     * 功能：注册捐赠人账号。
+     * 使用端：前台注册页或管理端注册入口。
+     * 前端触发：注册页提交表单时通过 $http.post('juanzengren/register') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/register")
     public R register(@RequestBody JuanzengrenEntity juanzengren){
     	//ValidatorUtils.validateEntity(juanzengren);
@@ -107,17 +111,21 @@ public class JuanzengrenController {
 
 
 
-	/**
-	 * 退出
-	 */
-	@RequestMapping("/logout")
+    /**
+     * 功能：退出当前捐赠人登录会话。
+     * 使用端：管理端/前台顶部退出登录按钮。
+     * 前端触发：退出按钮通过 $http.get('juanzengren/logout') 触发。
+     */
+    @RequestMapping("/logout")
 	public R logout(HttpServletRequest request) {
 		request.getSession().invalidate();
 		return R.ok("退出成功");
 	}
 
-	/**
-     * 获取用户的session用户信息
+    /**
+     * 功能：获取当前登录捐赠人的 Session 用户信息。
+     * 使用端：个人中心、表单自动带入当前用户信息。
+     * 前端触发：页面初始化时通过 $http.get('juanzengren/session') 触发。
      */
     @RequestMapping("/session")
     public R getCurrUser(HttpServletRequest request){
@@ -127,10 +135,12 @@ public class JuanzengrenController {
     }
 
     /**
-     * 密码重置
+     * 功能：重置捐赠人账号密码。
+     * 使用端：管理端账号维护或找回密码流程。
+     * 前端触发：前端通过 $http.get('juanzengren/resetPass') 触发。
      */
     @IgnoreAuth
-	@RequestMapping(value = "/resetPass")
+    @RequestMapping(value = "/resetPass")
     public R resetPass(String username, HttpServletRequest request){
     	//根据登录账号判断是否存在用户信息，否则返回错误信息
         JuanzengrenEntity u = juanzengrenService.selectOne(new EntityWrapper<JuanzengrenEntity>().eq("zhanghao", username));
@@ -144,7 +154,9 @@ public class JuanzengrenController {
     }
 
     /**
-     * 获取账号列表
+     * 功能：查询捐赠人账号列表。
+     * 使用端：后台账号选择、关联账号下拉场景。
+     * 前端触发：账号选择组件通过 $http.get('juanzengren/accountList') 触发。
      */
     @RequestMapping("/accountList")
     public R getAccountList(@RequestParam Map<String, Object> params,JuanzengrenEntity juanzengren){
@@ -165,7 +177,9 @@ public class JuanzengrenController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询捐赠人数据。
+     * 使用端：管理端捐赠人管理列表页。
+     * 前端触发：admin/src/views/modules/juanzengren/list.vue 通过 $http.get('juanzengren/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,JuanzengrenEntity juanzengren,
@@ -184,9 +198,11 @@ public class JuanzengrenController {
 
 
     /**
-     * 前台列表
+     * 功能：查询捐赠人前台列表数据。
+     * 使用端：前台捐赠人列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/juanzengren/list.vue 通过 $http.get('juanzengren/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,JuanzengrenEntity juanzengren,
                 @RequestParam(required = false) Double statusstart,
@@ -208,8 +224,10 @@ public class JuanzengrenController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询捐赠人不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('juanzengren/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( JuanzengrenEntity juanzengren){
@@ -218,8 +236,10 @@ public class JuanzengrenController {
         return R.ok().put("data", juanzengrenService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条捐赠人视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('juanzengren/query') 触发。
      */
     @RequestMapping("/query")
     public R query(JuanzengrenEntity juanzengren){
@@ -230,7 +250,9 @@ public class JuanzengrenController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询捐赠人管理端详情。
+     * 使用端：管理端捐赠人列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('juanzengren/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -242,9 +264,11 @@ public class JuanzengrenController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询捐赠人前台详情。
+     * 使用端：前台捐赠人详情页或编辑回显页。
+     * 前端触发：front/src/pages/juanzengren/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         JuanzengrenEntity juanzengren = juanzengrenService.selectById(id);
@@ -258,7 +282,9 @@ public class JuanzengrenController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增捐赠人记录。
+     * 使用端：管理端捐赠人新增表单。
+     * 前端触发：管理端表单通过 $http.post('juanzengren/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增捐赠人")
@@ -276,7 +302,9 @@ public class JuanzengrenController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增捐赠人记录。
+     * 使用端：前台捐赠人新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('juanzengren/add') 触发。
      */
     @SysLog("新增捐赠人")
     @RequestMapping("/add")
@@ -298,7 +326,9 @@ public class JuanzengrenController {
 
 
     /**
-     * 修改
+     * 功能：修改捐赠人记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('juanzengren/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -322,7 +352,9 @@ public class JuanzengrenController {
 
 
     /**
-     * 删除
+     * 功能：删除捐赠人记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('juanzengren/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除捐赠人")

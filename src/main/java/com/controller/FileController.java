@@ -29,7 +29,8 @@ import java.util.Base64;
 import java.util.Random;
 
 /**
- * 上传文件映射表
+ * 文件上传下载 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("file")
@@ -38,7 +39,9 @@ public class FileController {
     private ConfigService configService;
 
     /**
-     * 上传文件
+     * 功能：上传图片或附件并返回文件名。
+     * 使用端：前后台上传组件。
+     * 前端触发：file-upload/img 组件通过 $http.post('file/upload') 或上传 action 触发。
      */
     @RequestMapping("/upload")
     @IgnoreAuth
@@ -84,13 +87,6 @@ public class FileController {
             // 保存文件到目标位置
             file.transferTo(dest);
 
-            /**
-            * 如果使用idea或者eclipse重启项目，发现之前上传的图片或者文件丢失，将下面一行代码注释打开
-            * 请将以下的"D:\\springbootq33sd\\src\\main\\resources\\static\\upload"替换成你本地项目的upload路径，
-            * 并且项目路径不能存在中文、空格等特殊字符
-            */
-            //		FileUtils.copyFile(dest, new File("D:\\springbootq33sd\\src\\main\\resources\\static\\upload"+"/"+fileName)); /**修改了路径以后请将该行最前面的//注释去掉**/
-
             // 特殊业务逻辑：更新配置
             if (StringUtils.isNotBlank(type) && type.equals("1")) {
                 ConfigEntity configEntity = configService.selectOne(new EntityWrapper<ConfigEntity>().eq("name", "faceFile"));
@@ -113,7 +109,9 @@ public class FileController {
     }
 
     /**
-     * 下载文件
+     * 功能：下载或预览已上传文件。
+     * 使用端：前后台文件预览、下载入口。
+     * 前端触发：页面拼接 'file/download?fileName=...' 触发。
      */
     @IgnoreAuth
     @RequestMapping("/download")
@@ -156,7 +154,9 @@ public class FileController {
     }
 
     /**
-     * 加密上传文件：支持任意文件（包括二进制）
+     * 功能：对已上传文件执行加密处理。
+     * 使用端：文件安全处理入口。
+     * 前端触发：前端通过 $http.get('file/encrypt') 触发。
      */
     @RequestMapping("/encrypt")
     @IgnoreAuth
@@ -212,7 +212,9 @@ public class FileController {
 
 
     /**
-     * 解密文件并返回原始格式（支持非文本文件）
+     * 功能：对已上传文件执行解密处理。
+     * 使用端：文件安全处理入口。
+     * 前端触发：前端通过 $http.get('file/decrypt') 触发。
      */
     @RequestMapping("/decrypt")
     @IgnoreAuth

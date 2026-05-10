@@ -38,11 +38,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 物资信息
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:01
+ * 物资信息 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/wuzixinxi")
@@ -50,17 +47,13 @@ public class WuzixinxiController {
     @Autowired
     private WuzixinxiService wuzixinxiService;
 
-
-
-
-
-
-
-
-
+    @Autowired
+    private WuziRecommendService wuziRecommendService;
 
     /**
-     * 后台列表
+     * 功能：分页查询物资信息数据。
+     * 使用端：管理端物资信息管理列表页。
+     * 前端触发：admin/src/views/modules/wuzixinxi/list.vue 通过 $http.get('wuzixinxi/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,WuzixinxiEntity wuzixinxi,
@@ -77,11 +70,53 @@ public class WuzixinxiController {
         return R.ok().put("data", page);
     }
 
+    /**
+     * 功能：接收机构分页查询可申领物资，只返回有库存且未过期的数据。
+     * 使用端：前台接收机构物资信息列表页。
+     * 前端触发：front/src/pages/wuzixinxi/list.vue 通过 $http.get('wuzixinxi/page/jg') 触发。
+     */
+    @RequestMapping("/page/jg")
+    public R pageJg(@RequestParam Map<String, Object> params,WuzixinxiEntity wuzixinxi,
+		HttpServletRequest request){
+        //设置查询条件
+        EntityWrapper<WuzixinxiEntity> ew = new EntityWrapper<WuzixinxiEntity>();
+		ew.gt("wuzishuliang", 0);
+		ew.ge("baozhiqi", todayStart());
+
+        //查询结果
+		PageUtils page = wuzixinxiService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, wuzixinxi), params), params));
+        Map<String, String> deSens = new HashMap<>();
+        //给需要脱敏的字段脱敏
+        DeSensUtil.desensitize(page,deSens);
+        return R.ok().put("data", page);
+    }
 
     /**
-     * 前台列表
+     * 功能：为当前接收机构生成智能物资推荐结果。
+     * 使用端：前台接收机构物资信息列表页。
+     * 前端触发：front/src/pages/wuzixinxi/list.vue 点击智能推荐后触发。
      */
-	@IgnoreAuth
+    @RequestMapping("/intelligentRecommend")
+    public R intelligentRecommend(HttpServletRequest request){
+        return wuziRecommendService.recommend(request);
+    }
+
+    private Date todayStart() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
+
+    /**
+     * 功能：查询物资信息前台列表数据。
+     * 使用端：前台物资信息列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/wuzixinxi/list.vue 通过 $http.get('wuzixinxi/list') 触发。
+     */
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,WuzixinxiEntity wuzixinxi,
                 @RequestParam(required = false) Double wuzishuliangstart,
@@ -107,8 +142,10 @@ public class WuzixinxiController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询物资信息不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('wuzixinxi/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( WuzixinxiEntity wuzixinxi){
@@ -117,8 +154,10 @@ public class WuzixinxiController {
         return R.ok().put("data", wuzixinxiService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条物资信息视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('wuzixinxi/query') 触发。
      */
     @RequestMapping("/query")
     public R query(WuzixinxiEntity wuzixinxi){
@@ -129,7 +168,9 @@ public class WuzixinxiController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询物资信息管理端详情。
+     * 使用端：管理端物资信息列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('wuzixinxi/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -141,9 +182,11 @@ public class WuzixinxiController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询物资信息前台详情。
+     * 使用端：前台物资信息详情页或编辑回显页。
+     * 前端触发：front/src/pages/wuzixinxi/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         WuzixinxiEntity wuzixinxi = wuzixinxiService.selectById(id);
@@ -157,7 +200,9 @@ public class WuzixinxiController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增物资信息记录。
+     * 使用端：管理端物资信息新增表单。
+     * 前端触发：管理端表单通过 $http.post('wuzixinxi/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增物资信息")
@@ -168,7 +213,9 @@ public class WuzixinxiController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增物资信息记录。
+     * 使用端：前台物资信息新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('wuzixinxi/add') 触发。
      */
     @SysLog("新增物资信息")
     @RequestMapping("/add")
@@ -183,7 +230,9 @@ public class WuzixinxiController {
 
 
     /**
-     * 修改
+     * 功能：修改物资信息记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('wuzixinxi/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -200,7 +249,9 @@ public class WuzixinxiController {
 
 
     /**
-     * 删除
+     * 功能：删除物资信息记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('wuzixinxi/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除物资信息")
@@ -210,9 +261,11 @@ public class WuzixinxiController {
     }
 
     /**
-     * 提醒接口
+     * 功能：统计物资信息字段提醒数量。
+     * 使用端：管理端/前台首页提醒和待办入口。
+     * 前端触发：页面加载提醒数据时触发。
      */
-	@RequestMapping("/remind/{columnName}/{type}")
+    @RequestMapping("/remind/{columnName}/{type}")
     public R remindCount(@PathVariable("columnName") String columnName, @PathVariable("type") String type, HttpServletRequest request) {
 
         Wrapper<WuzixinxiEntity> wrapper = new EntityWrapper<WuzixinxiEntity>();
@@ -288,7 +341,9 @@ public class WuzixinxiController {
 
 
     /**
-     * （按值统计）
+     * 功能：统计物资信息图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
      */
     @RequestMapping("/value/{xColumnName}/{yColumnName}")
     public R value(@PathVariable("yColumnName") String yColumnName, @PathVariable("xColumnName") String xColumnName, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, @RequestParam(required = false, defaultValue = "总和") String func, HttpServletRequest request) throws IOException {
@@ -351,7 +406,9 @@ public class WuzixinxiController {
     }
 
     /**
-     * （按值统计(多)）
+     * 功能：统计物资信息图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
      */
     @RequestMapping("/valueMul/{xColumnName}")
     public R valueMul(@PathVariable("xColumnName") String xColumnName,@RequestParam String yColumnNameMul, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, HttpServletRequest request)  throws IOException {
@@ -418,7 +475,9 @@ public class WuzixinxiController {
     }
 
     /**
-     * （按值统计）时间统计类型
+     * 功能：统计物资信息图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
      */
     @RequestMapping("/value/{xColumnName}/{yColumnName}/{timeStatType}")
     public R valueDay(@PathVariable("yColumnName") String yColumnName, @PathVariable("xColumnName") String xColumnName, @PathVariable("timeStatType") String timeStatType, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, @RequestParam(required = false, defaultValue = "总和") String func, HttpServletRequest request) throws IOException {
@@ -481,7 +540,9 @@ public class WuzixinxiController {
     }
 
     /**
-     * （按值统计）时间统计类型(多)
+     * 功能：统计物资信息图表数值。
+     * 使用端：管理端首页统计、模块统计图表。
+     * 前端触发：统计图组件通过 value 接口触发。
      */
     @RequestMapping("/valueMul/{xColumnName}/{timeStatType}")
     public R valueMulDay(@PathVariable("xColumnName") String xColumnName, @PathVariable("timeStatType") String timeStatType, @RequestParam String yColumnNameMul, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, HttpServletRequest request) throws IOException {
@@ -548,7 +609,9 @@ public class WuzixinxiController {
     }
 
     /**
-     * 分组统计
+     * 功能：按字段分组统计物资信息数据。
+     * 使用端：管理端首页统计、前台统计图表。
+     * 前端触发：图表组件通过 group 接口触发。
      */
     @RequestMapping("/group/{columnName}")
     public R group(@PathVariable("columnName") String columnName, @RequestParam(required = false) String conditionColumn, @RequestParam(required = false) String conditionValue, HttpServletRequest request) throws IOException {
@@ -604,7 +667,9 @@ public class WuzixinxiController {
 
 
     /**
-     * 总数量
+     * 功能：统计物资信息总数。
+     * 使用端：首页总数卡片或模块统计区域。
+     * 前端触发：首页统计组件通过 $http.get('wuzixinxi/count') 触发。
      */
     @RequestMapping("/count")
     public R count(@RequestParam Map<String, Object> params,WuzixinxiEntity wuzixinxi, HttpServletRequest request){

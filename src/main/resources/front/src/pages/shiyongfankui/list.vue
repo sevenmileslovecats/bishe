@@ -56,114 +56,25 @@
 				</el-button>
 			</div>
 			<div class="list">
-				<el-table class="tables" :stripe='false'
-					:style='{"width":"100%","padding":"0","borderColor":"#eee","borderStyle":"solid","borderWidth":"1px 0 0 1px","background":"#fff"}' 
-					:border='true' 
-					:data="dataList">
-					<el-table-column :resizable='true' :sortable='false'
-						prop="shiyongrenshu"
-						label="使用人数">
-						<template slot-scope="scope">
-							{{scope.row.shiyongrenshu}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="jutiyongtu"
-						label="具体用途">
-						<template slot-scope="scope">
-							{{scope.row.jutiyongtu}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' prop="changjingzhaopian" width="200" label="场景照片">
-						<template slot-scope="scope">
-							<div v-if="scope.row.changjingzhaopian">
-								<img v-if="scope.row.changjingzhaopian.substring(0,4)=='http'&&scope.row.changjingzhaopian.split(',w').length>1" :src="scope.row.changjingzhaopian" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.changjingzhaopian)">
-								<img v-else-if="scope.row.changjingzhaopian.substring(0,4)=='http'" :src="scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.changjingzhaopian.split(',')[0])">
-								<img v-else :src="baseUrl+scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(baseUrl+scope.row.changjingzhaopian.split(',')[0])">
-							</div>
-							<div v-else>无图片</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="fankuishijian"
-						label="反馈时间">
-						<template slot-scope="scope">
-							{{scope.row.fankuishijian}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="shenlingbianhao"
-						label="申领编号">
-						<template slot-scope="scope">
-							{{scope.row.shenlingbianhao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzimingcheng"
-						label="物资名称">
-						<template slot-scope="scope">
-							{{scope.row.wuzimingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzizhonglei"
-						label="物资种类">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhonglei}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="jigouzhanghao"
-						label="机构账号">
-						<template slot-scope="scope">
-							{{scope.row.jigouzhanghao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="jigoumingcheng"
-						label="机构名称">
-						<template slot-scope="scope">
-							{{scope.row.jigoumingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzishuliang"
-						label="出库数量">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="discussnum"
-						label="评论数">
-						<template slot-scope="scope">
-							{{scope.row.discussnum}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="storeupnum"
-						label="收藏数">
-						<template slot-scope="scope">
-							{{scope.row.storeupnum}}
-						</template>
-					</el-table-column>
-					<el-table-column width="300" label="操作">
-						<template slot-scope="scope">
-							<el-button class="table-view" type="success" @click.native="toDetail(scope.row)">
-								<span class="icon iconfont icon-fangdajing02"></span>
-								查看
-							</el-button>
-							<el-button class="table-btn1" type="success" @click.native="discussClick(scope.row)" v-if="btnAuth('shiyongfankui','查看评论')">
-								<span class="icon iconfont icon-xiaoxi-zhihui"></span>
-								查看评论
-							</el-button>
-							<el-button class="table-btn5" type="success" @click.native="chapterClick(scope.row)" v-if="btnAuth('shiyongfankui','章节管理')">
-								<span class="icon iconfont icon-zhangjie7"></span>
-								章节管理
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
+				<div v-if="dataList.length" class="feedback-waterfall">
+					<div
+						class="feedback-card"
+						v-for="item in dataList"
+						:key="item.id"
+						@click="toDetail(item)"
+					>
+						<div class="feedback-cover" @click.stop="getImageUrl(item) && imgPreView(getImageUrl(item))">
+							<img v-if="getImageUrl(item)" :src="getImageUrl(item)" @error="$event.target.style.display='none'">
+							<span v-else>暂无图片</span>
+						</div>
+						<div class="feedback-card-body">
+							<h3>{{formatCardText(item.wuzimingcheng, '未命名物资')}}</h3>
+							<p>{{formatCardText(item.jutiyongtu, '暂无用途说明')}}</p>
+							<div class="feedback-time">{{formatCardText(item.fankuishijian, '暂无反馈时间')}}</div>
+						</div>
+					</div>
+				</div>
+				<div v-else class="feedback-empty">暂无使用反馈数据</div>
 			</div>
 
 	
@@ -333,6 +244,21 @@
 			},
 			nextClick(page) {
 				this.getList(page);
+			},
+			getImageUrl(row) {
+				if (!row || !row.changjingzhaopian) {
+					return ''
+				}
+				if (row.changjingzhaopian.substring(0, 4) === 'http' && row.changjingzhaopian.split(',w').length > 1) {
+					return row.changjingzhaopian
+				}
+				if (row.changjingzhaopian.substring(0, 4) === 'http') {
+					return row.changjingzhaopian.split(',')[0]
+				}
+				return this.baseUrl + row.changjingzhaopian.split(',')[0]
+			},
+			formatCardText(value, fallback) {
+				return value !== undefined && value !== null && value !== '' ? value : fallback
 			},
 			imgPreView(url){
 				this.previewImg = url
@@ -812,4 +738,501 @@
 			}
 		}
 	}
+.breadcrumb-preview {
+	max-width: 1760px;
+	margin: 0 auto;
+	padding: 18px 24px 0;
+	box-sizing: border-box;
+}
+
+.back_box {
+	max-width: 1760px;
+	margin: 12px auto 0;
+	padding: 0 24px;
+	text-align: right;
+	box-sizing: border-box;
+	.backBtn {
+		border: 0;
+		border-radius: 6px;
+		color: #fff;
+		background: #5ba84d;
+		height: 34px;
+		padding: 0 16px;
+	}
+}
+
+.list-preview {
+	max-width: 1760px;
+	width: 100% !important;
+	margin: 0 auto !important;
+	padding: 20px 24px 44px !important;
+	box-sizing: border-box;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	background: #f7faf8;
+	.list-form-pv {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 18px 18px 8px !important;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 24px rgba(34, 62, 43, .06);
+		display: flex;
+		align-items: flex-end;
+		flex-wrap: wrap;
+		gap: 12px 16px;
+		order: 1;
+		.list-item {
+			margin: 0 0 10px !important;
+			.lable {
+				margin: 0 0 6px !important;
+				color: #4d5d53;
+				font-size: 13px !important;
+				line-height: 18px !important;
+				font-weight: 600;
+			}
+			.el-input {
+				width: 190px !important;
+			}
+			/deep/ .el-input__inner {
+				height: 36px;
+				line-height: 36px;
+				border-color: #dfe9df;
+				border-radius: 6px;
+			}
+		}
+		.list-btn-box {
+			margin: 0 0 10px !important;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			align-items: center;
+		}
+		.el-button {
+			height: 36px;
+			padding: 0 16px;
+			border: 0;
+			border-radius: 6px;
+			font-size: 14px;
+		}
+		.list-search-btn {
+			background: #4f9f45;
+		}
+		.list-add-btn {
+			background: #278f7f;
+		}
+		.list-static-btn {
+			color: #35633b;
+			background: #edf7ed;
+			border: 1px solid #cfe6cf;
+		}
+	}
+	.select2 {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 12px 16px !important;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 8px 24px rgba(34, 62, 43, .05);
+		order: 2;
+		.select2-list {
+			margin: 0 !important;
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+			.label {
+				min-width: 86px;
+				color: #56645b;
+				font-weight: 600;
+				line-height: 32px;
+			}
+			.item-body {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				.item {
+					margin: 0 !important;
+					padding: 0 14px !important;
+					border-radius: 16px !important;
+					color: #52645a !important;
+					background: #f4f7f4 !important;
+					font-size: 14px !important;
+					line-height: 30px !important;
+				}
+				.item:hover,
+				.item.active {
+					color: #fff !important;
+					background: #5ba84d !important;
+				}
+			}
+		}
+	}
+	.sort_view {
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		order: 3;
+		.collect-sort-btn {
+			height: 34px;
+			padding: 0 14px;
+			border: 1px solid #dbe9db;
+			border-radius: 17px;
+			color: #47604f;
+			background: #fff;
+		}
+	}
+	.list {
+		width: 100% !important;
+		margin: 0 !important;
+		flex: none !important;
+		order: 4;
+		border: 1px solid #e8efe8;
+		border-radius: 8px;
+		background: #fff;
+		box-shadow: 0 12px 30px rgba(34, 62, 43, .08);
+		overflow-x: auto;
+		.el-table {
+			border: 0 !important;
+			min-width: 1120px;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr,
+		.el-table /deep/ .el-table__header-wrapper thead tr th {
+			background: #f3f8f4 !important;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr th {
+			padding: 10px 0 !important;
+			border-color: #e6eee7 !important;
+			color: #26342b;
+			font-weight: 700;
+		}
+		.el-table /deep/ .el-table__header-wrapper thead tr th .cell,
+		.el-table /deep/ .el-table__body-wrapper tbody tr td .cell {
+			padding: 0 12px !important;
+			line-height: 22px !important;
+		}
+		.el-table /deep/ .el-table__body-wrapper tbody tr td {
+			padding: 10px 0 !important;
+			border-color: #eef2ef !important;
+			color: #3e4d45 !important;
+			background: #fff !important;
+		}
+		.el-table /deep/ .el-table__body-wrapper tbody tr:hover td {
+			background: #f7fbf6 !important;
+		}
+		.el-table /deep/ img {
+			width: 64px !important;
+			height: 64px !important;
+			border-radius: 6px;
+			object-fit: cover;
+			display: block;
+			background: #f0f4f1;
+			box-shadow: inset 0 0 0 1px #e5ebe6;
+			cursor: pointer;
+		}
+		.el-table /deep/ .el-button {
+			height: 32px;
+			padding: 0 12px;
+			border: 0;
+			border-radius: 6px;
+			font-size: 13px;
+		}
+		.el-table /deep/ .table-view {
+			background: #4f9f45 !important;
+		}
+		.el-table /deep/ .table-btn1,
+		.el-table /deep/ .table-btn5 {
+			background: #e89232 !important;
+		}
+		.el-table /deep/ .el-tag {
+			border-radius: 14px;
+			padding: 0 12px;
+		}
+	}
+	.pagination {
+		width: 100%;
+		margin: 8px 0 0 !important;
+		padding: 14px 0 0;
+		text-align: center;
+		order: 5;
+	}
+}
+
+@media (max-width: 900px) {
+	.breadcrumb-preview,
+	.back_box,
+	.list-preview {
+		padding-left: 12px !important;
+		padding-right: 12px !important;
+	}
+	.list-preview .list-form-pv .list-item,
+	.list-preview .list-form-pv .list-item .el-input {
+		width: 100% !important;
+	}
+	.list-preview .list-form-pv .list-btn-box {
+		width: 100%;
+	}
+}
+
+/* business-list-polish */
+.list-preview {
+	max-width: 1760px;
+	margin: 0 auto;
+	padding: 22px 24px 28px !important;
+	background: #f5f7fb !important;
+	box-sizing: border-box;
+}
+.list-form-pv {
+	padding: 16px 18px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 8px 22px rgba(32, 45, 64, .06) !important;
+}
+.list-form-pv .list-item,
+.list-form-pv .el-form-item {
+	margin: 0 14px 12px 0 !important;
+}
+.list-form-pv .lable,
+.select2 .label {
+	color: #44505c !important;
+	font-size: 14px !important;
+	font-weight: 700 !important;
+}
+.list-form-pv /deep/ .el-input__inner {
+	height: 36px !important;
+	line-height: 36px !important;
+	border-color: #dfe7ef !important;
+	border-radius: 6px !important;
+	color: #334155 !important;
+}
+.list-btn-box .el-button,
+.list-search-btn,
+.list-add-btn,
+.list-static-btn,
+.list-recommend-btn {
+	height: 36px !important;
+	line-height: 36px !important;
+	padding: 0 14px !important;
+	margin: 0 8px 8px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 14px !important;
+	font-weight: 700;
+}
+.select2 {
+	padding: 12px 16px !important;
+	margin: 14px 0 !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+}
+.select2 .item-body .item {
+	padding: 6px 12px !important;
+	border-radius: 999px !important;
+	color: #49604f !important;
+	background: #f2f7f2 !important;
+}
+.select2 .item-body .item.active {
+	color: #fff !important;
+	background: #4f9f45 !important;
+}
+.list-preview .list {
+	padding: 14px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #f8fafc !important;
+	box-shadow: none !important;
+	overflow: visible;
+}
+.feedback-waterfall {
+	column-count: 4;
+	column-gap: 14px;
+	width: 100%;
+}
+.feedback-card {
+	display: inline-block;
+	width: 100%;
+	margin: 0 0 14px;
+	border: 1px solid #e3eaf2;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 6px 16px rgba(32, 45, 64, .05);
+	overflow: hidden;
+	cursor: pointer;
+	transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+	break-inside: avoid;
+}
+.feedback-card:hover {
+	transform: translateY(-2px);
+	border-color: #cfddea;
+	box-shadow: 0 10px 22px rgba(32, 45, 64, .1);
+}
+.feedback-cover {
+	width: 100%;
+	min-height: 136px;
+	background: #edf3f7;
+	cursor: zoom-in;
+}
+.feedback-cover img {
+	display: block;
+	width: 100%;
+	height: auto;
+	min-height: 136px;
+	max-height: 220px;
+	object-fit: cover;
+}
+.feedback-cover span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 136px;
+	color: #9aa6b2;
+	font-size: 13px;
+}
+.feedback-card-body {
+	padding: 10px 12px 12px;
+}
+.feedback-card-body h3 {
+	margin: 0 0 6px;
+	color: #22302a;
+	font-size: 15px;
+	font-weight: 800;
+	line-height: 22px;
+}
+.feedback-card-body p {
+	display: -webkit-box;
+	margin: 0 0 10px;
+	overflow: hidden;
+	color: #526170;
+	font-size: 13px;
+	line-height: 20px;
+	text-overflow: ellipsis;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+.feedback-time {
+	color: #8a96a3;
+	font-size: 12px;
+	line-height: 18px;
+}
+.feedback-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 180px;
+	color: #8a96a3;
+	font-size: 14px;
+}
+.tables {
+	min-width: 1280px;
+	border: 0 !important;
+	border-radius: 8px !important;
+	overflow: hidden;
+}
+.tables /deep/ .el-table__header-wrapper thead tr th {
+	padding: 10px 0 !important;
+	background: #f6faf7 !important;
+	border-color: #e7edf0 !important;
+	color: #22302a !important;
+	font-weight: 800 !important;
+}
+.tables /deep/ .el-table__body-wrapper tbody tr td {
+	padding: 10px 0 !important;
+	border-color: #eef2f3 !important;
+	color: #3d4b43 !important;
+	background: #fff !important;
+}
+.tables /deep/ .el-table__body-wrapper tbody tr:hover td,
+.tables /deep/ .el-table__body-wrapper tbody tr.hover-row td,
+.tables /deep/ .el-table__body-wrapper tbody tr.current-row td {
+	background: #f7fbf6 !important;
+}
+.tables /deep/ .cell {
+	line-height: 22px !important;
+	word-break: break-word !important;
+}
+.tables /deep/ img {
+	display: block;
+	width: 64px !important;
+	height: 64px !important;
+	border-radius: 6px;
+	object-fit: cover;
+	background: #f0f4f1;
+	box-shadow: inset 0 0 0 1px #e5ebe6;
+	cursor: pointer;
+}
+.tables /deep/ .el-tag {
+	border-radius: 999px !important;
+	padding: 0 12px !important;
+	font-weight: 700;
+}
+.tables /deep/ .el-button {
+	height: 32px !important;
+	line-height: 32px !important;
+	padding: 0 12px !important;
+	margin: 0 6px 4px 0 !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 13px !important;
+	font-weight: 700;
+	box-shadow: none !important;
+}
+.tables /deep/ .table-view,
+.tables /deep/ .view {
+	background: #2f80c9 !important;
+	color: #fff !important;
+}
+.tables /deep/ .table-edit,
+.tables /deep/ .edit {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+.tables /deep/ .table-del,
+.tables /deep/ .del {
+	background: #d9534f !important;
+	color: #fff !important;
+}
+.tables /deep/ .table-trace,
+.tables /deep/ .table-btn5,
+.tables /deep/ .btn8,
+.tables /deep/ .btn18 {
+	background: #278f7f !important;
+	color: #fff !important;
+}
+.pagination {
+	padding: 14px 0 0 !important;
+	margin: 16px 0 0 !important;
+	justify-content: flex-end !important;
+}
+@media (max-width: 1280px) {
+	.feedback-waterfall {
+		column-count: 3;
+	}
+}
+@media (max-width: 960px) {
+	.list-preview {
+		padding: 14px !important;
+	}
+	.list-form-pv .list-item,
+	.list-form-pv .el-form-item,
+	.list-form-pv /deep/ .el-input {
+		width: 100% !important;
+	}
+	.feedback-waterfall {
+		column-count: 2;
+	}
+}
+@media (max-width: 640px) {
+	.feedback-waterfall {
+		column-count: 1;
+	}
+	.feedback-cover,
+	.feedback-cover img,
+	.feedback-cover span {
+		min-height: 140px;
+	}
+}
 </style>

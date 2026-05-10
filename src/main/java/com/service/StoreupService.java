@@ -12,27 +12,42 @@ import com.entity.view.StoreupView;
 
 
 /**
- * 收藏表
- *
- * @author 
- * @email 
- * @date 2026-04-27 08:55:02
+ * 收藏/评论 服务层。
+ * 说明：承接 Controller 业务，封装分页查询、VO/View 查询和统计查询等服务能力。
  */
 public interface StoreupService extends IService<StoreupEntity> {
 
+    /**
+     * 分页查询收藏/评论数据，供 Controller 列表接口调用。
+     */
     PageUtils queryPage(Map<String, Object> params);
-    
-   	List<StoreupVO> selectListVO(Wrapper<StoreupEntity> wrapper);
-   	
-   	StoreupVO selectVO(@Param("ew") Wrapper<StoreupEntity> wrapper);
-   	
-   	List<StoreupView> selectListView(Wrapper<StoreupEntity> wrapper);
-   	
-   	StoreupView selectView(@Param("ew") Wrapper<StoreupEntity> wrapper);
-   	
-   	PageUtils queryPage(Map<String, Object> params,Wrapper<StoreupEntity> wrapper);
 
-   	
+    /**
+     * 查询收藏/评论VO 列表，给需要精简字段的业务场景使用。
+     */
+    List<StoreupVO> selectListVO(Wrapper<StoreupEntity> wrapper);
+
+    /**
+     * 查询单条收藏/评论VO 数据。
+     */
+    StoreupVO selectVO(@Param("ew") Wrapper<StoreupEntity> wrapper);
+
+    /**
+     * 查询收藏/评论视图列表，包含页面展示需要的扩展字段。
+     */
+    List<StoreupView> selectListView(Wrapper<StoreupEntity> wrapper);
+
+    /**
+     * 查询单条收藏/评论视图数据。
+     */
+    StoreupView selectView(@Param("ew") Wrapper<StoreupEntity> wrapper);
+
+    /**
+     * 分页查询收藏/评论数据，供 Controller 列表接口调用。
+     */
+    PageUtils queryPage(Map<String, Object> params,Wrapper<StoreupEntity> wrapper);
+
+
 
 }
 

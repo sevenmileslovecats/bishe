@@ -124,6 +124,7 @@ export const routes = [{
 	}
 	,{
 		path: '/zhuishuchaxun',
+		alias: '/zhuisuchaxun',
 		name: '追溯查询',
 		component: zhuishuchaxun
 	}

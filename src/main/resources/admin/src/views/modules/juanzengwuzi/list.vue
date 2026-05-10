@@ -69,7 +69,78 @@
 					</el-button>
 				</el-row>
 			</el-form>
-			<div :style='{"padding":"20px","boxShadow":"none","borderColor":"#ff9164","borderRadius":"10px","background":"#fff","borderWidth":"4px 0 0","width":"100%","borderStyle":"solid"}'>
+			<div class="donation-card-panel" v-if="isAuth('juanzengwuzi','查看')" v-loading="dataListLoading">
+				<div class="donation-card-toolbar">
+					<div class="donation-card-total">共 {{ totalPage }} 条捐赠物资</div>
+					<div class="donation-card-sort">
+						<span>排序</span>
+						<el-select v-model="cardSortField" size="small" @change="cardSortChange" class="sort-select">
+							<el-option label="捐赠时间" value="juanzengshijian"></el-option>
+							<el-option label="捐赠编号" value="juanzengbianhao"></el-option>
+							<el-option label="物资名称" value="wuzimingcheng"></el-option>
+							<el-option label="物资种类" value="wuzizhonglei"></el-option>
+							<el-option label="物资说明" value="wuzishuoming"></el-option>
+							<el-option label="新旧程度" value="xinjiuchengdu"></el-option>
+							<el-option label="物资数量" value="wuzishuliang"></el-option>
+							<el-option label="物资重量" value="wuzizhongliang"></el-option>
+							<el-option label="有效期" value="youxiaoqi"></el-option>
+							<el-option label="验收状态" value="yanshouzhuangtai"></el-option>
+							<el-option label="账号" value="zhanghao"></el-option>
+							<el-option label="姓名" value="xingming"></el-option>
+							<el-option label="审核状态" value="sfsh"></el-option>
+						</el-select>
+						<el-button size="small" type="success" plain @click="toggleCardSortOrder">{{ cardSortOrder == 'asc' ? '升序' : '降序' }}</el-button>
+					</div>
+				</div>
+				<el-empty v-if="!dataList.length && !dataListLoading" description="暂无捐赠物资"></el-empty>
+				<div class="donation-card-grid" v-else>
+					<div class="donation-card" v-for="item in dataList" :key="item.id">
+						<el-checkbox
+							v-if="isAuth('juanzengwuzi','删除') || isAuth('juanzengwuzi','审核')"
+							class="donation-card-check"
+							:value="isCardSelected(item)"
+							@change="toggleCardSelection(item)">
+						</el-checkbox>
+						<div class="donation-card-cover" :class="{'is-empty': !getDonationImage(item)}">
+							<img v-if="getDonationImage(item)" :src="getDonationImage(item)" @click="imgPreView(getDonationImage(item))" @error="item.wuzitupian=''" />
+							<span v-else>暂无图片</span>
+							<div class="donation-card-actions">
+								<el-button v-if="isAuth('juanzengwuzi','查看')" size="mini" type="primary" @click="addOrUpdateHandler(item.id,'info')">详情</el-button>
+								<el-button v-if="isAuth('juanzengwuzi','颁发证书')" size="mini" type="success" @click="juanzengzhengshuCrossAddOrUpdateHandler(item,'cross','是','','[1]','颁发')">证书</el-button>
+								<el-button v-if="isAuth('juanzengwuzi','验收')" size="mini" type="warning" @click="yanshoujiluCrossAddOrUpdateHandler(item,'cross','是','','yanshouzhuangtai','已验收','已验收,未验收'.split(',')[0])">验收</el-button>
+								<el-button v-if="isAuth('juanzengwuzi','修改') && item.sfsh=='待审核'" size="mini" type="success" @click="addOrUpdateHandler(item.id)">修改</el-button>
+								<el-button v-if="isAuth('juanzengwuzi','删除')" size="mini" type="danger" @click="deleteHandler(item.id)">删除</el-button>
+							</div>
+						</div>
+						<div class="donation-card-body">
+							<div class="donation-card-title" :title="item.wuzimingcheng">{{ item.wuzimingcheng || '未命名物资' }}</div>
+							<div class="donation-card-tags">
+								<span>{{ item.wuzizhonglei || '未分类' }}</span>
+								<span>{{ item.xinjiuchengdu || '无新旧程度' }}</span>
+								<span :class="['audit-tag', item.sfsh == '是' ? 'is-pass' : item.sfsh == '否' ? 'is-reject' : 'is-pending']">
+									{{ item.sfsh == '是' ? '通过' : item.sfsh == '否' ? '未通过' : (item.sfsh || '待审核') }}
+								</span>
+							</div>
+							<div class="donation-card-desc" :title="item.wuzishuoming">{{ item.wuzishuoming || '无物资说明' }}</div>
+							<div class="donation-card-metrics">
+								<div><span>数量</span><strong>{{ item.wuzishuliang || 0 }}</strong></div>
+								<div><span>重量</span><strong>{{ item.wuzizhongliang || '无' }}</strong></div>
+								<div><span>有效期</span><strong>{{ item.youxiaoqi || '无' }}</strong></div>
+								<div><span>验收</span><strong>{{ item.yanshouzhuangtai || '无' }}</strong></div>
+							</div>
+							<div class="donation-card-meta">
+								<span>捐赠编号：{{ item.juanzengbianhao || '无' }}</span>
+								<span>捐赠时间：{{ item.juanzengshijian || '无' }}</span>
+							</div>
+							<div class="donation-card-meta">
+								<span>捐赠人：{{ item.xingming || item.zhanghao || '无' }}</span>
+								<span v-if="item.shhf">审核回复：{{ item.shhf }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div v-if="false" :style='{"padding":"20px","boxShadow":"none","borderColor":"#ff9164","borderRadius":"10px","background":"#fff","borderWidth":"4px 0 0","width":"100%","borderStyle":"solid"}'>
 				<el-table class="tables"
 					:stripe='false'
 					:style='{"padding":"0","borderColor":"#eee","borderRadius":"10px","borderWidth":"1px 0 0 0px","background":"#fff","width":"100%","borderStyle":"solid"}' 
@@ -222,7 +293,7 @@
 				@current-change="currentChangeHandle"
 				:current-page="pageIndex"
 				background
-				:page-sizes="[10, 50, 100, 200]"
+				:page-sizes="[12, 24, 48, 96]"
 				:page-size="pageSize"
 				:layout="layouts.join()"
 				:total="totalPage"
@@ -316,10 +387,12 @@
 				sfshOptions: [],
 				dataList: [],
 				pageIndex: 1,
-				pageSize: 10,
+				pageSize: 12,
 				totalPage: 0,
 				dataListLoading: false,
 				dataListSelections: [],
+				cardSortField: 'juanzengshijian',
+				cardSortOrder: 'desc',
 				showFlag: true,
 				sfshVisiable: false,
 				shForm: {},
@@ -393,6 +466,33 @@
 				this.previewImg = url
 				this.previewVisible = true
 				
+			},
+			getDonationImage(item) {
+				if (!item || !item.wuzitupian) return ''
+				let img = item.wuzitupian
+				if (img.indexOf(',') !== -1 && !(img.substring(0, 4) == 'http' && img.split(',w').length > 1)) {
+					img = img.split(',')[0]
+				}
+				if (img.substring(0, 4) == 'http') return img
+				return this.$base.url + img
+			},
+			isCardSelected(item) {
+				return this.dataListSelections.some(row => row.id === item.id)
+			},
+			toggleCardSelection(item) {
+				if (this.isCardSelected(item)) {
+					this.dataListSelections = this.dataListSelections.filter(row => row.id !== item.id)
+				} else {
+					this.dataListSelections = this.dataListSelections.concat(item)
+				}
+			},
+			cardSortChange() {
+				this.pageIndex = 1
+				this.getDataList()
+			},
+			toggleCardSortOrder() {
+				this.cardSortOrder = this.cardSortOrder == 'asc' ? 'desc' : 'asc'
+				this.cardSortChange()
 			},
 			juanzengzhengshuCrossAddOrUpdateHandler(row,type,crossOptAudit,crossOptPay,statusColumnName,tips,statusColumnValue){
 				if(crossOptAudit=='是'&&row.sfsh!='是') {
@@ -780,8 +880,8 @@
 				let params = {
 					page: this.pageIndex,
 					limit: this.pageSize,
-					sort: 'id',
-					order: 'desc',
+					sort: this.cardSortField,
+					order: this.cardSortOrder,
 				}
 				if(this.searchForm.juanzengbianhao!='' && this.searchForm.juanzengbianhao!=undefined){
 					params['juanzengbianhao'] = '%' + this.searchForm.juanzengbianhao + '%'
@@ -792,8 +892,8 @@
 				if(this.searchForm.wuzizhonglei!='' && this.searchForm.wuzizhonglei!=undefined){
 					params['wuzizhonglei'] = this.searchForm.wuzizhonglei
 				}
-				params['sort'] = 'juanzengshijian';
-				params['order'] = 'desc';
+				params['sort'] = this.cardSortField;
+				params['order'] = this.cardSortOrder;
 				if(this.searchForm.yanshouzhuangtai!='' && this.searchForm.yanshouzhuangtai!=undefined){
 					params['yanshouzhuangtai'] = this.searchForm.yanshouzhuangtai
 				}
@@ -813,6 +913,7 @@
 						this.dataList = [];
 						this.totalPage = 0;
 					}
+					this.dataListSelections = [];
 					this.dataListLoading = false;
 				});
 			},
@@ -1604,5 +1705,219 @@
 
 	.chartDialog /deep/ .el-dialog {
 		background: #fff;
+	}
+
+	/* admin-donation-card-view */
+	.donation-card-panel {
+		width: 100%;
+		padding: 20px;
+		background: #fff;
+		border: 1px solid #e6eee9;
+		border-top: 4px solid #67b35b;
+		border-radius: 10px;
+		box-shadow: 0 10px 28px rgba(23, 66, 45, .06);
+	}
+	.donation-card-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-bottom: 18px;
+	}
+	.donation-card-total {
+		color: #1f2d3d;
+		font-size: 15px;
+		font-weight: 700;
+	}
+	.donation-card-sort {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		color: #5d6b78;
+		font-size: 13px;
+	}
+	.donation-card-sort .sort-select {
+		width: 150px;
+	}
+	.donation-card-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+		gap: 16px;
+	}
+	.donation-card {
+		position: relative;
+		overflow: hidden;
+		background: #fff;
+		border: 1px solid #e4ece7;
+		border-radius: 8px;
+		box-shadow: 0 8px 22px rgba(30, 64, 48, .06);
+		transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+	}
+	.donation-card:hover {
+		transform: translateY(-2px);
+		border-color: #c8dfd0;
+		box-shadow: 0 14px 30px rgba(30, 64, 48, .12);
+	}
+	.donation-card-check {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		z-index: 3;
+		padding: 5px;
+		background: rgba(255, 255, 255, .9);
+		border-radius: 6px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+	}
+	.donation-card-cover {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		aspect-ratio: 16 / 9;
+		background: #eef6f1;
+		color: #789186;
+		font-size: 13px;
+	}
+	.donation-card-cover img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		cursor: pointer;
+	}
+	.donation-card-cover.is-empty {
+		background: linear-gradient(135deg, #f1f7f3, #e8f1ec);
+	}
+	.donation-card-actions {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 8px;
+		padding: 18px;
+		background: rgba(22, 43, 31, .48);
+		opacity: 0;
+		transition: opacity .18s ease;
+	}
+	.donation-card:hover .donation-card-actions {
+		opacity: 1;
+	}
+	.donation-card-actions .el-button {
+		margin: 0;
+		border-radius: 6px;
+		font-weight: 700;
+	}
+	.donation-card-body {
+		padding: 14px;
+	}
+	.donation-card-title {
+		overflow: hidden;
+		margin-bottom: 10px;
+		color: #172b4d;
+		font-size: 16px;
+		font-weight: 800;
+		line-height: 22px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.donation-card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-bottom: 10px;
+	}
+	.donation-card-tags span {
+		max-width: 100%;
+		padding: 4px 8px;
+		background: #edf7ee;
+		border-radius: 999px;
+		color: #4c8f4e;
+		font-size: 12px;
+		line-height: 16px;
+	}
+	.donation-card-tags .audit-tag.is-pass {
+		background: #e8f6e8;
+		color: #40914a;
+	}
+	.donation-card-tags .audit-tag.is-reject {
+		background: #fff0f0;
+		color: #d85b5b;
+	}
+	.donation-card-tags .audit-tag.is-pending {
+		background: #fff6e6;
+		color: #b7791f;
+	}
+	.donation-card-desc {
+		overflow: hidden;
+		min-height: 20px;
+		margin-bottom: 12px;
+		color: #66758a;
+		font-size: 13px;
+		line-height: 20px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.donation-card-metrics {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+	.donation-card-metrics div {
+		padding: 9px 10px;
+		background: #f7faf8;
+		border-radius: 7px;
+	}
+	.donation-card-metrics span {
+		display: block;
+		margin-bottom: 3px;
+		color: #7a8b80;
+		font-size: 12px;
+	}
+	.donation-card-metrics strong {
+		display: block;
+		overflow: hidden;
+		color: #1f2d3d;
+		font-size: 15px;
+		line-height: 20px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.donation-card-meta {
+		display: flex;
+		justify-content: space-between;
+		gap: 8px;
+		margin-top: 6px;
+		color: #68768a;
+		font-size: 12px;
+		line-height: 18px;
+	}
+	.donation-card-meta span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	@media (max-width: 900px) {
+		.donation-card-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.donation-card-toolbar {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+		.donation-card-actions {
+			opacity: 1;
+		}
+	}
+	@media (max-width: 560px) {
+		.donation-card-grid {
+			grid-template-columns: 1fr;
+		}
+		.donation-card-sort {
+			width: 100%;
+			flex-wrap: wrap;
+		}
 	}
 </style>

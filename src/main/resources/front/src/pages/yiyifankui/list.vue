@@ -51,9 +51,9 @@
 				<div class="list5">
 					<div v-for="(item,index) in dataList" :key="index" class="list-item" @click.stop="toDetail(item)" >
 						<div class="imgbox">
-							<img @click.stop="imgPreView(item.zuozhengtupian)" v-if="item.zuozhengtupian && item.zuozhengtupian.substr(0,4)=='http'&&item.zuozhengtupian.split(',w').length>1" :src="item.zuozhengtupian" class="image" />
-							<img @click.stop="imgPreView(item.zuozhengtupian.split(',')[0])" v-else-if="item.zuozhengtupian && item.zuozhengtupian.substr(0,4)=='http'" :src="item.zuozhengtupian.split(',')[0]" class="image" />
-							<img @click.stop="imgPreView(baseUrl + (item.zuozhengtupian?item.zuozhengtupian.split(',')[0]:''))" v-else :src="baseUrl + (item.zuozhengtupian?item.zuozhengtupian.split(',')[0]:'')" class="image" />
+							<img @click.stop="imgPreView(item.zuozhengtupian)" v-if="item.zuozhengtupian && item.zuozhengtupian.substr(0,4)=='http'&&item.zuozhengtupian.split(',w').length>1" :src="item.zuozhengtupian" class="image" @error="$event.target.style.display='none'" />
+							<img @click.stop="imgPreView(item.zuozhengtupian.split(',')[0])" v-else-if="item.zuozhengtupian && item.zuozhengtupian.substr(0,4)=='http'" :src="item.zuozhengtupian.split(',')[0]" class="image" @error="$event.target.style.display='none'" />
+							<img @click.stop="imgPreView(baseUrl + (item.zuozhengtupian?item.zuozhengtupian.split(',')[0]:''))" v-else :src="baseUrl + (item.zuozhengtupian?item.zuozhengtupian.split(',')[0]:'')" class="image" @error="$event.target.style.display='none'" />
 						</div>
 						<div class="infoBox">
 							<div class="name">{{item.wuzimingcheng}}</div>
@@ -686,4 +686,113 @@
 			}
 		}
 	}
+/* business-card-polish */
+.list-preview {
+	max-width: 1760px;
+	margin: 0 auto;
+	padding: 22px 24px 28px !important;
+	background: #f5f7fb !important;
+	box-sizing: border-box;
+}
+
+.list-form-pv {
+	padding: 16px 18px !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 8px 22px rgba(32, 45, 64, .06) !important;
+}
+
+.select2 {
+	padding: 12px 16px !important;
+	margin: 14px 0 !important;
+	border: 1px solid #e6edf5 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+}
+
+.select2 .item-body .item {
+	padding: 6px 12px !important;
+	border-radius: 999px !important;
+	color: #49604f !important;
+	background: #f2f7f2 !important;
+}
+
+.select2 .item-body .item.active {
+	color: #fff !important;
+	background: #4f9f45 !important;
+}
+
+.list-preview .list {
+	padding: 0 !important;
+	background: transparent !important;
+}
+
+.list-preview .list5 {
+	display: grid !important;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+	gap: 18px !important;
+	width: 100% !important;
+	margin: 0 !important;
+}
+
+.list-preview .list5 .list-item {
+	overflow: hidden !important;
+	width: 100% !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	border: 1px solid #e5ece8 !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 8px 20px rgba(24, 39, 75, .06) !important;
+	transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+
+.list-preview .list5 .list-item:hover {
+	transform: translateY(-2px);
+	border-color: #9bcf9c !important;
+	box-shadow: 0 14px 28px rgba(24, 39, 75, .12) !important;
+}
+
+.list-preview .list5 .imgbox {
+	width: 100% !important;
+	aspect-ratio: 16 / 9;
+	background: #eef4ef !important;
+}
+
+.list-preview .list5 .imgbox .image {
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+}
+
+.list-preview .list5 .infoBox {
+	position: static !important;
+	width: auto !important;
+	padding: 14px !important;
+	background: #fff !important;
+}
+
+.list-preview .list5 .infoBox .name {
+	overflow: hidden !important;
+	margin-bottom: 10px !important;
+	color: #172033 !important;
+	font-size: 16px !important;
+	font-weight: 800 !important;
+	text-align: left !important;
+	text-overflow: ellipsis !important;
+	white-space: nowrap !important;
+}
+
+.list-preview .list5 .bottomInfo {
+	justify-content: flex-start !important;
+	color: #64748b !important;
+	font-size: 13px !important;
+}
+
+@media (max-width: 640px) {
+	.list-preview .list5 {
+		grid-template-columns: 1fr !important;
+	}
+}
 </style>

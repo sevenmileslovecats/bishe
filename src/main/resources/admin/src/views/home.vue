@@ -636,19 +636,9 @@ export default {
 		wuzishenlingChat1(e=null) {
 			this.$nextTick(()=>{
 				var wuzishenlingChart1 = echarts.init(document.getElementById("wuzishenlingChart1"),'macarons');
-				let params = {
-				}
-				if(params.conditionColumn) {
-					params.conditionColumn += ';' + 'sfsh'
-					params.conditionValue += ';' + '是'
-				}else {
-					params.conditionColumn = 'sfsh'
-					params.conditionValue = '是'
-				}
 				this.$http({
-					url: "wuzishenling/group/jigoumingcheng",
+					url: "wuzishenling/group/sfsh",
 					method: "get",
-					params
 				}).then(({ data }) => {
 					if (data && data.code === 0) {
 						let res = data.data||[];
@@ -660,16 +650,20 @@ export default {
 							if(this.boardBase&&i==this.boardBase.pieNum){
 								break;
 							}
-							xAxis.push(res[i].jigoumingcheng);
-							yAxis.push(parseFloat((res[i].total)));
+							let name = res[i].sfsh || '待审核'
+							if(name == '是') {
+								name = '审核通过'
+							} else if(name == '否') {
+								name = '审核未通过'
+							}
 							pArray.push({
 								value: parseFloat((res[i].total)),
-								name: res[i].jigoumingcheng
+								name: name
 							})
 						}
 						var option = {};
 						let titleObj = this.pie.title
-						titleObj.text = '机构分拨占比'
+						titleObj.text = '申领状态构成'
 						
 						const legendObj = this.pie.legend
 						let tooltipObj = {trigger: 'item',formatter: '{b} : {c} ({d}%)'}
@@ -678,7 +672,6 @@ export default {
 						let seriesObj = {
 							type: 'pie',
 							radius: ['25%', '55%'],
-							roseType: 'area',
 							center: ['50%', '60%'],
 							data: pArray,
 							emphasis: {
@@ -722,22 +715,14 @@ export default {
 			this.$nextTick(()=>{
 
 				var wuzishenlingChart2 = echarts.init(document.getElementById("wuzishenlingChart2"),'macarons');
-				let params = {
-				}
-				if(params.conditionColumn) {
-					params.conditionColumn += ';' + 'sfsh'
-					params.conditionValue += ';' + '是'
-				}else {
-					params.conditionColumn = 'sfsh'
-					params.conditionValue = '是'
-				}
+				let params = {}
 				this.$http({
-					url: "wuzishenling/group/quyu",
+					url: "wuzishenling/value/wuzimingcheng/shenlingshuliang",
 					method: "get",
 					params
 				}).then(({ data }) => {
 					if (data && data.code === 0) {
-						let res = data.data||[];
+						let res = (data.data||[]).sort((a, b) => parseFloat(b.total || 0) - parseFloat(a.total || 0));
 						// 统计图设置对了吗
 						let xAxis = [];
 						let yAxis = [];
@@ -746,16 +731,16 @@ export default {
 							if(this.boardBase&&i==this.boardBase.barNum){
 								break;
 							}
-							xAxis.push(res[i].quyu);
+							xAxis.push(res[i].wuzimingcheng);
 							yAxis.push(parseFloat((res[i].total)));
 							pArray.push({
 								value: parseFloat((res[i].total)),
-								name: res[i].quyu
+								name: res[i].wuzimingcheng
 							})
 						}
 						var option = {};
 						let titleObj = this.bar.title
-						titleObj.text = '区域需求热度'
+						titleObj.text = '物资需求排行'
 						
 						const legendObj = this.bar.legend
 						let tooltipObj = {trigger: 'item',formatter: '{b} : {c}'}

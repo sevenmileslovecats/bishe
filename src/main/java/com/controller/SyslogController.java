@@ -38,11 +38,8 @@ import com.utils.CommonUtil;
 import java.io.IOException;
 
 /**
- * 系统日志
- * 后端接口
- * @author 
- * @email 
- * @date 2026-04-27 08:55:02
+ * 系统日志 模块后端接口。
+ * 说明：供管理端、前台端对应页面通过 HTTP 请求调用。
  */
 @RestController
 @RequestMapping("/syslog")
@@ -60,7 +57,9 @@ public class SyslogController {
 
 
     /**
-     * 后台列表
+     * 功能：分页查询系统日志数据。
+     * 使用端：管理端系统日志管理列表页。
+     * 前端触发：admin/src/views/modules/syslog/list.vue 通过 $http.get('syslog/page') 触发。
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,SyslogEntity syslog,
@@ -79,9 +78,11 @@ public class SyslogController {
 
 
     /**
-     * 前台列表
+     * 功能：查询系统日志前台列表数据。
+     * 使用端：前台系统日志列表页，部分管理端通用列表也会复用。
+     * 前端触发：front/src/pages/syslog/list.vue 通过 $http.get('syslog/list') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params,SyslogEntity syslog,
 		HttpServletRequest request){
@@ -99,8 +100,10 @@ public class SyslogController {
 
 
 
-	/**
-     * 列表
+    /**
+     * 功能：查询系统日志不分页列表。
+     * 使用端：前后台表单页的下拉、联动和重复校验场景。
+     * 前端触发：表单页按 tableName 拼接 $http.get('syslog/lists') 触发。
      */
     @RequestMapping("/lists")
     public R list( SyslogEntity syslog){
@@ -109,8 +112,10 @@ public class SyslogController {
         return R.ok().put("data", syslogService.selectListView(ew));
     }
 
-	 /**
-     * 查询
+    /**
+     * 功能：按条件查询单条系统日志视图数据。
+     * 使用端：前后台表单联动或详情回显辅助接口。
+     * 前端触发：前端按条件通过 $http.get('syslog/query') 触发。
      */
     @RequestMapping("/query")
     public R query(SyslogEntity syslog){
@@ -121,7 +126,9 @@ public class SyslogController {
     }
 
     /**
-     * 后台详情
+     * 功能：查询系统日志管理端详情。
+     * 使用端：管理端系统日志列表页、编辑页。
+     * 前端触发：管理端通过 $http.get('syslog/info/{id}') 触发。
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
@@ -133,9 +140,11 @@ public class SyslogController {
     }
 
     /**
-     * 前台详情
+     * 功能：查询系统日志前台详情。
+     * 使用端：前台系统日志详情页或编辑回显页。
+     * 前端触发：front/src/pages/syslog/detail.vue 或 add.vue 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id){
         SyslogEntity syslog = syslogService.selectById(id);
@@ -149,7 +158,9 @@ public class SyslogController {
 
 
     /**
-     * 后台保存
+     * 功能：管理端新增系统日志记录。
+     * 使用端：管理端系统日志新增表单。
+     * 前端触发：管理端表单通过 $http.post('syslog/save') 触发。
      */
     @RequestMapping("/save")
     @SysLog("新增系统日志")
@@ -160,7 +171,9 @@ public class SyslogController {
     }
 
     /**
-     * 前台保存
+     * 功能：前台新增系统日志记录。
+     * 使用端：前台系统日志新增表单或详情页操作。
+     * 前端触发：前台表单通过 $http.post('syslog/add') 触发。
      */
     @SysLog("新增系统日志")
     @RequestMapping("/add")
@@ -172,8 +185,10 @@ public class SyslogController {
 
 
 
-     /**
-     * 获取用户密保
+    /**
+     * 功能：校验系统日志账号是否存在。
+     * 使用端：注册、找回或账号校验表单。
+     * 前端触发：前端通过 $http.get('syslog/security') 触发。
      */
     @RequestMapping("/security")
     @IgnoreAuth
@@ -184,7 +199,9 @@ public class SyslogController {
 
 
     /**
-     * 修改
+     * 功能：修改系统日志记录。
+     * 使用端：管理端编辑页、前台个人中心或详情页操作。
+     * 前端触发：前端表单提交时通过 $http.post('syslog/update') 触发。
      */
     @RequestMapping("/update")
     @Transactional
@@ -201,7 +218,9 @@ public class SyslogController {
 
 
     /**
-     * 删除
+     * 功能：删除系统日志记录。
+     * 使用端：管理端列表页或前台详情页/我的列表。
+     * 前端触发：删除按钮通过 $http.post('syslog/delete') 触发。
      */
     @RequestMapping("/delete")
     @SysLog("删除系统日志")
@@ -210,10 +229,12 @@ public class SyslogController {
         return R.ok();
     }
 
-	/**
-     * 前台智能排序
+    /**
+     * 功能：按点击量等条件返回系统日志自动排序列表。
+     * 使用端：前台推荐列表或首页推荐区域。
+     * 前端触发：前端推荐组件通过 $http.get('syslog/autoSort') 触发。
      */
-	@IgnoreAuth
+    @IgnoreAuth
     @RequestMapping("/autoSort")
     public R autoSort(@RequestParam Map<String, Object> params,SyslogEntity syslog, HttpServletRequest request,String pre){
         EntityWrapper<SyslogEntity> ew = new EntityWrapper<SyslogEntity>();
