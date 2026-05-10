@@ -40,90 +40,130 @@
 				</el-row>
 			</el-form>
 			<div :style='{"padding":"20px","boxShadow":"none","borderColor":"#ff9164","borderRadius":"10px","background":"#fff","borderWidth":"4px 0 0","width":"100%","borderStyle":"solid"}'>
-				<div
+				<el-table class="tables"
+					:stripe='false'
+					:style='{"padding":"0","borderColor":"#eee","borderRadius":"10px","borderWidth":"1px 0 0 0px","background":"#fff","width":"100%","borderStyle":"solid"}' 
+					:border='false'
 					v-if="isAuth('juanzengzhengshu','查看')"
-					class="certificate-split"
+					:data="dataList"
 					v-loading="dataListLoading"
-				>
-					<div class="certificate-list-pane">
-						<div v-if="!dataListLoading && dataList.length === 0" class="certificate-empty">暂无捐赠证书数据</div>
-						<div
-							v-for="(item,index) in dataList"
-							:key="item.id"
-							class="certificate-list-item"
-							:class="{ active: currentRow && currentRow.id === item.id }"
-							@click="selectRow(item)"
-						>
-							<el-checkbox
-								class="certificate-check"
-								:value="isSelected(item)"
-								@click.native.stop
-								@change="toggleSelection(item, $event)"
-							></el-checkbox>
-							<div class="certificate-index">{{(pageIndex - 1) * pageSize + index + 1}}</div>
-							<div class="certificate-thumb" @click.stop="getImageUrl(item) && imgPreView(getImageUrl(item))">
-								<img v-if="getImageUrl(item)" :src="getImageUrl(item)" @error="$event.target.style.display='none'">
-								<span v-else>暂无图片</span>
+					@selection-change="selectionChangeHandler">
+					<el-table-column :resizable='true' type="selection" align="center" width="50"></el-table-column>
+					<el-table-column :resizable='true' :sortable='true' label="序号" type="index" width="50" />
+					<el-table-column :resizable='true' :sortable='true'
+												prop="juanzengbianhao"
+						label="捐赠编号">
+						<template slot-scope="scope">
+							{{scope.row.juanzengbianhao}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="wuzimingcheng"
+						label="物资名称">
+						<template slot-scope="scope">
+							{{scope.row.wuzimingcheng}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="wuzizhonglei"
+						label="物资种类">
+						<template slot-scope="scope">
+							{{scope.row.wuzizhonglei}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="wuzishuoming"
+						label="物资说明">
+						<template slot-scope="scope">
+							{{scope.row.wuzishuoming}}
+						</template>
+					</el-table-column>
+					<el-table-column  :resizable='true' prop="wuzitupian" width="200" label="物资图片">
+						<template slot-scope="scope">
+							<div v-if="scope.row.wuzitupian">
+								<img v-if="scope.row.wuzitupian.substring(0,4)=='http'&&scope.row.wuzitupian.split(',w').length>1" :src="scope.row.wuzitupian" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.wuzitupian)">
+								<img v-else-if="scope.row.wuzitupian.substring(0,4)=='http'" :src="scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView(scope.row.wuzitupian.split(',')[0])">
+								<img v-else :src="$base.url+scope.row.wuzitupian.split(',')[0]" width="100" height="100" style="object-fit: cover" @click="imgPreView($base.url+scope.row.wuzitupian.split(',')[0])">
 							</div>
-							<div class="certificate-item-main">
-								<div class="certificate-item-title">{{formatValue(item.wuzimingcheng, '未命名物资')}}</div>
-								<div class="certificate-item-meta">
-									<span>编号：{{formatValue(item.juanzengbianhao)}}</span>
-									<span>姓名：{{formatValue(item.xingming)}}</span>
-								</div>
-								<div class="certificate-item-footer">
-									<span>{{formatValue(item.banfashijian, '暂无颁发时间')}}</span>
-									<el-tag size="mini" :type="item.juanzengzhengshu ? 'success' : 'info'">{{item.juanzengzhengshu ? '已生成证书' : '暂无证书'}}</el-tag>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="certificate-detail-pane">
-						<div v-if="currentRow" class="certificate-detail">
-							<div class="certificate-detail-head">
-								<div class="certificate-detail-img" @click="getImageUrl(currentRow) && imgPreView(getImageUrl(currentRow))">
-									<img v-if="getImageUrl(currentRow)" :src="getImageUrl(currentRow)" @error="$event.target.style.display='none'">
-									<span v-else>暂无图片</span>
-								</div>
-								<div class="certificate-detail-title">
-									<h3>{{formatValue(currentRow.wuzimingcheng, '未命名物资')}}</h3>
-									<p>{{formatValue(currentRow.juanzengbianhao, '暂无捐赠编号')}}</p>
-									<el-tag :type="currentRow.juanzengzhengshu ? 'success' : 'info'">{{currentRow.juanzengzhengshu ? '已生成证书' : '暂无证书'}}</el-tag>
-								</div>
-							</div>
-							<div class="certificate-detail-grid">
-								<div class="detail-cell"><label>物资种类</label><span>{{formatValue(currentRow.wuzizhonglei)}}</span></div>
-								<div class="detail-cell"><label>新旧程度</label><span>{{formatValue(currentRow.xinjiuchengdu)}}</span></div>
-								<div class="detail-cell"><label>物资数量</label><span>{{formatValue(currentRow.wuzishuliang, 0)}}</span></div>
-								<div class="detail-cell"><label>物资重量</label><span>{{formatValue(currentRow.wuzizhongliang)}}</span></div>
-								<div class="detail-cell"><label>有效期</label><span>{{formatValue(currentRow.youxiaoqi)}}</span></div>
-								<div class="detail-cell"><label>颁发时间</label><span>{{formatValue(currentRow.banfashijian)}}</span></div>
-								<div class="detail-cell"><label>账号</label><span>{{formatValue(currentRow.zhanghao)}}</span></div>
-								<div class="detail-cell"><label>姓名</label><span>{{formatValue(currentRow.xingming)}}</span></div>
-								<div class="detail-cell detail-cell-full"><label>物资说明</label><span>{{formatValue(currentRow.wuzishuoming, '暂无说明')}}</span></div>
-								<div class="detail-cell detail-cell-full"><label>捐赠证书</label>
-									<el-button v-if="currentRow.juanzengzhengshu" class="certificate-download" type="text" size="small" @click="download(currentRow.juanzengzhengshu)">下载证书</el-button>
-									<span v-else>暂无证书</span>
-								</div>
-							</div>
-							<div class="certificate-detail-actions">
-								<el-button class="view" v-if="isAuth('juanzengzhengshu','查看')" type="success" @click="addOrUpdateHandler(currentRow.id,'info')">
-									<span class="icon iconfont icon-chakan14"></span>
-									详情
-								</el-button>
-								<el-button class="edit" v-if="isAuth('juanzengzhengshu','修改')" type="success" @click="addOrUpdateHandler(currentRow.id)">
-									<span class="icon iconfont icon-xiugai13"></span>
-									修改
-								</el-button>
-								<el-button class="del" v-if="isAuth('juanzengzhengshu','删除')" type="primary" @click="deleteHandler(currentRow.id)">
-									<span class="icon iconfont icon-shanchu6"></span>
-									删除
-								</el-button>
-							</div>
-						</div>
-						<div v-else class="certificate-detail-empty">请选择左侧证书记录查看详情</div>
-					</div>
-				</div>
+							<div v-else>无图片</div>
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="xinjiuchengdu"
+						label="新旧程度">
+						<template slot-scope="scope">
+							{{scope.row.xinjiuchengdu}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="wuzishuliang"
+						label="物资数量">
+						<template slot-scope="scope">
+							{{scope.row.wuzishuliang}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="wuzizhongliang"
+						label="物资重量">
+						<template slot-scope="scope">
+							{{scope.row.wuzizhongliang}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="youxiaoqi"
+						label="有效期">
+						<template slot-scope="scope">
+							{{scope.row.youxiaoqi}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' prop="juanzengzhengshu" label="捐赠证书">
+						<template slot-scope="scope">
+							<el-button v-if="scope.row.juanzengzhengshu" type="text" size="small" @click="download(scope.row.juanzengzhengshu )">下载</el-button>
+							<span v-else >无</span>
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="banfashijian"
+						label="颁发时间">
+						<template slot-scope="scope">
+							{{scope.row.banfashijian}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="zhanghao"
+						label="账号">
+						<template slot-scope="scope">
+							{{scope.row.zhanghao}}
+						</template>
+					</el-table-column>
+					<el-table-column :resizable='true' :sortable='true'
+												prop="xingming"
+						label="姓名">
+						<template slot-scope="scope">
+							{{scope.row.xingming}}
+						</template>
+					</el-table-column>
+					<el-table-column width="300" label="操作">
+						<template slot-scope="scope">
+							<el-button class="view" v-if=" isAuth('juanzengzhengshu','查看')" type="success" @click="addOrUpdateHandler(scope.row.id,'info')">
+								<span class="icon iconfont icon-chakan14" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
+								详情
+							</el-button>
+							<el-button class="edit" v-if=" isAuth('juanzengzhengshu','修改') " type="success" @click="addOrUpdateHandler(scope.row.id)">
+								<span class="icon iconfont icon-xiugai13" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
+								修改
+							</el-button>
+
+
+
+
+							<el-button class="del" v-if="isAuth('juanzengzhengshu','删除')" type="primary" @click="deleteHandler(scope.row.id)">
+								<span class="icon iconfont icon-shanchu6" :style='{"margin":"0 0px","fontSize":"14px","color":"inherit","height":"40px"}'></span>
+								删除
+							</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
 			</div>
 			<el-pagination
 				@size-change="sizeChangeHandle"
@@ -170,7 +210,6 @@
 				},
 				form:{},
 				dataList: [],
-				currentRow: null,
 				pageIndex: 1,
 				pageSize: 10,
 				totalPage: 0,
@@ -224,39 +263,6 @@
 				this.previewVisible = true
 				
 			},
-			getImageUrl(row) {
-				if (!row || !row.wuzitupian) {
-					return ''
-				}
-				if (row.wuzitupian.substring(0, 4) === 'http' && row.wuzitupian.split(',w').length > 1) {
-					return row.wuzitupian
-				}
-				if (row.wuzitupian.substring(0, 4) === 'http') {
-					return row.wuzitupian.split(',')[0]
-				}
-				return this.$base.url + row.wuzitupian.split(',')[0]
-			},
-			selectRow(row) {
-				this.currentRow = row
-			},
-			toggleSelection(row, checked) {
-				if (!row) {
-					return
-				}
-				if (checked) {
-					if (!this.isSelected(row)) {
-						this.dataListSelections.push(row)
-					}
-				} else {
-					this.dataListSelections = this.dataListSelections.filter(item => item.id !== row.id)
-				}
-			},
-			isSelected(row) {
-				return !!row && this.dataListSelections.some(item => item.id === row.id)
-			},
-			formatValue(value, fallback = '-') {
-				return value !== undefined && value !== null && value !== '' ? value : fallback
-			},
 			init () {
 			},
 			search() {
@@ -297,8 +303,6 @@
 						this.dataList = [];
 						this.totalPage = 0;
 					}
-					this.dataListSelections = [];
-					this.currentRow = this.dataList.length ? this.dataList[0] : null;
 					this.dataListLoading = false;
 				});
 			},
@@ -1100,301 +1104,4 @@
 	.chartDialog /deep/ .el-dialog {
 		background: #fff;
 	}
-
-.certificate-split {
-	display: grid;
-	grid-template-columns: minmax(360px, 38%) minmax(0, 1fr);
-	gap: 18px;
-	min-height: 420px;
-}
-
-.certificate-list-pane,
-.certificate-detail-pane {
-	border: 1px solid #e6edf5;
-	border-radius: 8px;
-	background: #f8fafc;
-}
-
-.certificate-list-pane {
-	max-height: 680px;
-	padding: 12px;
-	overflow-y: auto;
-}
-
-.certificate-list-item {
-	position: relative;
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin: 0 0 10px;
-	padding: 12px;
-	border: 1px solid #e4ebf2;
-	border-radius: 8px;
-	background: #fff;
-	cursor: pointer;
-	transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
-}
-
-.certificate-list-item:hover {
-	border-color: #cfddea;
-	box-shadow: 0 8px 18px rgba(32, 45, 64, .08);
-}
-
-.certificate-list-item.active {
-	border-color: #b7d8b1;
-	background: #f5fbf4;
-	box-shadow: 0 10px 22px rgba(64, 120, 75, .1);
-}
-
-.certificate-list-item.active::before {
-	position: absolute;
-	top: 10px;
-	bottom: 10px;
-	left: 0;
-	width: 4px;
-	border-radius: 0 4px 4px 0;
-	background: #4f9f45;
-	content: "";
-}
-
-.certificate-check {
-	flex: 0 0 auto;
-	line-height: 1;
-}
-
-.certificate-index {
-	flex: 0 0 32px;
-	width: 32px;
-	height: 32px;
-	border-radius: 8px;
-	background: #eef4f8;
-	color: #607083;
-	font-size: 13px;
-	font-weight: 800;
-	line-height: 32px;
-	text-align: center;
-}
-
-.certificate-thumb {
-	flex: 0 0 58px;
-	width: 58px;
-	height: 58px;
-	border-radius: 8px;
-	background: #edf3f7;
-	box-shadow: inset 0 0 0 1px #e1e8ef;
-	overflow: hidden;
-	cursor: zoom-in;
-}
-
-.certificate-thumb img,
-.certificate-detail-img img {
-	display: block;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
-.certificate-thumb span,
-.certificate-detail-img span {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	height: 100%;
-	color: #94a3b8;
-	font-size: 12px;
-}
-
-.certificate-item-main {
-	flex: 1;
-	min-width: 0;
-}
-
-.certificate-item-title {
-	margin: 0 0 7px;
-	overflow: hidden;
-	color: #22302a;
-	font-size: 15px;
-	font-weight: 800;
-	line-height: 22px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.certificate-item-meta,
-.certificate-item-footer {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px 12px;
-	color: #64748b;
-	font-size: 12px;
-	line-height: 18px;
-}
-
-.certificate-item-meta span,
-.certificate-item-footer span {
-	max-width: 170px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.certificate-detail-pane {
-	padding: 18px;
-}
-
-.certificate-detail {
-	min-height: 100%;
-}
-
-.certificate-detail-head {
-	display: flex;
-	gap: 18px;
-	margin: 0 0 18px;
-	padding: 0 0 18px;
-	border-bottom: 1px solid #e6edf5;
-}
-
-.certificate-detail-img {
-	flex: 0 0 150px;
-	width: 150px;
-	height: 150px;
-	border-radius: 8px;
-	background: #edf3f7;
-	box-shadow: inset 0 0 0 1px #e1e8ef;
-	overflow: hidden;
-	cursor: zoom-in;
-}
-
-.certificate-detail-title {
-	display: flex;
-	flex: 1;
-	flex-direction: column;
-	justify-content: center;
-	min-width: 0;
-}
-
-.certificate-detail-title h3 {
-	margin: 0 0 8px;
-	color: #22302a;
-	font-size: 22px;
-	font-weight: 800;
-	line-height: 30px;
-}
-
-.certificate-detail-title p {
-	margin: 0 0 12px;
-	color: #64748b;
-	font-size: 14px;
-	line-height: 22px;
-}
-
-.certificate-detail-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 12px;
-}
-
-.detail-cell {
-	min-height: 62px;
-	padding: 10px 12px;
-	border: 1px solid #e6edf5;
-	border-radius: 8px;
-	background: #fff;
-}
-
-.detail-cell label {
-	display: block;
-	margin: 0 0 6px;
-	color: #7b8794;
-	font-size: 12px;
-	font-weight: 700;
-}
-
-.detail-cell span {
-	color: #2f3b46;
-	font-size: 14px;
-	line-height: 20px;
-	word-break: break-word;
-}
-
-.detail-cell-full {
-	grid-column: 1 / -1;
-}
-
-.certificate-download {
-	color: #2474d4 !important;
-	font-weight: 700;
-}
-
-.certificate-detail-actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
-	margin: 18px 0 0;
-}
-
-.certificate-detail-actions /deep/ .el-button {
-	height: 34px !important;
-	padding: 0 14px !important;
-	border: 0 !important;
-	border-radius: 6px !important;
-	font-size: 13px !important;
-	font-weight: 700;
-	line-height: 34px !important;
-}
-
-.certificate-detail-actions /deep/ .view {
-	background: #2f80c9 !important;
-	color: #fff !important;
-}
-
-.certificate-detail-actions /deep/ .edit {
-	background: #4f9f45 !important;
-	color: #fff !important;
-}
-
-.certificate-detail-actions /deep/ .del {
-	background: #d9534f !important;
-	color: #fff !important;
-}
-
-.certificate-empty,
-.certificate-detail-empty {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 220px;
-	color: #8a96a3;
-	font-size: 14px;
-}
-
-@media (max-width: 1100px) {
-	.certificate-split {
-		grid-template-columns: 1fr;
-	}
-	.certificate-list-pane {
-		max-height: none;
-	}
-}
-
-@media (max-width: 640px) {
-	.certificate-list-item,
-	.certificate-detail-head {
-		flex-direction: column;
-		align-items: stretch;
-	}
-	.certificate-thumb,
-	.certificate-detail-img {
-		width: 100%;
-		max-width: 220px;
-	}
-	.certificate-detail-grid {
-		grid-template-columns: 1fr;
-	}
-	.certificate-detail-title h3 {
-		font-size: 18px;
-		line-height: 26px;
-	}
-}
 </style>
