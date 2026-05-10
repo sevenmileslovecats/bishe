@@ -64,11 +64,87 @@
 				</el-row>
 			</el-form>
 			<div :style='{"padding":"20px","boxShadow":"none","borderColor":"#ff9164","borderRadius":"10px","background":"#fff","borderWidth":"4px 0 0","width":"100%","borderStyle":"solid"}'>
+				<div
+					v-if="isAuth('wuzishenling','查看')"
+					class="apply-collapse-list"
+					v-loading="dataListLoading"
+				>
+					<div v-if="!dataListLoading && dataList.length === 0" class="apply-empty">暂无物资申领数据</div>
+					<el-collapse v-else v-model="activeCollapseNames" class="apply-collapse">
+						<el-collapse-item
+							v-for="(item,index) in dataList"
+							:key="item.id"
+							:name="String(item.id)"
+							class="apply-collapse-item"
+						>
+							<template slot="title">
+								<div class="apply-row-summary">
+									<el-checkbox
+										class="apply-check"
+										:value="isSelected(item)"
+										@click.native.stop
+										@change="toggleSelection(item, $event)"
+									></el-checkbox>
+									<div class="apply-index">{{(pageIndex - 1) * pageSize + index + 1}}</div>
+									<div class="apply-thumb" @click.stop="getImageUrl(item) && imgPreView(getImageUrl(item))">
+										<img v-if="getImageUrl(item)" :src="getImageUrl(item)" @error="$event.target.style.display='none'">
+										<span v-else>暂无图片</span>
+									</div>
+									<div class="apply-main">
+										<div class="apply-title-line">
+											<span class="apply-title">{{item.wuzimingcheng || '未命名物资'}}</span>
+											<el-tag size="mini" :type="getSfshTagType(item.sfsh)">{{getSfshText(item.sfsh)}}</el-tag>
+											<el-tag size="mini" :type="getChukuTagType(item.chukuzhuangtai)">{{item.chukuzhuangtai || '未出库'}}</el-tag>
+										</div>
+										<div class="apply-meta">
+											<span>申领编号：{{item.shenlingbianhao || '-'}}</span>
+											<span>申领数量：{{item.shenlingshuliang || 0}}</span>
+											<span>机构：{{item.jigoumingcheng || '-'}}</span>
+											<span>申领时间：{{item.shenlingshijian || '-'}}</span>
+										</div>
+									</div>
+									<div class="apply-actions" @click.stop>
+										<el-button class="view" v-if="isAuth('wuzishenling','查看')" type="success" size="mini" @click="addOrUpdateHandler(item.id,'info')">
+											<span class="icon iconfont icon-chakan14"></span>
+											详情
+										</el-button>
+										<el-button class="edit" v-if="isAuth('wuzishenling','修改') && item.sfsh=='待审核'" type="success" size="mini" @click="addOrUpdateHandler(item.id)">
+											<span class="icon iconfont icon-xiugai13"></span>
+											修改
+										</el-button>
+										<el-button class="del" v-if="isAuth('wuzishenling','删除')" type="primary" size="mini" @click="deleteHandler(item.id)">
+											<span class="icon iconfont icon-shanchu6"></span>
+											删除
+										</el-button>
+									</div>
+								</div>
+							</template>
+							<div class="apply-detail">
+								<div class="apply-detail-image" @click="getImageUrl(item) && imgPreView(getImageUrl(item))">
+									<img v-if="getImageUrl(item)" :src="getImageUrl(item)" @error="$event.target.style.display='none'">
+									<span v-else>暂无图片</span>
+								</div>
+								<div class="apply-detail-grid">
+									<div class="detail-cell"><label>捐赠编号</label><span>{{item.juanzengbianhao || '-'}}</span></div>
+									<div class="detail-cell"><label>物资种类</label><span>{{item.wuzizhonglei || '-'}}</span></div>
+									<div class="detail-cell"><label>物资规格</label><span>{{item.wuziguige || '-'}}</span></div>
+									<div class="detail-cell"><label>机构账号</label><span>{{item.jigouzhanghao || '-'}}</span></div>
+									<div class="detail-cell"><label>区域</label><span>{{item.quyu || '-'}}</span></div>
+									<div class="detail-cell"><label>物资申领表</label>
+										<el-button v-if="item.wuzishenlingbiao" type="text" size="small" @click="download(item.wuzishenlingbiao)">下载</el-button>
+										<span v-else>暂无</span>
+									</div>
+									<div class="detail-cell detail-cell-full"><label>审核回复</label><span>{{item.shhf || '暂无'}}</span></div>
+								</div>
+							</div>
+						</el-collapse-item>
+					</el-collapse>
+				</div>
 				<el-table class="tables"
 					:stripe='false'
 					:style='{"padding":"0","borderColor":"#eee","borderRadius":"10px","borderWidth":"1px 0 0 0px","background":"#fff","width":"100%","borderStyle":"solid"}' 
 					:border='false'
-					v-if="isAuth('wuzishenling','查看')"
+					v-if="false && isAuth('wuzishenling','查看')"
 					:data="dataList"
 					v-loading="dataListLoading"
 					@selection-change="selectionChangeHandler">
@@ -286,6 +362,7 @@
 				form:{},
 				sfshOptions: [],
 				dataList: [],
+				activeCollapseNames: [],
 				pageIndex: 1,
 				pageSize: 10,
 				totalPage: 0,
@@ -359,6 +436,54 @@
 				this.previewImg = url
 				this.previewVisible = true
 				
+			},
+			getImageUrl(row) {
+				if (!row || !row.wuzitupian) {
+					return ''
+				}
+				if (row.wuzitupian.substring(0, 4) === 'http' && row.wuzitupian.split(',w').length > 1) {
+					return row.wuzitupian
+				}
+				if (row.wuzitupian.substring(0, 4) === 'http') {
+					return row.wuzitupian.split(',')[0]
+				}
+				return this.$base.url + row.wuzitupian.split(',')[0]
+			},
+			toggleSelection(row, checked) {
+				if (!row) {
+					return
+				}
+				if (checked) {
+					if (!this.isSelected(row)) {
+						this.dataListSelections.push(row)
+					}
+				} else {
+					this.dataListSelections = this.dataListSelections.filter(item => item.id !== row.id)
+				}
+			},
+			isSelected(row) {
+				return !!row && this.dataListSelections.some(item => item.id === row.id)
+			},
+			getSfshTagType(sfsh) {
+				if (sfsh === '是') {
+					return 'success'
+				}
+				if (sfsh === '否') {
+					return 'danger'
+				}
+				return 'warning'
+			},
+			getSfshText(sfsh) {
+				if (sfsh === '是') {
+					return '通过'
+				}
+				if (sfsh === '否') {
+					return '未通过'
+				}
+				return '待审核'
+			},
+			getChukuTagType(chukuzhuangtai) {
+				return chukuzhuangtai === '已出库' ? 'primary' : 'info'
 			},
 			changeStatQuery(arr) {
 				if(arr.length==1) {
@@ -594,6 +719,8 @@
 						this.dataList = [];
 						this.totalPage = 0;
 					}
+					this.dataListSelections = [];
+					this.activeCollapseNames = [];
 					this.dataListLoading = false;
 				});
 			},
@@ -626,6 +753,7 @@
 			},
 			//批量审核窗口
 			shBatchDialog(){
+				this.batchIds = []
 				for(let x in this.dataListSelections){
 					if(this.dataListSelections[x].sfsh&&this.dataListSelections[x].sfsh!='待审核'){
 						this.$message.error('存在已审核数据，不能继续操作');
@@ -1796,6 +1924,273 @@
 	.center-form-pv /deep/ .el-input,
 	.center-form-pv /deep/ .el-select {
 		width: 100% !important;
+	}
+}
+
+.apply-collapse-list {
+	min-height: 160px;
+}
+
+.apply-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 160px;
+	color: #8a96a3;
+	font-size: 14px;
+}
+
+.apply-collapse {
+	border: 0;
+}
+
+.apply-collapse /deep/ .el-collapse-item {
+	margin: 0 0 12px;
+	border: 1px solid #e6edf5;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 8px 20px rgba(32, 45, 64, .06);
+	overflow: hidden;
+}
+
+.apply-collapse /deep/ .el-collapse-item__header {
+	height: auto;
+	min-height: 96px;
+	padding: 0 16px 0 0;
+	border: 0;
+	background: #fff;
+	line-height: normal;
+}
+
+.apply-collapse /deep/ .el-collapse-item__arrow {
+	margin: 0 0 0 10px;
+	color: #8090a0;
+	font-weight: 700;
+}
+
+.apply-collapse /deep/ .el-collapse-item__wrap {
+	border-top: 1px solid #edf2f7;
+	background: #fbfdff;
+}
+
+.apply-collapse /deep/ .el-collapse-item__content {
+	padding: 18px 20px 20px;
+}
+
+.apply-row-summary {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	width: 100%;
+	padding: 16px 0 16px 16px;
+}
+
+.apply-check {
+	flex: 0 0 auto;
+	line-height: 1;
+}
+
+.apply-index {
+	flex: 0 0 34px;
+	width: 34px;
+	height: 34px;
+	border-radius: 8px;
+	background: #f4f8fb;
+	color: #5d6b78;
+	font-size: 13px;
+	font-weight: 800;
+	line-height: 34px;
+	text-align: center;
+}
+
+.apply-thumb {
+	flex: 0 0 72px;
+	width: 72px;
+	height: 72px;
+	border-radius: 8px;
+	background: #f0f4f1;
+	box-shadow: inset 0 0 0 1px #e5ebe6;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.apply-thumb img,
+.apply-detail-image img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.apply-thumb span,
+.apply-detail-image span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	color: #9aa6b2;
+	font-size: 12px;
+}
+
+.apply-main {
+	flex: 1;
+	min-width: 0;
+}
+
+.apply-title-line {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 12px;
+}
+
+.apply-title {
+	max-width: 280px;
+	overflow: hidden;
+	color: #22302a;
+	font-size: 16px;
+	font-weight: 800;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.apply-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 18px;
+	color: #64748b;
+	font-size: 13px;
+	line-height: 20px;
+}
+
+.apply-meta span {
+	max-width: 240px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.apply-actions {
+	display: flex;
+	flex: 0 0 auto;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 8px;
+	max-width: 300px;
+}
+
+.apply-actions /deep/ .el-button,
+.apply-detail /deep/ .el-button {
+	height: 32px !important;
+	padding: 0 12px !important;
+	border: 0 !important;
+	border-radius: 6px !important;
+	font-size: 13px !important;
+	font-weight: 700;
+	line-height: 32px !important;
+}
+
+.apply-actions /deep/ .view {
+	background: #2f80c9 !important;
+	color: #fff !important;
+}
+
+.apply-actions /deep/ .edit {
+	background: #4f9f45 !important;
+	color: #fff !important;
+}
+
+.apply-actions /deep/ .del {
+	background: #d9534f !important;
+	color: #fff !important;
+}
+
+.apply-detail {
+	display: flex;
+	gap: 20px;
+}
+
+.apply-detail-image {
+	flex: 0 0 148px;
+	width: 148px;
+	height: 148px;
+	border-radius: 8px;
+	background: #f0f4f1;
+	box-shadow: inset 0 0 0 1px #e5ebe6;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.apply-detail-grid {
+	display: grid;
+	flex: 1;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	min-width: 0;
+}
+
+.detail-cell {
+	min-height: 58px;
+	padding: 10px 12px;
+	border: 1px solid #edf2f7;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.detail-cell label {
+	display: block;
+	margin: 0 0 6px;
+	color: #7b8794;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.detail-cell span {
+	color: #2f3b46;
+	font-size: 14px;
+	line-height: 20px;
+	word-break: break-word;
+}
+
+.detail-cell-full {
+	grid-column: 1 / -1;
+}
+
+.apply-collapse /deep/ .el-tag {
+	border-radius: 999px;
+	font-weight: 700;
+}
+
+@media (max-width: 960px) {
+	.apply-collapse /deep/ .el-collapse-item__header {
+		padding: 0;
+	}
+	.apply-row-summary,
+	.apply-detail {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.apply-index,
+	.apply-check,
+	.apply-thumb {
+		flex: none;
+	}
+	.apply-title-line,
+	.apply-actions {
+		justify-content: flex-start;
+	}
+	.apply-title,
+	.apply-meta span {
+		max-width: 100%;
+		white-space: normal;
+	}
+	.apply-detail-grid {
+		grid-template-columns: 1fr;
+	}
+	.apply-detail-image {
+		width: 100%;
+		max-width: 220px;
 	}
 }
 </style>

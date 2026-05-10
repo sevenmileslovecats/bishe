@@ -56,114 +56,25 @@
 				</el-button>
 			</div>
 			<div class="list">
-				<el-table class="tables" :stripe='false'
-					:style='{"width":"100%","padding":"0","borderColor":"#eee","borderStyle":"solid","borderWidth":"1px 0 0 1px","background":"#fff"}' 
-					:border='true' 
-					:data="dataList">
-					<el-table-column :resizable='true' :sortable='false'
-						prop="shiyongrenshu"
-						label="使用人数">
-						<template slot-scope="scope">
-							{{scope.row.shiyongrenshu}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="jutiyongtu"
-						label="具体用途">
-						<template slot-scope="scope">
-							{{scope.row.jutiyongtu}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' prop="changjingzhaopian" width="200" label="场景照片">
-						<template slot-scope="scope">
-							<div v-if="scope.row.changjingzhaopian">
-								<img v-if="scope.row.changjingzhaopian.substring(0,4)=='http'&&scope.row.changjingzhaopian.split(',w').length>1" :src="scope.row.changjingzhaopian" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.changjingzhaopian)">
-								<img v-else-if="scope.row.changjingzhaopian.substring(0,4)=='http'" :src="scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(scope.row.changjingzhaopian.split(',')[0])">
-								<img v-else :src="baseUrl+scope.row.changjingzhaopian.split(',')[0]" width="100" height="100" style="object-fit: cover" @error="$event.target.style.display='none'" @click="imgPreView(baseUrl+scope.row.changjingzhaopian.split(',')[0])">
-							</div>
-							<div v-else>无图片</div>
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="fankuishijian"
-						label="反馈时间">
-						<template slot-scope="scope">
-							{{scope.row.fankuishijian}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="shenlingbianhao"
-						label="申领编号">
-						<template slot-scope="scope">
-							{{scope.row.shenlingbianhao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzimingcheng"
-						label="物资名称">
-						<template slot-scope="scope">
-							{{scope.row.wuzimingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzizhonglei"
-						label="物资种类">
-						<template slot-scope="scope">
-							{{scope.row.wuzizhonglei}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="jigouzhanghao"
-						label="机构账号">
-						<template slot-scope="scope">
-							{{scope.row.jigouzhanghao}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="jigoumingcheng"
-						label="机构名称">
-						<template slot-scope="scope">
-							{{scope.row.jigoumingcheng}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="wuzishuliang"
-						label="出库数量">
-						<template slot-scope="scope">
-							{{scope.row.wuzishuliang}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="discussnum"
-						label="评论数">
-						<template slot-scope="scope">
-							{{scope.row.discussnum}}
-						</template>
-					</el-table-column>
-					<el-table-column :resizable='true' :sortable='false'
-						prop="storeupnum"
-						label="收藏数">
-						<template slot-scope="scope">
-							{{scope.row.storeupnum}}
-						</template>
-					</el-table-column>
-					<el-table-column width="300" label="操作">
-						<template slot-scope="scope">
-							<el-button class="table-view" type="success" @click.native="toDetail(scope.row)">
-								<span class="icon iconfont icon-fangdajing02"></span>
-								查看
-							</el-button>
-							<el-button class="table-btn1" type="success" @click.native="discussClick(scope.row)" v-if="btnAuth('shiyongfankui','查看评论')">
-								<span class="icon iconfont icon-xiaoxi-zhihui"></span>
-								查看评论
-							</el-button>
-							<el-button class="table-btn5" type="success" @click.native="chapterClick(scope.row)" v-if="btnAuth('shiyongfankui','章节管理')">
-								<span class="icon iconfont icon-zhangjie7"></span>
-								章节管理
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
+				<div v-if="dataList.length" class="feedback-waterfall">
+					<div
+						class="feedback-card"
+						v-for="item in dataList"
+						:key="item.id"
+						@click="toDetail(item)"
+					>
+						<div class="feedback-cover" @click.stop="getImageUrl(item) && imgPreView(getImageUrl(item))">
+							<img v-if="getImageUrl(item)" :src="getImageUrl(item)" @error="$event.target.style.display='none'">
+							<span v-else>暂无图片</span>
+						</div>
+						<div class="feedback-card-body">
+							<h3>{{formatCardText(item.wuzimingcheng, '未命名物资')}}</h3>
+							<p>{{formatCardText(item.jutiyongtu, '暂无用途说明')}}</p>
+							<div class="feedback-time">{{formatCardText(item.fankuishijian, '暂无反馈时间')}}</div>
+						</div>
+					</div>
+				</div>
+				<div v-else class="feedback-empty">暂无使用反馈数据</div>
 			</div>
 
 	
@@ -333,6 +244,21 @@
 			},
 			nextClick(page) {
 				this.getList(page);
+			},
+			getImageUrl(row) {
+				if (!row || !row.changjingzhaopian) {
+					return ''
+				}
+				if (row.changjingzhaopian.substring(0, 4) === 'http' && row.changjingzhaopian.split(',w').length > 1) {
+					return row.changjingzhaopian
+				}
+				if (row.changjingzhaopian.substring(0, 4) === 'http') {
+					return row.changjingzhaopian.split(',')[0]
+				}
+				return this.baseUrl + row.changjingzhaopian.split(',')[0]
+			},
+			formatCardText(value, fallback) {
+				return value !== undefined && value !== null && value !== '' ? value : fallback
 			},
 			imgPreView(url){
 				this.previewImg = url
@@ -1114,12 +1040,91 @@
 	background: #4f9f45 !important;
 }
 .list-preview .list {
-	padding: 16px !important;
+	padding: 14px !important;
 	border: 1px solid #e6edf5 !important;
 	border-radius: 8px !important;
-	background: #fff !important;
-	box-shadow: 0 10px 28px rgba(32, 45, 64, .07) !important;
-	overflow-x: auto;
+	background: #f8fafc !important;
+	box-shadow: none !important;
+	overflow: visible;
+}
+.feedback-waterfall {
+	column-count: 4;
+	column-gap: 14px;
+	width: 100%;
+}
+.feedback-card {
+	display: inline-block;
+	width: 100%;
+	margin: 0 0 14px;
+	border: 1px solid #e3eaf2;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 6px 16px rgba(32, 45, 64, .05);
+	overflow: hidden;
+	cursor: pointer;
+	transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+	break-inside: avoid;
+}
+.feedback-card:hover {
+	transform: translateY(-2px);
+	border-color: #cfddea;
+	box-shadow: 0 10px 22px rgba(32, 45, 64, .1);
+}
+.feedback-cover {
+	width: 100%;
+	min-height: 136px;
+	background: #edf3f7;
+	cursor: zoom-in;
+}
+.feedback-cover img {
+	display: block;
+	width: 100%;
+	height: auto;
+	min-height: 136px;
+	max-height: 220px;
+	object-fit: cover;
+}
+.feedback-cover span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 136px;
+	color: #9aa6b2;
+	font-size: 13px;
+}
+.feedback-card-body {
+	padding: 10px 12px 12px;
+}
+.feedback-card-body h3 {
+	margin: 0 0 6px;
+	color: #22302a;
+	font-size: 15px;
+	font-weight: 800;
+	line-height: 22px;
+}
+.feedback-card-body p {
+	display: -webkit-box;
+	margin: 0 0 10px;
+	overflow: hidden;
+	color: #526170;
+	font-size: 13px;
+	line-height: 20px;
+	text-overflow: ellipsis;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+.feedback-time {
+	color: #8a96a3;
+	font-size: 12px;
+	line-height: 18px;
+}
+.feedback-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 180px;
+	color: #8a96a3;
+	font-size: 14px;
 }
 .tables {
 	min-width: 1280px;
@@ -1202,6 +1207,11 @@
 	margin: 16px 0 0 !important;
 	justify-content: flex-end !important;
 }
+@media (max-width: 1280px) {
+	.feedback-waterfall {
+		column-count: 3;
+	}
+}
 @media (max-width: 960px) {
 	.list-preview {
 		padding: 14px !important;
@@ -1210,6 +1220,19 @@
 	.list-form-pv .el-form-item,
 	.list-form-pv /deep/ .el-input {
 		width: 100% !important;
+	}
+	.feedback-waterfall {
+		column-count: 2;
+	}
+}
+@media (max-width: 640px) {
+	.feedback-waterfall {
+		column-count: 1;
+	}
+	.feedback-cover,
+	.feedback-cover img,
+	.feedback-cover span {
+		min-height: 140px;
 	}
 }
 </style>
