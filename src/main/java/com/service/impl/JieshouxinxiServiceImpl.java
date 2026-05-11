@@ -59,6 +59,4 @@ public class JieshouxinxiServiceImpl extends ServiceImpl<JieshouxinxiDao, Jiesho
 	public JieshouxinxiView selectView(Wrapper<JieshouxinxiEntity> wrapper) {
 		return baseMapper.selectView(wrapper);
 	}
-
-
 }

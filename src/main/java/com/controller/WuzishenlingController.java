@@ -49,15 +49,6 @@ public class WuzishenlingController {
 
     @Autowired
     private WuzixinxiService wuzixinxiService;
-
-
-
-
-
-
-
-
-
     /**
      * 功能：分页查询物资申领数据。
      * 使用端：管理端物资申领管理列表页。
@@ -349,12 +340,6 @@ public class WuzishenlingController {
         wuzishenlingService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
-
-
-
-
-
 
     /**
      * 功能：统计物资申领图表数值。

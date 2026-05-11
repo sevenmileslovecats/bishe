@@ -65,8 +65,6 @@ public class NewsController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
     /**
      * 功能：查询公告信息前台列表数据。
      * 使用端：前台公告信息列表页，部分管理端通用列表也会复用。
@@ -86,10 +84,6 @@ public class NewsController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询公告信息不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -101,7 +95,6 @@ public class NewsController {
       	ew.allEq(MPUtil.allEQMapPre( news, "news"));
         return R.ok().put("data", newsService.selectListView(ew));
     }
-
     /**
      * 功能：按条件查询单条公告信息视图数据。
      * 使用端：前后台表单联动或详情回显辅助接口。
@@ -114,7 +107,6 @@ public class NewsController {
 		NewsView newsView =  newsService.selectView(ew);
 		return R.ok("查询公告信息成功").put("data", newsView);
     }
-
     /**
      * 功能：查询公告信息管理端详情。
      * 使用端：管理端公告信息列表页、编辑页。
@@ -128,7 +120,6 @@ public class NewsController {
         DeSensUtil.desensitize(news,deSens);
         return R.ok().put("data", news);
     }
-
     /**
      * 功能：查询公告信息前台详情。
      * 使用端：前台公告信息详情页或编辑回显页。
@@ -143,10 +134,6 @@ public class NewsController {
         DeSensUtil.desensitize(news,deSens);
         return R.ok().put("data", news);
     }
-
-
-
-
     /**
      * 功能：管理端新增公告信息记录。
      * 使用端：管理端公告信息新增表单。
@@ -159,7 +146,6 @@ public class NewsController {
         newsService.insert(news);
         return R.ok().put("data",news.getId());
     }
-
     /**
      * 功能：前台新增公告信息记录。
      * 使用端：前台公告信息新增表单或详情页操作。
@@ -172,11 +158,6 @@ public class NewsController {
         newsService.insert(news);
         return R.ok().put("data",news.getId());
     }
-
-
-
-
-
     /**
      * 功能：修改公告信息记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -191,11 +172,6 @@ public class NewsController {
         newsService.updateById(news);
         return R.ok();
     }
-
-
-
-
-
     /**
      * 功能：删除公告信息记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -207,14 +183,4 @@ public class NewsController {
         newsService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
-
-
-
-
-
-
-
-
-
 }

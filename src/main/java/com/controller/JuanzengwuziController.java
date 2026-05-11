@@ -46,16 +46,6 @@ import java.io.IOException;
 public class JuanzengwuziController {
     @Autowired
     private JuanzengwuziService juanzengwuziService;
-
-
-
-
-
-
-
-
-
-
     /**
      * 功能：分页查询捐赠物资数据。
      * 使用端：管理端捐赠物资管理列表页。
@@ -116,10 +106,6 @@ public class JuanzengwuziController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询捐赠物资不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -173,10 +159,6 @@ public class JuanzengwuziController {
         DeSensUtil.desensitize(juanzengwuzi,deSens);
         return R.ok().put("data", juanzengwuzi);
     }
-
-
-
-
     /**
      * 功能：管理端新增捐赠物资记录。
      * 使用端：管理端捐赠物资新增表单。
@@ -202,11 +184,6 @@ public class JuanzengwuziController {
         juanzengwuziService.insert(juanzengwuzi);
         return R.ok().put("data",juanzengwuzi.getId());
     }
-
-
-
-
-
     /**
      * 功能：修改捐赠物资记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -242,9 +219,6 @@ public class JuanzengwuziController {
         return R.ok();
     }
 
-
-
-
     /**
      * 功能：删除捐赠物资记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -256,13 +230,6 @@ public class JuanzengwuziController {
         juanzengwuziService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
-
-
-
-
-
-
     /**
      * 功能：统计捐赠物资图表数值。
      * 使用端：管理端首页统计、模块统计图表。
@@ -331,7 +298,6 @@ public class JuanzengwuziController {
         }
         return R.ok().put("data", result);
     }
-
     /**
      * 功能：统计捐赠物资图表数值。
      * 使用端：管理端首页统计、模块统计图表。
@@ -404,7 +370,6 @@ public class JuanzengwuziController {
         }
         return R.ok().put("data", result2);
     }
-
     /**
      * 功能：统计捐赠物资图表数值。
      * 使用端：管理端首页统计、模块统计图表。
@@ -473,7 +438,6 @@ public class JuanzengwuziController {
         }
         return R.ok().put("data", result);
     }
-
     /**
      * 功能：统计捐赠物资图表数值。
      * 使用端：管理端首页统计、模块统计图表。
@@ -546,7 +510,6 @@ public class JuanzengwuziController {
         }
         return R.ok().put("data", result2);
     }
-
     /**
      * 功能：按字段分组统计捐赠物资数据。
      * 使用端：管理端首页统计、前台统计图表。
@@ -605,10 +568,6 @@ public class JuanzengwuziController {
         }
         return R.ok().put("data", result);
     }
-
-
-
-
     /**
      * 功能：统计捐赠物资总数。
      * 使用端：首页总数卡片或模块统计区域。

@@ -334,12 +334,6 @@ public class WuzixinxiController {
         res.put("data",list.stream().map(WuzixinxiEntity::getWuzimingcheng).collect(Collectors.toList()));
         return R.ok(res);
 	}
-
-
-
-
-
-
     /**
      * 功能：统计物资信息图表数值。
      * 使用端：管理端首页统计、模块统计图表。

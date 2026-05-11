@@ -46,16 +46,6 @@ import java.io.IOException;
 public class YiyifankuiController {
     @Autowired
     private YiyifankuiService yiyifankuiService;
-
-
-
-
-
-
-
-
-
-
     /**
      * 功能：分页查询异议反馈数据。
      * 使用端：管理端异议反馈管理列表页。
@@ -79,8 +69,6 @@ public class YiyifankuiController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
     /**
      * 功能：查询异议反馈前台列表数据。
      * 使用端：前台异议反馈列表页，部分管理端通用列表也会复用。
@@ -108,10 +96,6 @@ public class YiyifankuiController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询异议反馈不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -123,7 +107,6 @@ public class YiyifankuiController {
       	ew.allEq(MPUtil.allEQMapPre( yiyifankui, "yiyifankui"));
         return R.ok().put("data", yiyifankuiService.selectListView(ew));
     }
-
     /**
      * 功能：按条件查询单条异议反馈视图数据。
      * 使用端：前后台表单联动或详情回显辅助接口。
@@ -136,7 +119,6 @@ public class YiyifankuiController {
 		YiyifankuiView yiyifankuiView =  yiyifankuiService.selectView(ew);
 		return R.ok("查询异议反馈成功").put("data", yiyifankuiView);
     }
-
     /**
      * 功能：查询异议反馈管理端详情。
      * 使用端：管理端异议反馈列表页、编辑页。
@@ -150,7 +132,6 @@ public class YiyifankuiController {
         DeSensUtil.desensitize(yiyifankui,deSens);
         return R.ok().put("data", yiyifankui);
     }
-
     /**
      * 功能：查询异议反馈前台详情。
      * 使用端：前台异议反馈详情页或编辑回显页。
@@ -165,10 +146,6 @@ public class YiyifankuiController {
         DeSensUtil.desensitize(yiyifankui,deSens);
         return R.ok().put("data", yiyifankui);
     }
-
-
-
-
     /**
      * 功能：管理端新增异议反馈记录。
      * 使用端：管理端异议反馈新增表单。
@@ -181,7 +158,6 @@ public class YiyifankuiController {
         yiyifankuiService.insert(yiyifankui);
         return R.ok().put("data",yiyifankui.getId());
     }
-
     /**
      * 功能：前台新增异议反馈记录。
      * 使用端：前台异议反馈新增表单或详情页操作。
@@ -194,11 +170,6 @@ public class YiyifankuiController {
         yiyifankuiService.insert(yiyifankui);
         return R.ok().put("data",yiyifankui.getId());
     }
-
-
-
-
-
     /**
      * 功能：修改异议反馈记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -213,7 +184,6 @@ public class YiyifankuiController {
         yiyifankuiService.updateById(yiyifankui);
         return R.ok();
     }
-
     /**
      * 功能：批量审核异议反馈记录。
      * 使用端：管理端异议反馈审核按钮。
@@ -233,10 +203,6 @@ public class YiyifankuiController {
         yiyifankuiService.updateBatchById(list);
         return R.ok();
     }
-
-
-
-
     /**
      * 功能：删除异议反馈记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -248,14 +214,4 @@ public class YiyifankuiController {
         yiyifankuiService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
-
-
-
-
-
-
-
-
-
 }

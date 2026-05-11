@@ -46,16 +46,6 @@ import java.io.IOException;
 public class JuanzengzhengshuController {
     @Autowired
     private JuanzengzhengshuService juanzengzhengshuService;
-
-
-
-
-
-
-
-
-
-
     /**
      * 功能：分页查询捐赠证书数据。
      * 使用端：管理端捐赠证书管理列表页。
@@ -79,8 +69,6 @@ public class JuanzengzhengshuController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
     /**
      * 功能：查询捐赠证书前台列表数据。
      * 使用端：前台捐赠证书列表页，部分管理端通用列表也会复用。
@@ -112,10 +100,6 @@ public class JuanzengzhengshuController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询捐赠证书不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -127,7 +111,6 @@ public class JuanzengzhengshuController {
       	ew.allEq(MPUtil.allEQMapPre( juanzengzhengshu, "juanzengzhengshu"));
         return R.ok().put("data", juanzengzhengshuService.selectListView(ew));
     }
-
     /**
      * 功能：按条件查询单条捐赠证书视图数据。
      * 使用端：前后台表单联动或详情回显辅助接口。
@@ -140,7 +123,6 @@ public class JuanzengzhengshuController {
 		JuanzengzhengshuView juanzengzhengshuView =  juanzengzhengshuService.selectView(ew);
 		return R.ok("查询捐赠证书成功").put("data", juanzengzhengshuView);
     }
-
     /**
      * 功能：查询捐赠证书管理端详情。
      * 使用端：管理端捐赠证书列表页、编辑页。
@@ -154,7 +136,6 @@ public class JuanzengzhengshuController {
         DeSensUtil.desensitize(juanzengzhengshu,deSens);
         return R.ok().put("data", juanzengzhengshu);
     }
-
     /**
      * 功能：查询捐赠证书前台详情。
      * 使用端：前台捐赠证书详情页或编辑回显页。
@@ -169,10 +150,6 @@ public class JuanzengzhengshuController {
         DeSensUtil.desensitize(juanzengzhengshu,deSens);
         return R.ok().put("data", juanzengzhengshu);
     }
-
-
-
-
     /**
      * 功能：管理端新增捐赠证书记录。
      * 使用端：管理端捐赠证书新增表单。
@@ -185,7 +162,6 @@ public class JuanzengzhengshuController {
         juanzengzhengshuService.insert(juanzengzhengshu);
         return R.ok().put("data",juanzengzhengshu.getId());
     }
-
     /**
      * 功能：前台新增捐赠证书记录。
      * 使用端：前台捐赠证书新增表单或详情页操作。
@@ -198,11 +174,6 @@ public class JuanzengzhengshuController {
         juanzengzhengshuService.insert(juanzengzhengshu);
         return R.ok().put("data",juanzengzhengshu.getId());
     }
-
-
-
-
-
     /**
      * 功能：修改捐赠证书记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -217,11 +188,6 @@ public class JuanzengzhengshuController {
         juanzengzhengshuService.updateById(juanzengzhengshu);
         return R.ok();
     }
-
-
-
-
-
     /**
      * 功能：删除捐赠证书记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -233,14 +199,4 @@ public class JuanzengzhengshuController {
         juanzengzhengshuService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
-
-
-
-
-
-
-
-
-
 }

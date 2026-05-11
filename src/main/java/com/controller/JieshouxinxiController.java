@@ -46,16 +46,6 @@ import java.io.IOException;
 public class JieshouxinxiController {
     @Autowired
     private JieshouxinxiService jieshouxinxiService;
-
-
-
-
-
-
-
-
-
-
     /**
      * 功能：分页查询接收信息数据。
      * 使用端：管理端接收信息管理列表页。
@@ -79,8 +69,6 @@ public class JieshouxinxiController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
     /**
      * 功能：查询接收信息前台列表数据。
      * 使用端：前台接收信息列表页，部分管理端通用列表也会复用。
@@ -108,10 +96,6 @@ public class JieshouxinxiController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询接收信息不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -123,7 +107,6 @@ public class JieshouxinxiController {
       	ew.allEq(MPUtil.allEQMapPre( jieshouxinxi, "jieshouxinxi"));
         return R.ok().put("data", jieshouxinxiService.selectListView(ew));
     }
-
     /**
      * 功能：按条件查询单条接收信息视图数据。
      * 使用端：前后台表单联动或详情回显辅助接口。
@@ -136,7 +119,6 @@ public class JieshouxinxiController {
 		JieshouxinxiView jieshouxinxiView =  jieshouxinxiService.selectView(ew);
 		return R.ok("查询接收信息成功").put("data", jieshouxinxiView);
     }
-
     /**
      * 功能：查询接收信息管理端详情。
      * 使用端：管理端接收信息列表页、编辑页。
@@ -150,7 +132,6 @@ public class JieshouxinxiController {
         DeSensUtil.desensitize(jieshouxinxi,deSens);
         return R.ok().put("data", jieshouxinxi);
     }
-
     /**
      * 功能：查询接收信息前台详情。
      * 使用端：前台接收信息详情页或编辑回显页。
@@ -165,10 +146,6 @@ public class JieshouxinxiController {
         DeSensUtil.desensitize(jieshouxinxi,deSens);
         return R.ok().put("data", jieshouxinxi);
     }
-
-
-
-
     /**
      * 功能：管理端新增接收信息记录。
      * 使用端：管理端接收信息新增表单。
@@ -181,7 +158,6 @@ public class JieshouxinxiController {
         jieshouxinxiService.insert(jieshouxinxi);
         return R.ok().put("data",jieshouxinxi.getId());
     }
-
     /**
      * 功能：前台新增接收信息记录。
      * 使用端：前台接收信息新增表单或详情页操作。
@@ -194,11 +170,6 @@ public class JieshouxinxiController {
         jieshouxinxiService.insert(jieshouxinxi);
         return R.ok().put("data",jieshouxinxi.getId());
     }
-
-
-
-
-
     /**
      * 功能：修改接收信息记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -213,11 +184,6 @@ public class JieshouxinxiController {
         jieshouxinxiService.updateById(jieshouxinxi);
         return R.ok();
     }
-
-
-
-
-
     /**
      * 功能：删除接收信息记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -229,14 +195,6 @@ public class JieshouxinxiController {
         jieshouxinxiService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
-
-
-
-
-
-
-
 
 
 }

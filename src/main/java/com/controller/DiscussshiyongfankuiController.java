@@ -46,16 +46,6 @@ import java.io.IOException;
 public class DiscussshiyongfankuiController {
     @Autowired
     private DiscussshiyongfankuiService discussshiyongfankuiService;
-
-
-
-
-
-
-
-
-
-
     /**
      * 功能：分页查询使用反馈评论数据。
      * 使用端：管理端使用反馈评论管理列表页。
@@ -75,8 +65,6 @@ public class DiscussshiyongfankuiController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
     /**
      * 功能：查询使用反馈评论前台列表数据。
      * 使用端：前台使用反馈评论列表页，部分管理端通用列表也会复用。
@@ -108,10 +96,6 @@ public class DiscussshiyongfankuiController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询使用反馈评论不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -123,7 +107,6 @@ public class DiscussshiyongfankuiController {
       	ew.allEq(MPUtil.allEQMapPre( discussshiyongfankui, "discussshiyongfankui"));
         return R.ok().put("data", discussshiyongfankuiService.selectListView(ew));
     }
-
     /**
      * 功能：按条件查询单条使用反馈评论视图数据。
      * 使用端：前后台表单联动或详情回显辅助接口。
@@ -136,7 +119,6 @@ public class DiscussshiyongfankuiController {
 		DiscussshiyongfankuiView discussshiyongfankuiView =  discussshiyongfankuiService.selectView(ew);
 		return R.ok("查询使用反馈评论成功").put("data", discussshiyongfankuiView);
     }
-
     /**
      * 功能：查询使用反馈评论管理端详情。
      * 使用端：管理端使用反馈评论列表页、编辑页。
@@ -150,7 +132,6 @@ public class DiscussshiyongfankuiController {
         DeSensUtil.desensitize(discussshiyongfankui,deSens);
         return R.ok().put("data", discussshiyongfankui);
     }
-
     /**
      * 功能：查询使用反馈评论前台详情。
      * 使用端：前台使用反馈评论详情页或编辑回显页。
@@ -165,10 +146,6 @@ public class DiscussshiyongfankuiController {
         DeSensUtil.desensitize(discussshiyongfankui,deSens);
         return R.ok().put("data", discussshiyongfankui);
     }
-
-
-
-
     /**
      * 功能：管理端新增使用反馈评论记录。
      * 使用端：管理端使用反馈评论新增表单。
@@ -181,7 +158,6 @@ public class DiscussshiyongfankuiController {
         discussshiyongfankuiService.insert(discussshiyongfankui);
         return R.ok().put("data",discussshiyongfankui.getId());
     }
-
     /**
      * 功能：前台新增使用反馈评论记录。
      * 使用端：前台使用反馈评论新增表单或详情页操作。
@@ -194,9 +170,6 @@ public class DiscussshiyongfankuiController {
         discussshiyongfankuiService.insert(discussshiyongfankui);
         return R.ok().put("data",discussshiyongfankui.getId());
     }
-
-
-
     /**
      * 功能：校验使用反馈评论账号是否存在。
      * 使用端：注册、找回或账号校验表单。
@@ -208,8 +181,6 @@ public class DiscussshiyongfankuiController {
         DiscussshiyongfankuiEntity discussshiyongfankui = discussshiyongfankuiService.selectOne(new EntityWrapper<DiscussshiyongfankuiEntity>().eq("", username));
         return R.ok().put("data", discussshiyongfankui);
     }
-
-
     /**
      * 功能：修改使用反馈评论记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -224,11 +195,6 @@ public class DiscussshiyongfankuiController {
         discussshiyongfankuiService.updateById(discussshiyongfankui);
         return R.ok();
     }
-
-
-
-
-
     /**
      * 功能：删除使用反馈评论记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -240,7 +206,6 @@ public class DiscussshiyongfankuiController {
         discussshiyongfankuiService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
     /**
      * 功能：按点击量等条件返回使用反馈评论自动排序列表。
      * 使用端：前台推荐列表或首页推荐区域。
@@ -272,13 +237,4 @@ public class DiscussshiyongfankuiController {
 		PageUtils page = discussshiyongfankuiService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, discussshiyongfankui), params), params));
         return R.ok().put("data", page);
     }
-
-
-
-
-
-
-
-
-
 }

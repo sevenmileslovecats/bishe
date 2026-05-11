@@ -47,15 +47,6 @@ public class SyslogController {
     @Autowired
     private SyslogService syslogService;
 
-
-
-
-
-
-
-
-
-
     /**
      * 功能：分页查询系统日志数据。
      * 使用端：管理端系统日志管理列表页。
@@ -75,8 +66,6 @@ public class SyslogController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
     /**
      * 功能：查询系统日志前台列表数据。
      * 使用端：前台系统日志列表页，部分管理端通用列表也会复用。
@@ -96,10 +85,6 @@ public class SyslogController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询系统日志不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -111,7 +96,6 @@ public class SyslogController {
       	ew.allEq(MPUtil.allEQMapPre( syslog, "syslog"));
         return R.ok().put("data", syslogService.selectListView(ew));
     }
-
     /**
      * 功能：按条件查询单条系统日志视图数据。
      * 使用端：前后台表单联动或详情回显辅助接口。
@@ -124,7 +108,6 @@ public class SyslogController {
 		SyslogView syslogView =  syslogService.selectView(ew);
 		return R.ok("查询系统日志成功").put("data", syslogView);
     }
-
     /**
      * 功能：查询系统日志管理端详情。
      * 使用端：管理端系统日志列表页、编辑页。
@@ -138,7 +121,6 @@ public class SyslogController {
         DeSensUtil.desensitize(syslog,deSens);
         return R.ok().put("data", syslog);
     }
-
     /**
      * 功能：查询系统日志前台详情。
      * 使用端：前台系统日志详情页或编辑回显页。
@@ -153,10 +135,6 @@ public class SyslogController {
         DeSensUtil.desensitize(syslog,deSens);
         return R.ok().put("data", syslog);
     }
-
-
-
-
     /**
      * 功能：管理端新增系统日志记录。
      * 使用端：管理端系统日志新增表单。
@@ -169,7 +147,6 @@ public class SyslogController {
         syslogService.insert(syslog);
         return R.ok().put("data",syslog.getId());
     }
-
     /**
      * 功能：前台新增系统日志记录。
      * 使用端：前台系统日志新增表单或详情页操作。
@@ -182,9 +159,6 @@ public class SyslogController {
         syslogService.insert(syslog);
         return R.ok().put("data",syslog.getId());
     }
-
-
-
     /**
      * 功能：校验系统日志账号是否存在。
      * 使用端：注册、找回或账号校验表单。
@@ -196,8 +170,6 @@ public class SyslogController {
         SyslogEntity syslog = syslogService.selectOne(new EntityWrapper<SyslogEntity>().eq("", username));
         return R.ok().put("data", syslog);
     }
-
-
     /**
      * 功能：修改系统日志记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -212,11 +184,6 @@ public class SyslogController {
         syslogService.updateById(syslog);
         return R.ok();
     }
-
-
-
-
-
     /**
      * 功能：删除系统日志记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -228,7 +195,6 @@ public class SyslogController {
         syslogService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
     /**
      * 功能：按点击量等条件返回系统日志自动排序列表。
      * 使用端：前台推荐列表或首页推荐区域。
@@ -260,13 +226,4 @@ public class SyslogController {
 		PageUtils page = syslogService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, syslog), params), params));
         return R.ok().put("data", page);
     }
-
-
-
-
-
-
-
-
-
 }

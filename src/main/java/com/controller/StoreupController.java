@@ -46,16 +46,6 @@ import java.io.IOException;
 public class StoreupController {
     @Autowired
     private StoreupService storeupService;
-
-
-
-
-
-
-
-
-
-
     /**
      * 功能：分页查询收藏/评论数据。
      * 使用端：管理端收藏/评论管理列表页。
@@ -78,8 +68,6 @@ public class StoreupController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
     /**
      * 功能：查询收藏/评论前台列表数据。
      * 使用端：前台收藏/评论列表页，部分管理端通用列表也会复用。
@@ -99,10 +87,6 @@ public class StoreupController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询收藏/评论不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -114,7 +98,6 @@ public class StoreupController {
       	ew.allEq(MPUtil.allEQMapPre( storeup, "storeup"));
         return R.ok().put("data", storeupService.selectListView(ew));
     }
-
     /**
      * 功能：按条件查询单条收藏/评论视图数据。
      * 使用端：前后台表单联动或详情回显辅助接口。
@@ -127,7 +110,6 @@ public class StoreupController {
 		StoreupView storeupView =  storeupService.selectView(ew);
 		return R.ok("查询收藏表成功").put("data", storeupView);
     }
-
     /**
      * 功能：查询收藏/评论管理端详情。
      * 使用端：管理端收藏/评论列表页、编辑页。
@@ -141,7 +123,6 @@ public class StoreupController {
         DeSensUtil.desensitize(storeup,deSens);
         return R.ok().put("data", storeup);
     }
-
     /**
      * 功能：查询收藏/评论前台详情。
      * 使用端：前台收藏/评论详情页或编辑回显页。
@@ -156,10 +137,6 @@ public class StoreupController {
         DeSensUtil.desensitize(storeup,deSens);
         return R.ok().put("data", storeup);
     }
-
-
-
-
     /**
      * 功能：管理端新增收藏/评论记录。
      * 使用端：管理端收藏/评论新增表单。
@@ -175,7 +152,6 @@ public class StoreupController {
         storeupService.insert(storeup);
         return R.ok().put("data",storeup.getId());
     }
-
     /**
      * 功能：前台新增收藏/评论记录。
      * 使用端：前台收藏/评论新增表单或详情页操作。
@@ -188,9 +164,6 @@ public class StoreupController {
         storeupService.insert(storeup);
         return R.ok().put("data",storeup.getId());
     }
-
-
-
     /**
      * 功能：校验收藏/评论账号是否存在。
      * 使用端：注册、找回或账号校验表单。
@@ -202,8 +175,6 @@ public class StoreupController {
         StoreupEntity storeup = storeupService.selectOne(new EntityWrapper<StoreupEntity>().eq("", username));
         return R.ok().put("data", storeup);
     }
-
-
     /**
      * 功能：修改收藏/评论记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -218,11 +189,6 @@ public class StoreupController {
         storeupService.updateById(storeup);
         return R.ok();
     }
-
-
-
-
-
     /**
      * 功能：删除收藏/评论记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -234,7 +200,6 @@ public class StoreupController {
         storeupService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
     /**
      * 功能：按点击量等条件返回收藏/评论自动排序列表。
      * 使用端：前台推荐列表或首页推荐区域。
@@ -266,13 +231,4 @@ public class StoreupController {
 		PageUtils page = storeupService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.likeOrEq(ew, storeup), params), params));
         return R.ok().put("data", page);
     }
-
-
-
-
-
-
-
-
-
 }

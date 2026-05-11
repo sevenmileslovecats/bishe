@@ -48,13 +48,6 @@ import java.io.IOException;
 public class JieshoujigouController {
     @Autowired
     private JieshoujigouService jieshoujigouService;
-
-
-
-
-
-
-
 	@Autowired
 	private TokenService tokenService;
 
@@ -87,9 +80,6 @@ public class JieshoujigouController {
         //返回token
 		return R.ok().put("token", token);
 	}
-
-
-
     /**
      * 功能：注册接收机构账号。
      * 使用端：前台注册页或管理端注册入口。
@@ -110,9 +100,6 @@ public class JieshoujigouController {
         jieshoujigouService.insert(jieshoujigou);
         return R.ok();
     }
-
-
-
     /**
      * 功能：退出当前接收机构登录会话。
      * 使用端：管理端/前台顶部退出登录按钮。
@@ -123,7 +110,6 @@ public class JieshoujigouController {
 		request.getSession().invalidate();
 		return R.ok("退出成功");
 	}
-
     /**
      * 功能：获取当前登录接收机构的 Session 用户信息。
      * 使用端：个人中心、表单自动带入当前用户信息。
@@ -135,7 +121,6 @@ public class JieshoujigouController {
         JieshoujigouEntity u = jieshoujigouService.selectById(id);
         return R.ok().put("data", u);
     }
-
     /**
      * 功能：重置接收机构账号密码。
      * 使用端：管理端账号维护或找回密码流程。
@@ -154,7 +139,6 @@ public class JieshoujigouController {
         jieshoujigouService.updateById(u);
         return R.ok("密码已重置为：123456");
     }
-
     /**
      * 功能：查询接收机构账号列表。
      * 使用端：后台账号选择、关联账号下拉场景。
@@ -172,12 +156,6 @@ public class JieshoujigouController {
         }).collect(Collectors.toList());
         return R.ok().put("data", list);
     }
-
-
-
-
-
-
     /**
      * 功能：分页查询接收机构数据。
      * 使用端：管理端接收机构管理列表页。
@@ -197,8 +175,6 @@ public class JieshoujigouController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
     /**
      * 功能：查询接收机构前台列表数据。
      * 使用端：前台接收机构列表页，部分管理端通用列表也会复用。
@@ -222,10 +198,6 @@ public class JieshoujigouController {
         DeSensUtil.desensitize(page,deSens);
         return R.ok().put("data", page);
     }
-
-
-
-
     /**
      * 功能：查询接收机构不分页列表。
      * 使用端：前后台表单页的下拉、联动和重复校验场景。
@@ -237,7 +209,6 @@ public class JieshoujigouController {
       	ew.allEq(MPUtil.allEQMapPre( jieshoujigou, "jieshoujigou"));
         return R.ok().put("data", jieshoujigouService.selectListView(ew));
     }
-
     /**
      * 功能：按条件查询单条接收机构视图数据。
      * 使用端：前后台表单联动或详情回显辅助接口。
@@ -250,7 +221,6 @@ public class JieshoujigouController {
 		JieshoujigouView jieshoujigouView =  jieshoujigouService.selectView(ew);
 		return R.ok("查询接收机构成功").put("data", jieshoujigouView);
     }
-
     /**
      * 功能：查询接收机构管理端详情。
      * 使用端：管理端接收机构列表页、编辑页。
@@ -264,7 +234,6 @@ public class JieshoujigouController {
         DeSensUtil.desensitize(jieshoujigou,deSens);
         return R.ok().put("data", jieshoujigou);
     }
-
     /**
      * 功能：查询接收机构前台详情。
      * 使用端：前台接收机构详情页或编辑回显页。
@@ -279,10 +248,6 @@ public class JieshoujigouController {
         DeSensUtil.desensitize(jieshoujigou,deSens);
         return R.ok().put("data", jieshoujigou);
     }
-
-
-
-
     /**
      * 功能：管理端新增接收机构记录。
      * 使用端：管理端接收机构新增表单。
@@ -302,7 +267,6 @@ public class JieshoujigouController {
         jieshoujigouService.insert(jieshoujigou);
         return R.ok().put("data",jieshoujigou.getId());
     }
-
     /**
      * 功能：前台新增接收机构记录。
      * 使用端：前台接收机构新增表单或详情页操作。
@@ -322,11 +286,6 @@ public class JieshoujigouController {
         jieshoujigouService.insert(jieshoujigou);
         return R.ok().put("data",jieshoujigou.getId());
     }
-
-
-
-
-
     /**
      * 功能：修改接收机构记录。
      * 使用端：管理端编辑页、前台个人中心或详情页操作。
@@ -348,7 +307,6 @@ public class JieshoujigouController {
         }
         return R.ok();
     }
-
     /**
      * 功能：批量审核接收机构记录。
      * 使用端：管理端接收机构审核按钮。
@@ -368,10 +326,6 @@ public class JieshoujigouController {
         jieshoujigouService.updateBatchById(list);
         return R.ok();
     }
-
-
-
-
     /**
      * 功能：删除接收机构记录。
      * 使用端：管理端列表页或前台详情页/我的列表。
@@ -383,14 +337,4 @@ public class JieshoujigouController {
         jieshoujigouService.deleteBatchIds(Arrays.asList(ids));
         return R.ok();
     }
-
-
-
-
-
-
-
-
-
-
 }
